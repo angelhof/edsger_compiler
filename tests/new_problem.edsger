@@ -1,0 +1,5 @@
+int popi(){
+	int *a;
+	a = new int + 5;
+	a = new int *;
+}

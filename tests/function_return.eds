@@ -1,0 +1,14 @@
+int pipo(){
+	return 2;
+}
+int kaka();
+int kaka(){
+	return 1;
+}
+void liko(){
+	return;
+}
+
+int main(){
+	return 0;
+}

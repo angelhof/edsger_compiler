@@ -1,0 +1,55 @@
+#include "stdio.h"
+
+int yolo(int a, int b, int c);
+int yolo(int a, int b);  //EDW ORIZEIS DINARTISI DEUTERH FORA
+
+int yolo(int a, int b, int d) 
+{
+	int c;
+	double e;
+	
+	c = a;
+	return c;
+}
+
+int yolo(int a, int b) 
+{
+	int c;
+	double e;
+	
+	c = a;
+	return c;
+}
+
+
+int yolo1(int a, int b, int d) 
+{
+	int c;
+	double e;
+	
+	c = a;
+	return c;
+}
+
+
+void main ()
+{
+	int	n, k, i, seed;
+	double sum;
+	char p;
+	
+	n = yolo(n, i);  //EDW ORIZEIS TO RETURN_TYPE, TO NUMBER OF ARGUMENTS, K ARGUMENTS_TYPE
+	writeString("Give n: ");
+	n = readInteger();
+	writeString("Give k: ");
+	k = readInteger();
+	k=5;
+	for (i = 0, sum = 0.0, seed = 65; i < k; i++)
+		sum += (double) (seed = (seed * 137 + 221 + i) % n);
+
+	if (k > 0) {
+		writeString("Mean: ");
+		writeReal(sum / (double) k);
+		writeString("\n");
+	}
+}

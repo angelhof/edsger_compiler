@@ -1,0 +1,21 @@
+int main(){
+
+	for(1+2; false; 2+5) 3+8;
+
+	for(3+4; false; 2+7){
+		3 + 6;
+		if(false) {
+			3+8;
+
+		}
+		break;
+		1+8;
+	}
+
+
+	1 + 2 ;
+
+	return 2;
+	3 + 4;
+	return 4;
+}

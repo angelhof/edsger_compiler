@@ -1,0 +1,27 @@
+void pipi(int a, int b){
+	1;
+}
+
+void pipi(int a, int b, int c){
+	2;
+}
+void pipi(int a, char b){
+	3;
+}
+
+void pipi(int a, int b){
+	4;
+}
+
+int main(){
+
+	void pipi(int a){
+		4;
+	}
+
+	pipi(1,2);
+	pipi(1,2,3);
+	pipi(1,'a');
+	pipi(1);
+
+}

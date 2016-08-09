@@ -1,0 +1,9 @@
+int main(){
+
+	// Return na teleiwnei thn protash enos if pou bgainei false bgazei seg fault
+	if(false){
+		return 5;
+	}
+
+	return 0;
+}

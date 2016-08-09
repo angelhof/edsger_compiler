@@ -1,0 +1,11 @@
+
+
+
+
+int main(){
+	int pipipo(int x, int y, int z){
+		return 1;
+	}
+
+	pipipo(1,1,1);
+}

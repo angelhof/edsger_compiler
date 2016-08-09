@@ -1,0 +1,15 @@
+int papotsi(int a){
+	return 0;
+}
+
+int carotsi(int a){
+	return 0;
+}
+
+int main(){
+
+	int i;
+
+	return papotsi(0);	
+}
+

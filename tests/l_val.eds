@@ -1,0 +1,41 @@
+int main() {
+	
+	int *p;
+	int k;
+
+	//This should fail because of precedence rules
+	//*(p + *p)++;
+
+	// Den xeroume an prepei an skasei
+	//(p+1)++;
+	
+	// Poia apo ta apo katw prepei an ginontai kai poai oxi
+	(1+1+k+1+1+1) = 1;
+
+	(k/=1)/=1;
+
+	(p++)++;
+
+	// Den pernaei
+	//(++p)++;
+
+	(*(p + *p))++;
+
+	p++;
+
+
+
+
+	*(p+1) = 1;
+
+	*(p + *p) = 5;
+
+	*(p + *p)+= 5;
+
+	
+
+	//1 = 5;
+	//5++;
+
+	return 1;
+}

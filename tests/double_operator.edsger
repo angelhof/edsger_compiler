@@ -1,0 +1,19 @@
+#include "stdio.h"
+
+
+void main ()
+{
+	int kokoni;
+	kokoni *= 1;
+	kokoni /= 1;
+	kokoni += 1;
+	kokoni -= 1;
+	kokoni %= 1;
+	true && false, true, false;
+	true || false;
+	kokoni != 1;
+	kokoni >= 1;
+	kokoni <= 1;
+	++kokoni;
+
+}

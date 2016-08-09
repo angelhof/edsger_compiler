@@ -1,0 +1,15 @@
+void bsort (int * x, int n)
+{
+	char *p;
+	int l;
+
+	l=65;
+
+	//(int *)p = &l;
+
+	p = &((char) l);
+
+	p = (char *) l;
+
+	p = (char *) &l;	//correct
+}

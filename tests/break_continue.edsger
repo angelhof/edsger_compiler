@@ -1,0 +1,27 @@
+int pipo(){
+	
+	int *p;
+
+	*p**p;
+
+	papi:for(;;){
+		for(;;){
+			break;
+			continue papi;
+		}
+	}
+
+	papo:for(;;){
+		continue ;
+		break papo;
+	}
+
+	for(;;){
+		for(;;){
+			for(;;){
+			
+			}
+		}
+	}
+
+}

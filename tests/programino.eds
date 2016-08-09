@@ -1,0 +1,59 @@
+#include "stdio.h"
+
+int a;
+
+int OutsideMainFun(int foo, char* bar) {
+    int res;
+
+    res = foo % 42;
+    writeString(bar);
+    writeString("\n");
+
+    return res;    
+}
+
+void main() {
+
+    bool InMainFun() {
+        return false;    
+    }
+
+    bool boolTest;
+    int intTest;
+    int* a;
+    char* test;
+
+    boolTest = 3 > 5 ? true : 10 > 5 ? true : false;
+
+    if (boolTest) {
+        writeString("correct\n");
+    }else {
+        writeString("incorrect\n");
+    }
+
+    /*
+
+    as\\\ng\n\n\\nas\\\
+    \
+    awsgfd*/
+
+    a = new int;
+    *a = 42 % 17;
+    //intTest = *a ? 3 * 7 : 4 * 9 ? true : false;
+
+    //this shouldn't pass the semantic analysis phase
+    
+    if (true)
+        writeString("a\n");
+    else
+        writeString("not a\n");
+
+    test = "outside main\n";
+
+    OutsideMainFun(100, test);
+}
+
+
+
+
+
