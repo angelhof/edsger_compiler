@@ -30,19 +30,22 @@ class IR_State(object):
 	# VERY IMPORTANT
 	#   -> we cannot keep the if blocks here because they are generated automatically
 	block_map = {}
-	#variable map for mapping the variables in the functions FIX ME!!!!!!!!!!!! REAL VARIABLES
+	# variable map for mapping the variables in the functions FIX ME!!!!!!!!!!!! REAL VARIABLES
 	eds_var_map = {}
-	#state of informing whether we are on the right or the left side of the code
+	# state of informing whether we are on the right or the left side of the code
 	left_side = False
+	# Maps the function name to a function (Maybe stack of maps)
+	# Remember to go to its enty block like this -> IRBuilder.goto_entry_block()
+	function_map = {}
 	# Unreachable array so that we go and make sure all unreachable blocks get terminated
 	unreachable_array =[]
 	# Empty Module
 	module = ir.Module(name=__file__)
 	# Create a function inside the module
-	func = ir.Function(module, ir.FunctionType(ir.IntType(32), []), name="main")
+	func = ir.Function(module, ir.FunctionType(ir.IntType(32), []), name="_global_decs_func")
 	# Insert an unreachable block, and the main block
-	block = func.append_basic_block(name="pipi")
-	block_map["pipi"] = block
+	block = func.append_basic_block(name="_global_decs")
+	block_map["_global_decs"] = block
 	# Basic IR module, the builder
 	builder = ir.IRBuilder(block)
 	@classmethod
@@ -57,6 +60,10 @@ class IR_State(object):
 	def code_generation(cls, head):
 		cls.rec_code_generation(head)
 		
+		with cls.builder.goto_block(cls.block):
+			ret_result = ir.Constant(ir.IntType(32), 0)
+			cls.builder.ret(ret_result)
+
 		cls.terminate_blocks()
 
 		print cls.module

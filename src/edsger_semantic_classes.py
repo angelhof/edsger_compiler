@@ -303,20 +303,51 @@ class Function(Identifier):
 		return iter(rlist)
 	
 	def code_gen(self):
-		for element in enlist(self.declarations):
-			for elem in element:
-				elem.code_gen_decl()
-
-		for element in enlist(self.statements):
-			element.code_gen()
+		return self.code_gen_decl()
 
 	def code_gen_decl(self):
-		for element in enlist(self.declarations):
-			for elem in element:
-				elem.code_gen_decl()
 
-		for element in enlist(self.statements):
-			element.code_gen()
+		# TODO: Put also the pointer
+		# Find the arguments types
+		function_arg_types = []
+		for param in self.parameters:
+			if param.type.isBool():
+				arg_type = ir.IntType(1)
+			elif param.type.isChar():
+				arg_type = ir.IntType(8)
+			elif param.type.isInt():
+				arg_type = ir.IntType(32)
+			elif param.type.isDouble():
+				arg_type = ir.DoubleType()
+			else:
+				print "Katholou Kalo error sro code_gen tou Function"
+				exit(1)	
+			function_arg_types.append(arg_type)
+
+		# Find the return type
+		ret_type = ir.IntType(32)
+
+		# Create a new function and and save it at its map 
+		function_type = ir.FunctionType(ret_type, function_arg_types)
+		function = ir.Function(IR_State.module, function_type, name=self.name)
+		IR_State.function_map[self.name] = function
+
+		# Get a new block name and Crete a new block
+		block_name = "_block" + str(IR_State.block_counter)
+		block = function.append_basic_block(name=block_name)
+		IR_State.block_map[block_name] = block
+		IR_State.block_counter += 1
+
+		# TODO: Map the arguments to their real names
+
+		with IR_State.builder.goto_block(block):
+
+			for element in enlist(self.declarations):
+				for elem in element:
+					elem.code_gen_decl()
+
+			for element in enlist(self.statements):
+				element.code_gen()
 		
 
 class If_Statement():
@@ -337,6 +368,7 @@ class If_Statement():
 
 		predicate = self.predicate.code_gen()
 
+		## TODO: Maybe fix the bug with return by using if _then and if_else
 		with IR_State.builder.if_else(predicate) as (then, otherwise):
 		    with then:
 		        # emit instructions for when the predicate is true
@@ -829,6 +861,23 @@ class Function_call(Expr):
 	def __iter__(self):
 		rlist = self.actual_parameters
 		return iter(rlist)
+	def code_gen(self):
+
+		# Get the function from its name
+		function = IR_State.function_map[self.name]
+
+		# Evaluate the args
+		# TODO: Fill
+		args = [ir.Constant(ir.IntType(32), 0)]
+
+		name = "_temp"+str(IR_State.var_counter)		
+		
+		dest = IR_State.builder.call(function, args, name=name)
+
+		IR_State.var_map.append(dest) 
+		IR_State.var_counter += 1
+		
+		return dest
 
 
 class Return():

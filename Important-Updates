@@ -1,0 +1,14 @@
+Here we keep all the choices we took, some implementation difficulties that we faced and the ways we solved them.
+
+
+1) Include Statement
+=====================
+	In order to be able to include external libraries to our main module, we keep a list of all the included files in the program, (also not allowing reincludes). We lex and then parse each file of this list separately and then merge them together when we create the AST.
+
+2) Function Call and Commas
+============================
+	Initially while developing the parser, the function call commas where recognised as binary operation commas, so we had to create a recursive function call rule that absorbs the parameters one by one.
+
+3) Testing
+===========
+	We implemented a testing program that runs on all test input, prints their output in files in the output folder (depending on the debug level) and counts how many of them are correct. 
