@@ -280,6 +280,12 @@ class Parameter(Variable):
 	def __str__(self):
 		return "Parameter( " + str(self.name) + " , " + str(self.byref) + " " + str(self.type) + " )" 	
 
+	def code_gen(self):
+		var_name = self.name 
+		param_value = IR_State.eds_var_map[var_name]
+
+		return param_value
+
 class Function(Identifier):
 	def __init__(self,lineno,r_type, name, parameters = [], declarations = [], statements = []):
 		self.type = r_type
@@ -338,8 +344,31 @@ class Function(Identifier):
 		IR_State.block_map[block_name] = block
 		IR_State.block_counter += 1
 
-		# TODO: Map the arguments to their real names
+		# Map the arguments to their real names
+		for i in range(len(self.parameters)):
+			eds_param_name = self.parameters[i].name
+			llvm_param = function.args[i]
+			# Warning: There is a slight problem here 
+			# The problem is that an argument name that is the same as a name in another function we overwrite it
+			# TODO: Solve this using a eds_var_stack_map
+			IR_State.eds_var_map[eds_param_name] = llvm_param
 
+
+		# TODO: COmplete this
+		# Store as function attributes the byref
+		# We store whether the attributes are byref so that
+		# We can load them properly afterwards
+		for i in range(len(self.parameters)):
+			eds_param_byref = self.parameters[i].byref
+			llvm_param = function.args[i]
+
+			if eds_param_byref == 0:
+				# TODO: uncomment this and find what do we have to do
+				# llvm_param.attributes.add('byval')
+				pass
+
+
+		# Evaluate the function declarations nd statements
 		with IR_State.builder.goto_block(block):
 
 			for element in enlist(self.declarations):
@@ -348,6 +377,8 @@ class Function(Identifier):
 
 			for element in enlist(self.statements):
 				element.code_gen()
+
+
 		
 
 class If_Statement():
@@ -732,14 +763,13 @@ class Node_binary_operation(Expr):
 		return dest
 
 
-
 class Node_pre_unary_assignment(Expr):
 	def __init__(self, operator, exp, lineno, typeop):	
 		self.operator=operator
 		if(self.operator.operator == "b+"):
 			self.operator.operator="++"
 			self.operator.binar = False
-		elif(self.operator =="b-"):
+		elif(self.operator.operator =="b-"):
 			self.operator.operator="--"
 			self.operator.binar = False
 		self.exp=exp
@@ -750,6 +780,37 @@ class Node_pre_unary_assignment(Expr):
 	def __iter__(self):
 		rlist = [self.exp]
 		return iter(rlist)
+
+	def code_gen(self):
+		IR_State.left_side = True
+		left_side = self.exp.code_gen()
+		IR_State.left_side = False
+		var_s1 = self.exp.code_gen()
+		var_s2 = ir.Constant(ir.IntType(32), 1)
+		op_type = self.type
+		
+		name = "_temp"+str(IR_State.var_counter)
+
+		if (self.operator.operator == "++"):
+			if(op_type.isDouble()):
+				var_s2 = ir.Constant(ir.DoubleType(), 1.0)
+				dest = IR_State.builder.fadd(var_s1, var_s2, name=name)
+			else:
+				dest = IR_State.builder.add(var_s1, var_s2, name=name)
+		elif(self.operator.operator == "--"):
+			if(op_type.isDouble()):
+				var_s2 = ir.Constant(ir.DoubleType(), 1.0)
+				dest = IR_State.builder.fsub(var_s1, var_s2, name=name)
+			else:
+				dest = IR_State.builder.sub(var_s1, var_s2, name=name)
+		else:
+			print "Pre unary assignment invalid operator: " + str(self.operator.operator)
+
+		IR_State.var_map.append(dest) 
+		IR_State.var_counter += 1
+
+		IR_State.builder.store(dest, left_side)
+		return dest
 
 class Node_post_unary_assignment(Expr):
 	def __init__(self, operator, exp, lineno, typeop):	
@@ -768,6 +829,40 @@ class Node_post_unary_assignment(Expr):
 	def __iter__(self):
 		rlist = [self.exp]
 		return iter(rlist)
+
+	def code_gen(self):
+		IR_State.left_side = True
+		left_side = self.exp.code_gen()
+		IR_State.left_side = False
+		var_s1 = self.exp.code_gen()
+		var_s2 = ir.Constant(ir.IntType(32), 1)
+		op_type = self.type
+		
+		name = "_temp"+str(IR_State.var_counter)
+
+		if (self.operator.operator == "++"):
+			if(op_type.isDouble()):
+				var_s2 = ir.Constant(ir.DoubleType(), 1.0)
+				dest = IR_State.builder.fadd(var_s1, var_s2, name=name)
+			else:
+				dest = IR_State.builder.add(var_s1, var_s2, name=name)
+		elif(self.operator.operator == "--"):
+			if(op_type.isDouble()):
+				var_s2 = ir.Constant(ir.DoubleType(), 1.0)
+				dest = IR_State.builder.fsub(var_s1, var_s2, name=name)
+			else:
+				dest = IR_State.builder.sub(var_s1, var_s2, name=name)
+		else:
+			print "Post unary assignment invalid operator: " + str(self.operator.operator)
+
+		IR_State.var_map.append(dest) 
+		IR_State.var_counter += 1
+
+		IR_State.builder.store(dest, left_side)
+		return var_s1
+
+
+
 
 class Node_whole_assignment(Expr):
 	def __init__(self, operator, exp1, exp2, lineno, typeop):	
@@ -867,8 +962,20 @@ class Function_call(Expr):
 		function = IR_State.function_map[self.name]
 
 		# Evaluate the args
-		# TODO: Fill
-		args = [ir.Constant(ir.IntType(32), 0)]
+		# In order to evaluate the byref args we change the l-side var
+		args = []
+
+		for i in range(len(self.actual_parameters)):
+			act_param = self.actual_parameters[i]
+			# Check if the attributes list contains something
+			print function.args[i].attributes
+			if('byval' in function.args[i].attributes):
+				args.append(act_param.code_gen())
+			else:
+				IR_State.left_side = True
+				args.append(act_param.code_gen())
+				IR_State.left_side = False
+
 
 		name = "_temp"+str(IR_State.var_counter)		
 		

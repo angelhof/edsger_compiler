@@ -615,6 +615,12 @@ def p_left_assignment(p):
 	equiv=p[1]
 	One_Type=Type("int",0)
 	One_expr=Constant_Value(0,One_Type.type,1)
+
+	# check the valid type of double in ++ and -- 
+	if (p[2].type.isDouble()):
+		One_Type=Type("double",0)
+		One_expr=Constant_Value(0,One_Type.type,1.0)
+	
 	if(not equiv.binary_typecheck(One_Type,p[2].type)):
 		print warning_messages.invalid_type(str(p[1].lineno), [str(p[2].type)] )
 		exit(1)
@@ -634,6 +640,12 @@ def p_right_assignment(p):
 	equiv=p[2]
 	One_Type=Type("int",0)
 	One_expr=Constant_Value(0,One_Type.type,1)
+
+	# check the valid type of double in ++ and -- 
+	if (p[1].type.isDouble()):
+		One_Type=Type("double",0)
+		One_expr=Constant_Value(0,One_Type.type,1.0)
+
 	if(not equiv.binary_typecheck(p[1].type,One_Type)):
 		print warning_messages.invalid_type(str(p[2].lineno), [str(p[1].type)])
 		exit(1)
