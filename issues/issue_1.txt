@@ -1,0 +1,15 @@
+=============
+== Issue 1 ==
+=============
+
+Subject: 
+Den eimai sigouros an to scope twn variables kai function allazei kathe fora pou exoume braces h kathe fora pou exoume sunarthsh. 
+
+Temporary Solution: 
+Ylopoihsa MONO tis sunarthseis na anoigoun kai allo scope level sto function_map
+
+Proposed Solution:
+An to scope allazei kathe fora pou exoume braces prepei na allaxoume pragmata ston parser wste na kratame thn plhroforia tou scope gia ta panta... Isws me ena dentro anti gia ena aplo stack. Ena dentro pou tha krataei thn plhroforia gia olokliro to scope tou programmatos
+
+-- PROSOXH -- 
+Genika xreiazetai na ginei implement kai to var_map kai to eds_var_map ws stack outws h allws. 

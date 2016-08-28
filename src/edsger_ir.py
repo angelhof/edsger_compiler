@@ -36,7 +36,7 @@ class IR_State(object):
 	left_side = False
 	# Maps the function name to a function (Maybe stack of maps)
 	# Remember to go to its enty block like this -> IRBuilder.goto_entry_block()
-	function_map = {}
+	function_map = [{}]
 	# Unreachable array so that we go and make sure all unreachable blocks get terminated
 	unreachable_array =[]
 	# Empty Module
@@ -76,6 +76,31 @@ class IR_State(object):
 		for block in array:
 			IR_State.builder.position_at_end(block)
 			IR_State.builder.branch(block)
+	##
+	# The following set of 4 functions offer
+	# the basic functionality for the stack of function maps
+	# The function_stack_map is a stack with its top being the last list element
+	##
+	@classmethod
+	def push_level_function_map(cls):
+		print cls.function_map
+		cls.function_map.insert(0, {})	
+	@classmethod
+	def pop_level_function_map(cls):
+		print cls.function_map
+		cls.function_map.pop(0)
+	@classmethod
+	def get_from_function_map(cls, name):
+		# Check from the top to the bottom of the stack
+		for stack_level in cls.function_map:
+			if name in  stack_level:
+				return stack_level[name]
+		# TODO: Fix this error print
+		print "Function with name: " + name + " was not found in the map"
+		exit(1)
+	@classmethod
+	def add_to_function_map(cls, name, value):
+		cls.function_map[-1][name] = value	
 
 """
 DEMO

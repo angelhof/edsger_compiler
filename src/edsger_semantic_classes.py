@@ -336,7 +336,14 @@ class Function(Identifier):
 		# Create a new function and and save it at its map 
 		function_type = ir.FunctionType(ret_type, function_arg_types)
 		function = ir.Function(IR_State.module, function_type, name=self.name)
-		IR_State.function_map[self.name] = function
+		
+		# THe original command has been kept before testing
+		# IR_State.function_map[self.name] = function
+		IR_State.add_to_function_map(self.name, function)
+
+		# Anoixe kainourgio scope level
+		IR_State.push_level_function_map()
+
 
 		# Get a new block name and Crete a new block
 		block_name = "_block" + str(IR_State.block_counter)
@@ -377,6 +384,9 @@ class Function(Identifier):
 
 			for element in enlist(self.statements):
 				element.code_gen()
+
+		# Kleise to scope level
+		IR_State.pop_level_function_map()
 
 
 		
@@ -958,8 +968,9 @@ class Function_call(Expr):
 		return iter(rlist)
 	def code_gen(self):
 
-		# Get the function from its name
-		function = IR_State.function_map[self.name]
+		# Get the function from its name ( Original Command has been kept)
+		# function = IR_State.function_map[self.name)]
+		function = IR_State.get_from_function_map(self.name)
 
 		# Evaluate the args
 		# In order to evaluate the byref args we change the l-side var
