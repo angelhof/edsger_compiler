@@ -1,0 +1,9 @@
+=============
+== Issue 3 ==
+=============
+
+Subject: 
+Issue system not so functional
+
+Proposed Solution:
+Try to find an issue tracking system that works easily out of the box (JIRA ??)
