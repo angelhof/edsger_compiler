@@ -1,9 +1,0 @@
-=============
-== Issue 2 ==
-=============
-
-Subject: 
-Stis byref parameters prepei na pername th dieuthinsi ton metablitwn oste na mporoun na epireazontai mesa sthn kaloumenh sunarthsh
-
-Proposed Solution:
-Na kratame me kapoio katharo tropo ( pithanotata mesa sto function object tou llvmlite ) to poies metablites einai byref kai poies oxi. Etsi sto evaluation tous tha mporoume na akolouthisoume diaforetiki poreia an einai kai an oxi.

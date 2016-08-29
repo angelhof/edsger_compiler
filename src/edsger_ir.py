@@ -31,7 +31,7 @@ class IR_State(object):
 	#   -> we cannot keep the if blocks here because they are generated automatically
 	block_map = {}
 	# variable map for mapping the variables in the functions FIX ME!!!!!!!!!!!! REAL VARIABLES
-	eds_var_map = {}
+	eds_var_map = [{}]
 	# state of informing whether we are on the right or the left side of the code
 	left_side = False
 	# Maps the function name to a function (Maybe stack of maps)
@@ -101,8 +101,46 @@ class IR_State(object):
 	@classmethod
 	def add_to_function_map(cls, name, value):
 		cls.function_map[-1][name] = value	
+	##
+	# The following set of 4 functions offer
+	# the basic functionality for the stack of eds_var_map
+	# The eds_var_map is a stack with its top being the last list element
+	##
+	@classmethod
+	def push_level_eds_var_map(cls):
+		print cls.eds_var_map
+		cls.function_map.insert(0, {})	
+	@classmethod
+	def pop_level_eds_var_map(cls):
+		print cls.eds_var_map
+		cls.function_map.pop(0)
+	@classmethod
+	def get_from_eds_var_map(cls, name):
+		# Check from the top to the bottom of the stack
+		for stack_level in cls.eds_var_map:
+			if name in  stack_level:
+				return stack_level[name]
+		# TODO: Fix this error print
+		print "Variable with name: " + name + " was not found in the map"
+		exit(1)
+	@classmethod
+	def add_to_eds_var_map(cls, name, value):
+		cls.eds_var_map[-1][name] = value	
 
-"""
+##
+# Object that populates function_map
+# It contains the function object and a metadata hash for any
+# more information that we might need to store for development purposes
+##
+class Function_With_Metadata():
+	def __init__(self, function):
+		self.function = function
+		self.metadata = {}
+	def set_metadata(self, name, data):
+		self.metadata[name] = data
+	def get_metadata(self, name):
+		return self.metadata[name]
+"""	
 DEMO
 
 

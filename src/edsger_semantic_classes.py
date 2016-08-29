@@ -2,7 +2,7 @@ import warning_messages
 import itertools
 import operator
 from llvmlite import ir
-from edsger_ir import IR_State
+from edsger_ir import IR_State, Function_With_Metadata
 
 ############
 ## Useful ##
@@ -231,7 +231,7 @@ class Variable(Identifier):
 	def code_gen(self):
 		var_name = self.name 
 		name = "_temp"+str(IR_State.var_counter)
-		ptr = IR_State.eds_var_map[var_name]
+		ptr = IR_State.get_from_eds_var_map(var_name)
 
 		if(not IR_State.left_side):		
 			dest = IR_State.builder.load(ptr, name=name)
@@ -264,7 +264,7 @@ class Variable(Identifier):
 				var_size = 64
 				var_type = ir.DoubleType()
 		ret_val = IR_State.builder.alloca( var_type, name=var_name )
-		IR_State.eds_var_map[var_name] = ret_val
+		IR_State.add_to_eds_var_map(var_name, ret_val)
 		return ret_val
 
 
@@ -282,7 +282,19 @@ class Parameter(Variable):
 
 	def code_gen(self):
 		var_name = self.name 
-		param_value = IR_State.eds_var_map[var_name]
+		# If the variable is passed by value we just evaluate it
+		# Else we have to evaluate its 
+		if( self.byref == 0 ):
+			param_value = IR_State.get_from_eds_var_map(var_name)
+		else:
+			ptr = IR_State.get_from_eds_var_map(var_name)
+			if(not IR_State.left_side):		
+				param_value = IR_State.builder.load(ptr, name=self.name)
+				IR_State.var_map.append(param_value) 
+				IR_State.var_counter += 1
+				return param_value
+			else:
+				return ptr
 
 		return param_value
 
@@ -328,6 +340,8 @@ class Function(Identifier):
 			else:
 				print "Katholou Kalo error sro code_gen tou Function"
 				exit(1)	
+			if param.byref == 1:
+				arg_type = arg_type.as_pointer()
 			function_arg_types.append(arg_type)
 
 		# Find the return type
@@ -339,11 +353,12 @@ class Function(Identifier):
 		
 		# THe original command has been kept before testing
 		# IR_State.function_map[self.name] = function
-		IR_State.add_to_function_map(self.name, function)
+		function_with_metadata = Function_With_Metadata(function)
+		IR_State.add_to_function_map(self.name, function_with_metadata)
 
 		# Anoixe kainourgio scope level
 		IR_State.push_level_function_map()
-
+		IR_State.push_level_eds_var_map()
 
 		# Get a new block name and Crete a new block
 		block_name = "_block" + str(IR_State.block_counter)
@@ -358,22 +373,23 @@ class Function(Identifier):
 			# Warning: There is a slight problem here 
 			# The problem is that an argument name that is the same as a name in another function we overwrite it
 			# TODO: Solve this using a eds_var_stack_map
-			IR_State.eds_var_map[eds_param_name] = llvm_param
+			IR_State.add_to_eds_var_map(eds_param_name, llvm_param)
 
 
-		# TODO: COmplete this
-		# Store as function attributes the byref
-		# We store whether the attributes are byref so that
+		# Store as function metadata the byref
+		# We store whether the arguments are byref so that
 		# We can load them properly afterwards
+		byref_array = []
 		for i in range(len(self.parameters)):
 			eds_param_byref = self.parameters[i].byref
 			llvm_param = function.args[i]
 
 			if eds_param_byref == 0:
-				# TODO: uncomment this and find what do we have to do
-				# llvm_param.attributes.add('byval')
-				pass
-
+				byref_array.append(self.parameters[i].name + "->byval")
+			else:
+				byref_array.append(self.parameters[i].name + "->byref")
+		function_with_metadata.set_metadata("byref", " ".join(byref_array))
+		
 
 		# Evaluate the function declarations nd statements
 		with IR_State.builder.goto_block(block):
@@ -387,6 +403,7 @@ class Function(Identifier):
 
 		# Kleise to scope level
 		IR_State.pop_level_function_map()
+		IR_State.pop_level_eds_var_map()
 
 
 		
@@ -970,17 +987,18 @@ class Function_call(Expr):
 
 		# Get the function from its name ( Original Command has been kept)
 		# function = IR_State.function_map[self.name)]
-		function = IR_State.get_from_function_map(self.name)
+		function_with_metadata = IR_State.get_from_function_map(self.name)
+		function = function_with_metadata.function
 
 		# Evaluate the args
 		# In order to evaluate the byref args we change the l-side var
 		args = []
-
+		byref_metadata = function_with_metadata.metadata["byref"].split(" ")
+		print byref_metadata
 		for i in range(len(self.actual_parameters)):
 			act_param = self.actual_parameters[i]
 			# Check if the attributes list contains something
-			print function.args[i].attributes
-			if('byval' in function.args[i].attributes):
+			if('byval' == byref_metadata[i][-5:]):
 				args.append(act_param.code_gen())
 			else:
 				IR_State.left_side = True

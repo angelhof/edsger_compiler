@@ -1,0 +1,15 @@
+=============
+== Issue 2 ==
+=============
+
+Subject: 
+Stis byref parameters prepei na pername th dieuthinsi ton metablitwn oste na mporoun na epireazontai mesa sthn kaloumenh sunarthsh
+
+Proposed Solution:
+Na kratame me kapoio katharo tropo ( pithanotata mesa sto function object tou llvmlite ) to poies metablites einai byref kai poies oxi. Etsi sto evaluation tous tha mporoume na akolouthisoume diaforetiki poreia an einai kai an oxi.
+
+Solution:
+1) Dhmiourghsa ena class Function_With_Metadata to opoio xrhsimopoieitai sto function_map kai periexei th sunarthsh kai ena map apo metadata
+2) Sto function definition apothikeuw se auto to map poies parametroi einai byref kai poies oxi, etsi ...
+3) sto function call mporw na xerw poies na pernaw san dieuthinsi kai poies san timi
+4) sto parameter code_gen an einai byref h parametros ths feromai san metabliti kai oxi san parametro timi.

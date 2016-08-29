@@ -13,3 +13,6 @@ An to scope allazei kathe fora pou exoume braces prepei na allaxoume pragmata st
 
 -- PROSOXH -- 
 Genika xreiazetai na ginei implement kai to var_map kai to eds_var_map ws stack outws h allws. 
+
+-- PROSOXH --
+Xreiazetai analush kai psaximo ti ginetai me to scope twn metablitwn kai ta stacks

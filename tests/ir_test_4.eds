@@ -2,9 +2,9 @@ int papotsi(int a){
 	return 0;
 }
 
-int carotsi(int a){
+int carotsi(byref int a, int b){
 	
-	a+1;
+	a = a+1;
 
 	return a;
 }
@@ -12,7 +12,7 @@ int carotsi(int a){
 int main(){
 
 	int i;
-
-	return carotsi(10);	
+	i = 5;
+	return carotsi(i, 0);	
 }
 
