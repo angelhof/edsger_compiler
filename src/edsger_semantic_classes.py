@@ -172,6 +172,14 @@ class Type():
 	def __iter__(self):
 		rlist = [].__iter__(self)
 		return iter(rlist)
+	def isGenBool(self):
+		return self.type == "bool"
+	def isGenInt(self):
+		return self.type == "int"
+	def isGenChar(self):
+		return self.type == "char"
+	def isGenDouble(self):
+		return self.type == "double"
 	def isBool(self):
 		return self.type == "bool" and self.isPrimitive()
 	def isInt(self):
@@ -244,27 +252,34 @@ class Variable(Identifier):
 	def code_gen_decl(self):
 		
 		# UNTESTED WARNING
-		var_type = self.type
-		var_type_name = var_type.type
-		var_type_pointer = var_type.pointer
-		var_name = self.name 
+		our_type = self.type
+		our_type_name = our_type.type
+		our_type_pointer = our_type.pointer
+		our_name = self.name 
 
-		if var_type_pointer == 0:
-			var_size = 0
-			if var_type.isBool():
-				var_size = 1
-				var_type = ir.IntType(var_size)
-			elif var_type.isChar():
-				var_size = 8
-				var_type = ir.IntType(var_size)
-			elif var_type.isInt():
-				var_size = 32
-				var_type = ir.IntType(var_size)
-			elif var_type.isDouble():
-				var_size = 64
-				var_type = ir.DoubleType()
-		ret_val = IR_State.builder.alloca( var_type, name=var_name )
-		IR_State.add_to_eds_var_map(var_name, ret_val)
+		# If the variable is primitive
+		var_size = 0
+		if our_type.isGenBool():
+			var_size = 1
+			var_type = ir.IntType(var_size)
+		elif our_type.isGenChar():
+			var_size = 8
+			var_type = ir.IntType(var_size)
+		elif our_type.isGenInt():
+			var_size = 32
+			var_type = ir.IntType(var_size)
+		elif our_type.isGenDouble():
+			var_size = 64
+			var_type = ir.DoubleType()
+
+		# If it is not primitive
+		if not our_type.isPrimitive():
+			for i in range(our_type_pointer):
+				var_type = ir.PointerType(var_type)	
+	
+			
+		ret_val = IR_State.builder.alloca( var_type, name=our_name )
+		IR_State.add_to_eds_var_map(our_name, ret_val)
 		return ret_val
 
 
@@ -671,11 +686,24 @@ class Node_unary_operation(Expr):
 		rlist = [self.operator]+[self.exp]
 		return iter(rlist)
 	def code_gen(self):
-		var_s = self.exp.code_gen()
+		
 		op = self.operator.operator
 		op_type = self.type
 		name = "_temp"+str(IR_State.var_counter)
 
+
+		# TODO: Think if it should have only &
+		# An to operation einai & prepei an mhn epistrepsoume thn timi tou mesa alla thn dieuthinsi
+		if op in ["&"]:
+			old_val = IR_State.left_side
+			IR_State.left_side = True
+			var_s = self.exp.code_gen()
+			IR_State.left_side = old_val
+		else:			
+			var_s = self.exp.code_gen()
+
+
+		
 		if(op== "u+"):
 			if(op_type.isDouble()):
 				floatzero = ir.Constant(ir.DoubleType(), 0.0)
@@ -691,9 +719,10 @@ class Node_unary_operation(Expr):
 				intzero = ir.Constant(ir.IntType(32), 0)
 				dest = IR_State.builder.sub(intzero, var_s, name=name)
 		elif(op == "u*"):
-			pass
+			dest = IR_State.builder.load(var_s, name=name)
 		elif(op == "&"):
-			pass
+			intzero = ir.Constant(ir.IntType(32), 0)
+			dest = IR_State.builder.gep(var_s,[intzero], name=name)
 		elif(op == "!"):
 			bin_one = ir.Constant(ir.IntType(1), 1)
 			dest = IR_State.builder.xor(var_s,bin_one, name=name)

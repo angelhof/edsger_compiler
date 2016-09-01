@@ -1,0 +1,31 @@
+int main()
+{
+	int a; 
+	int *b;
+	int c;
+	int **d;
+	int ***e;
+	double k;
+	double *l;
+	
+	// First simple test
+	b = &a;
+	a = 5;
+	c = *b;
+
+	// Second Test
+	d = &b;
+	e = &d;
+
+
+
+	a = 6;
+
+	**d = 7;
+
+	l = &k;
+
+	k = 9.0;
+
+	return ***e;
+}
