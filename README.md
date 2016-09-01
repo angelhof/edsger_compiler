@@ -3,7 +3,9 @@ Installation steps
 
 --- Assuming you have python 2 installed ---
 
-Either run "make install" while having root priviledges 
+Either run 
+	make install 
+while having root priviledges 
 
 or if you don't like Makefiles do the following:
 
@@ -19,7 +21,8 @@ To run the tests
 
 Either run ./run_tests.py which runs all the tests in the test folder and prints their output in files in output
 
-or run "python main.py <input_file_name> [output_file_name]"
+or run 
+	python main.py <input_file_name> [output_file_name]
 
 
  
