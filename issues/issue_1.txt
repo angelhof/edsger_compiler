@@ -16,3 +16,6 @@ Genika xreiazetai na ginei implement kai to var_map kai to eds_var_map ws stack 
 
 -- PROSOXH --
 Xreiazetai analush kai psaximo ti ginetai me to scope twn metablitwn kai ta stacks
+
+Proodos:
+1) Diabasa oti to scope einai san Pascal h opoia exei ena scope level gia kathe sunarthsh ara oxi sta braces. Prepei na rwthsoume kai tous allous omws :O

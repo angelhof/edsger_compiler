@@ -211,6 +211,14 @@ class Constant_Value(Expr):
 			dest = ir.Constant(ir.DoubleType(), self.value)
 		elif self.type.isBool():
 			dest = ir.Constant(ir.IntType(1), self.value)
+		elif self.type.isChar():
+			# Supposing that characters are always 3 chars long
+			dest = ir.Constant(ir.IntType(8), ord(self.value[1]))
+		elif self.type.isGenChar() and self.type.pointer == 1:
+			pass
+		else:
+			print"Exit like we got a big problem :'("
+			exit(1)
 		return dest
 
 # Identifier
