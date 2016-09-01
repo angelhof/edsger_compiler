@@ -1,0 +1,9 @@
+=============
+== Issue 6 ==
+=============
+
+Subject: 
+Dynamic memory allocation
+
+Proposed Solution:
+Search more but probably call libc malloc, free
