@@ -16,7 +16,7 @@ or if you don't like Makefiles do the following:
 2) Download LLVM version 3.4 http://llvm.org/releases/download.html
 
 3) Download Anaconda from http://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh
--> Run 
+-> Run the following command as the normal user
 ```sh
 $ conda install llvmlite
 ```
