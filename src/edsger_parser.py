@@ -61,11 +61,14 @@ def p_declarations(p):
 	else:
 		p[0] = []
 
+	
+
 def p_declaration(p):
 	'''declaration : variable_declaration
 				   | function_declaration
 				   | function_definition'''
 	p[0] = p[1]
+
 
 def p_global_declarations(p):
 	'''global_declarations : empty
@@ -93,8 +96,10 @@ def p_variable_declaration(p):
 	'''variable_declaration : type many_declarators SEMI'''
 	for i in p[2]:
 		i.declare_type(p[1])
+		# An einai array xanetai h plhroforia mexri edw
+		if(i.array_expr):
+			i.type.pointer += 1
 		Program_State.add_variable_to_curr_scope(i) 
-		#print i
 	# TODO Check if we should return something here
 	p[0] = p[2]
 

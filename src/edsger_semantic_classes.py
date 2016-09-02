@@ -282,7 +282,11 @@ class Variable(Identifier):
 
 		# If it is not primitive
 		if not our_type.isPrimitive():
-			for i in range(our_type_pointer):
+			# If its an array , declare it as one less pointer
+			pointer_number = our_type_pointer
+			if(self.array_expr):
+				pointer_number -= 1
+			for i in range(pointer_number):
 				var_type = ir.PointerType(var_type)	
 	
 		# If it is an array
@@ -1110,13 +1114,29 @@ class Array_Deref(Expr):
 		self.left_expression = left_expression
 		self.index = index
 		self.lineno = lineno
-		self.type = left_expression.type
+		self.type = Type("")
+		self.type.copyfrom(left_expression.type)
 		self.type.pointer -= 1
 	def __str__(self):
 		return "Array deref of type: " + str(self.type)
 	def __iter__(self):
-		rlist = [left_expression] + [Delimiter("$ Index")] + [index]
+		rlist = [self.left_expression] + [Delimiter("$ Index")] + [self.index]
 		return iter(rlist)  
+	def code_gen(self):
+
+		name = "_temp"+str(IR_State.var_counter)
+
+		arr_index = self.index.code_gen()
+		left_exp = self.left_expression.code_gen()
+			
+		# Unitl now can only have constant value here, we will ifnd a fix
+		# TODO: Fix
+		dest = IR_State.builder.extract_value(left_exp,0, name=name)
+
+		IR_State.var_map.append(dest) 
+		IR_State.var_counter += 1
+
+		return dest
 
 class Parenthesial_expression(Expr):
 	def __init__(self, expr, lineno):
