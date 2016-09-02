@@ -25,3 +25,5 @@
 12) FIX --- Check why for true doesnt work
 
 13) Den eimai sigouros an to scope douleuei me sunarthseis h genika me braces. Ta braces allazoun to scope ??
+
+14) The seg fault might be an llvm version problem because llvmlite we have now uses 3.8

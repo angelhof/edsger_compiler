@@ -468,7 +468,7 @@ def p_parenthesial_expression(p):
 def p_ufo(p):
 	'''ufo : expression LBRACKET expression RBRACKET'''
 	if(p[1].type.pointer <= 0):
-		print warning_messages.is_not_pointer(str(p.lineno(1)))
+		print warning_messages.is_not_a_pointer(str(p.lineno(1)))
 		exit(1)
 	if(p[3].type.isInt()):
 		p[0] = Array_Deref(p[1], p[3], p.lineno(1))

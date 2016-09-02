@@ -285,6 +285,12 @@ class Variable(Identifier):
 			for i in range(our_type_pointer):
 				var_type = ir.PointerType(var_type)	
 	
+		# If it is an array
+		if self.array_expr:
+			# Evaluate the expression 
+			# TODO: For now it only works for constant
+			array_count = int(self.array_expr.value)
+			var_type = ir.ArrayType(var_type, array_count)
 			
 		ret_val = IR_State.builder.alloca( var_type, name=our_name )
 		IR_State.add_to_eds_var_map(our_name, ret_val)
