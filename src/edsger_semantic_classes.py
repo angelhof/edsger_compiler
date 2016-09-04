@@ -290,7 +290,7 @@ class Variable(Identifier):
 				var_type = ir.PointerType(var_type)	
 	
 		# If it is an array
-		if self.array_expr:
+		if self.array_expr is not None:
 			# Evaluate the expression 
 			# TODO: For now it only works for constant
 			array_count = int(self.array_expr.value)

@@ -1,9 +1,0 @@
-=============
-== Issue 5 ==
-=============
-
-Subject: 
-Array declaration
-
-Proposed Solution:
-Search the llvmlite docs to find the best way to do it
