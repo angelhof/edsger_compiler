@@ -397,6 +397,7 @@ class Function(Identifier):
 		'''
 		TODO: Make the struct that will be passed to functions 
 		that are nested in a function
+		WARNING: But first check if there is the need to do this
 		'''
 
 
