@@ -1,4 +1,4 @@
-int papotsi(int a){
+int papotsi(int *a){
 	return 0;
 }
 
@@ -12,7 +12,10 @@ int carotsi(byref int a, int b){
 int main(){
 
 	int i;
+	int *a;
+	papotsi(a);
 	i = 5;
-	return carotsi(i, 0);	
+	carotsi(i, 0);
+	return i;	
 }
 

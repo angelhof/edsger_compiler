@@ -14,12 +14,14 @@ def create_unreachable():
 	IR_State.builder.position_at_start(unreachable)
 
 
+
 def enlist(element):
 	if(not element):
 		return []
 	if not (type(element) is list):
 		return [element]
 	return element
+
 
 # We are running down the tree until we find a variable
 def l_val_typecheck(head, maybe):
@@ -28,6 +30,8 @@ def l_val_typecheck(head, maybe):
 		return True;
 	elif (isinstance(head, Parenthesial_expression)):
 		return l_val_typecheck(head.expr, maybe)
+	elif (isinstance(head, Array_Deref)):
+		return l_val_typecheck(head.left_expression, maybe)
 	elif (isinstance(head, Node_unary_operation)):
 		if( head.operator.operator == "u*"):
 			return l_val_typecheck(head.exp, True)
@@ -42,7 +46,51 @@ def l_val_typecheck(head, maybe):
 				return l_val_typecheck(head.exp2, maybe)
 	return False;
 
+'''
+Transforms our type into an LLVM type instance and it returns
+Returns (LLVM_Type, Array_Size (Only useful for allocation))
+'''
+def transform_type(var):
 
+	our_type = var.type
+	our_type_name = our_type.type
+	our_type_pointer = our_type.pointer
+	 
+
+	array_size = 1
+
+	# If the variable is primitive
+	var_size = 0
+	if our_type.isGenBool():
+		var_size = 1
+		var_type = ir.IntType(var_size)
+	elif our_type.isGenChar():
+		var_size = 8
+		var_type = ir.IntType(var_size)
+	elif our_type.isGenInt():
+		var_size = 32
+		var_type = ir.IntType(var_size)
+	elif our_type.isGenDouble():
+		var_size = 64
+		var_type = ir.DoubleType()
+
+	# If it is not primitive
+	if not our_type.isPrimitive():
+		# If its an array , declare it as one less pointer
+		pointer_number = our_type_pointer
+		
+		for i in range(pointer_number):
+			var_type = ir.PointerType(var_type)	
+
+
+	# If it is an array
+	if var.array_expr is not None:
+		# Evaluate the expression 
+		# TODO: For now it only works for constant
+
+		array_size = int(var.array_expr.value)
+
+	return (var_type, array_size)
 
 ## All useful classes
 class AST(object):
@@ -259,44 +307,15 @@ class Variable(Identifier):
 
 	def code_gen_decl(self):
 		
-		# UNTESTED WARNING
-		our_type = self.type
-		our_type_name = our_type.type
-		our_type_pointer = our_type.pointer
 		our_name = self.name 
 
-		# If the variable is primitive
-		var_size = 0
-		if our_type.isGenBool():
-			var_size = 1
-			var_type = ir.IntType(var_size)
-		elif our_type.isGenChar():
-			var_size = 8
-			var_type = ir.IntType(var_size)
-		elif our_type.isGenInt():
-			var_size = 32
-			var_type = ir.IntType(var_size)
-		elif our_type.isGenDouble():
-			var_size = 64
-			var_type = ir.DoubleType()
-
-		# If it is not primitive
-		if not our_type.isPrimitive():
-			# If its an array , declare it as one less pointer
-			pointer_number = our_type_pointer
-			if(self.array_expr):
-				pointer_number -= 1
-			for i in range(pointer_number):
-				var_type = ir.PointerType(var_type)	
-	
-		# If it is an array
-		if self.array_expr is not None:
-			# Evaluate the expression 
-			# TODO: For now it only works for constant
-			array_count = int(self.array_expr.value)
-			var_type = ir.ArrayType(var_type, array_count)
-			
-		ret_val = IR_State.builder.alloca( var_type, name=our_name )
+		type_and_size = transform_type(self)
+		
+		var_type = type_and_size[0]
+		array_size = type_and_size[1]
+		
+		ret_val = IR_State.builder.alloca( var_type, 
+					size=array_size, name=our_name )
 		IR_State.add_to_eds_var_map(our_name, ret_val)
 		return ret_val
 
@@ -309,6 +328,10 @@ class Parameter(Variable):
 		self.name = name
 		self.lineno = lineno
 		self.byref = byref
+		'''
+		TODO: Fix !! Should parameters be arrays or not?
+		'''
+		self.array_expr = None
 
 	def __str__(self):
 		return "Parameter( " + str(self.name) + " , " + str(self.byref) + " " + str(self.type) + " )" 	
@@ -362,20 +385,20 @@ class Function(Identifier):
 		# Find the arguments types
 		function_arg_types = []
 		for param in self.parameters:
-			if param.type.isBool():
-				arg_type = ir.IntType(1)
-			elif param.type.isChar():
-				arg_type = ir.IntType(8)
-			elif param.type.isInt():
-				arg_type = ir.IntType(32)
-			elif param.type.isDouble():
-				arg_type = ir.DoubleType()
-			else:
-				print "Katholou Kalo error sro code_gen tou Function"
-				exit(1)	
+			
+			type_and_size = transform_type(param)
+
+			arg_type = type_and_size[0]
+
 			if param.byref == 1:
 				arg_type = arg_type.as_pointer()
 			function_arg_types.append(arg_type)
+
+		'''
+		TODO: Make the struct that will be passed to functions 
+		that are nested in a function
+		'''
+
 
 		# Find the return type
 		ret_type = ir.IntType(32)
@@ -1041,7 +1064,6 @@ class Function_call(Expr):
 		# In order to evaluate the byref args we change the l-side var
 		args = []
 		byref_metadata = function_with_metadata.metadata["byref"].split(" ")
-		print byref_metadata
 		for i in range(len(self.actual_parameters)):
 			act_param = self.actual_parameters[i]
 			# Check if the attributes list contains something
@@ -1124,14 +1146,27 @@ class Array_Deref(Expr):
 		return iter(rlist)  
 	def code_gen(self):
 
-		name = "_temp"+str(IR_State.var_counter)
+		
 
 		arr_index = self.index.code_gen()
+		
+		# We are keeping the left_side value
+		# We change it to False always ,
+		# because we never want to save on the address of the variable,
+		# but rather somewhere relative to its value
+		old_left_side = IR_State.left_side
+		IR_State.left_side = False
 		left_exp = self.left_expression.code_gen()
-			
-		# Unitl now can only have constant value here, we will ifnd a fix
-		# TODO: Fix
-		dest = IR_State.builder.extract_value(left_exp,0, name=name)
+		IR_State.left_side = old_left_side	
+
+		name = "_temp"+str(IR_State.var_counter)
+
+		if(not IR_State.left_side):		
+			dest_temp = IR_State.builder.gep(left_exp,[arr_index])
+			dest = IR_State.builder.load(dest_temp, name=name)
+		else:
+			dest = IR_State.builder.gep(left_exp, [arr_index], name=name)
+
 
 		IR_State.var_map.append(dest) 
 		IR_State.var_counter += 1

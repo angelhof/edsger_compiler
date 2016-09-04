@@ -126,6 +126,8 @@ class IR_State(object):
 	@classmethod
 	def add_to_eds_var_map(cls, name, value):
 		cls.eds_var_map[-1][name] = value	
+	
+
 
 ##
 # Object that populates function_map
