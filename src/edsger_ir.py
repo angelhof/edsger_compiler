@@ -100,7 +100,7 @@ class IR_State(object):
 		exit(1)
 	@classmethod
 	def add_to_function_map(cls, name, value):
-		cls.function_map[-1][name] = value	
+		cls.function_map[0][name] = value	
 	##
 	# The following set of 4 functions offer
 	# the basic functionality for the stack of eds_var_map
@@ -109,11 +109,11 @@ class IR_State(object):
 	@classmethod
 	def push_level_eds_var_map(cls):
 		print cls.eds_var_map
-		cls.function_map.insert(0, {})	
+		cls.eds_var_map.insert(0, {})	
 	@classmethod
 	def pop_level_eds_var_map(cls):
 		print cls.eds_var_map
-		cls.function_map.pop(0)
+		cls.eds_var_map.pop(0)
 	@classmethod
 	def get_from_eds_var_map(cls, name):
 		# Check from the top to the bottom of the stack
@@ -125,7 +125,11 @@ class IR_State(object):
 		exit(1)
 	@classmethod
 	def add_to_eds_var_map(cls, name, value):
-		cls.eds_var_map[-1][name] = value	
+		cls.eds_var_map[0][name] = value
+	@classmethod
+	def get_curr_level_of_eds_var_map(cls):
+		return cls.eds_var_map[0]
+		
 	
 
 
@@ -142,34 +146,3 @@ class Function_With_Metadata():
 		self.metadata[name] = data
 	def get_metadata(self, name):
 		return self.metadata[name]
-"""	
-DEMO
-
-
-# Create some useful types
-double = ir.DoubleType()
-fun_type = ir.FunctionType(ir.IntType(32), [])
-
-
-# Create an empty module
-module = ir.Module(name=__file__)
-
-# Create a function inside the module
-func = ir.Function(module, fun_type, name="main")
-
-# Insert a basic block
-block = func.append_basic_block(name="pipi")
-IR_State.builder = ir.IRBuilder(block)
-
-# Make a simple addition
-a = ir.Constant(ir.IntType(32), 5)
-b = ir.Constant(ir.IntType(32), 6)
-result = IR_State.builder.add(a, b, name="res")
-
-# Return the result
-IR_State.builder.ret(result)
-
-
-print result.name
-"""
-

@@ -55,8 +55,7 @@ def transform_type(var):
 	our_type = var.type
 	our_type_name = our_type.type
 	our_type_pointer = our_type.pointer
-	 
-
+	
 	array_size = 1
 
 	# If the variable is primitive
@@ -395,11 +394,14 @@ class Function(Identifier):
 			function_arg_types.append(arg_type)
 
 		'''
-		TODO: Make the struct that will be passed to functions 
-		that are nested in a function
-		WARNING: But first check if there is the need to do this
+			TODO: 
+			- Edw prepei na brw thn scope_struct pou 
+			  tha brisketai mesa sto eds_var_map h se kapoio
+			  paromoio stack data_structure
+			- Otan th brw thn pernaw sto function with metadata
 		'''
-
+		#function_arg_types.append(scope_struct)
+		#print function_arg_types
 
 		# Find the return type
 		ret_type = ir.IntType(32)
@@ -424,12 +426,15 @@ class Function(Identifier):
 		IR_State.block_counter += 1
 
 		# Map the arguments to their real names
-		for i in range(len(self.parameters)):
+		''' TODO: Ebala edw to -1 gia na mhn mapparw kai to scope
+				  Kala ekana ??? 
+				  Ekana to idio kai sto function call an to allaxw
+				  edw na to allxw kai ekei
+		'''
+		for i in range(len(self.parameters) - 1):
 			eds_param_name = self.parameters[i].name
 			llvm_param = function.args[i]
-			# Warning: There is a slight problem here 
-			# The problem is that an argument name that is the same as a name in another function we overwrite it
-			# TODO: Solve this using a eds_var_stack_map
+			
 			IR_State.add_to_eds_var_map(eds_param_name, llvm_param)
 
 
@@ -448,12 +453,57 @@ class Function(Identifier):
 		function_with_metadata.set_metadata("byref", " ".join(byref_array))
 		
 
-		# Evaluate the function declarations nd statements
+		# Evaluate the function declarations and statements
 		with IR_State.builder.goto_block(block):
-
 			for element in enlist(self.declarations):
-				for elem in element:
-					elem.code_gen_decl()
+				element.code_gen_decl()
+
+			'''
+				TODO:
+				- Meta to declaration olwn twn metablhtwn 
+				  exoume th dunatothta na dhmiourghsoume kai
+				  to scope struct tou epipedou
+				- Briskoume ton tupo tou
+				- To kanoume allocate
+				- Dinoume stous deiktes tou tis theseis twn metablitwn
+				- To kalo einai oti an den uparxoun alles sunarthseis
+				  pio mesa pou an to kaloun feugei sta optimizations
+				  ara den mas endiaferei h apodosh tou
+			'''
+
+			print "Ti theloume apo edw"
+			print IR_State.get_curr_level_of_eds_var_map()
+			print sorted(IR_State.get_curr_level_of_eds_var_map().keys())
+			# We sort them so that they have some kind of order
+			current_scope = IR_State.get_curr_level_of_eds_var_map()
+			current_scope_keys = sorted(current_scope.keys())
+			current_scope_types = []
+			for var_in_curr_scope_key in current_scope_keys:
+				var_in_curr_scope = current_scope[var_in_curr_scope_key]
+				current_scope_types.append(var_in_curr_scope.type)
+
+			# Add the scope struct as the last argument of the function
+			scope_struct_type = ir.LiteralStructType(current_scope_types)
+			allocated_scope_struct = IR_State.builder.alloca( 
+						scope_struct_type,  
+						name="_current_scope" )
+			IR_State.add_to_eds_var_map("_current_scope"
+						, allocated_scope_struct)
+			print allocated_scope_struct
+			# Add the pointer values to the struct
+			for i in range(len(current_scope_keys)):
+				struct_element = IR_State.builder.gep(
+							allocated_scope_struct ,
+							[ ir.Constant(ir.IntType(32), 1)
+							, ir.Constant(ir.IntType(32), i) 
+							] ,
+							name="_"+current_scope_keys[i] )
+				print struct_element.type
+				'''
+					TODO: 
+					- Having the element pointer , store the 
+					  variable address
+				'''
 
 			for element in enlist(self.statements):
 				element.code_gen()
@@ -1065,7 +1115,7 @@ class Function_call(Expr):
 		# In order to evaluate the byref args we change the l-side var
 		args = []
 		byref_metadata = function_with_metadata.metadata["byref"].split(" ")
-		for i in range(len(self.actual_parameters)):
+		for i in range(len(self.actual_parameters) - 1):
 			act_param = self.actual_parameters[i]
 			# Check if the attributes list contains something
 			if('byval' == byref_metadata[i][-5:]):
@@ -1075,6 +1125,13 @@ class Function_call(Expr):
 				args.append(act_param.code_gen())
 				IR_State.left_side = False
 
+		'''
+			TODO:
+			- Edw pairnw to scope_struct apo to 
+			  function_with_metadata kai apla to pernaw
+			  sta arguments
+ 		'''
+ 		
 
 		name = "_temp"+str(IR_State.var_counter)		
 		

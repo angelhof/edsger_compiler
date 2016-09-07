@@ -56,7 +56,7 @@ def p_declarations(p):
 	'''declarations : empty
 					| declaration declarations'''
 	if(len(p) == 3):
-		p[2].insert(0,p[1])
+		p[2] = p[1] + p[2]
 		p[0] = p[2]
 	else:
 		p[0] = []
@@ -74,8 +74,8 @@ def p_global_declarations(p):
 	'''global_declarations : empty
 					| global_declaration global_declarations'''
 	if(len(p) == 3):
-		if(p[1]):
-			p[2].insert(0,p[1])
+		if(p[1] is not None):
+			p[2] = p[1] + p[2]
 		p[0] = p[2]
 	else:
 		p[0] = []
@@ -111,6 +111,7 @@ def p_many_declarators(p):
 	else:
 		p[3].insert(0, p[1])
 		p[0] = p[3]
+	#print p[0]
 
 # TODO Fix this type
 def p_type(p):
@@ -142,9 +143,14 @@ def p_identifier(p):
 		p[0] = Identifier(p.lineno(1),p[1])
 	#print p[0]
 
+def p_decl_identifier(p):
+	'''decl_identifier : ID'''
+	p[0] = Identifier(p.lineno(1),p[1])
+	#print p[0]
+
 def p_declarator(p):
-	'''declarator : identifier
-				  | identifier LBRACKET constant_expression RBRACKET'''
+	'''declarator : decl_identifier
+				  | decl_identifier LBRACKET constant_expression RBRACKET'''
 	# Convert from the general identifier case to a variable 
 	if(not isinstance(p[1], Variable)):
 		p[1] = Variable(p[1].lineno, Type(""), p[1].name)
@@ -168,6 +174,7 @@ def p_function_declaration(p):
 		p[1].add_parameter(param)
 	p[0] = p[1]
 	Program_State.add_function_to_curr_scope(p[0]) 
+	p[0] = [p[0]]
 	#print p[0]
 
 def p_function_with_result_type(p):
@@ -197,8 +204,8 @@ def p_parameter_list(p):
 		p[0] = p[3]
 
 def p_parameter(p):
-	'''parameter : type identifier
-				 | BYREF type identifier'''
+	'''parameter : type decl_identifier
+				 | BYREF type decl_identifier'''
 	## TODO Check if we have to create sub class for parameter
 	if(len(p) == 3):
 		ident = p[2]
@@ -218,6 +225,7 @@ def p_function_definition(p):
 	p[0].declarations = p[2]
 	p[0].statements = p[3]
 	Program_State.pop()
+	p[0] = [p[0]]
 	
 
 def p_function_with_result_and_parameters(p):
