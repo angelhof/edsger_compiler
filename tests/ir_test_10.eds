@@ -1,0 +1,12 @@
+int papotsi(){
+	return 0;
+}
+
+int main(){
+
+	int i;
+	papotsi();
+	i = 5;
+	return i;	
+}
+

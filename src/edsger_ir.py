@@ -85,11 +85,11 @@ class IR_State(object):
 	##
 	@classmethod
 	def push_level_function_map(cls):
-		print cls.function_map
+		#print cls.function_map
 		cls.function_map.insert(0, {})	
 	@classmethod
 	def pop_level_function_map(cls):
-		print cls.function_map
+		#print cls.function_map
 		cls.function_map.pop(0)
 	@classmethod
 	def get_from_function_map(cls, name):
@@ -110,13 +110,13 @@ class IR_State(object):
 	##
 	@classmethod
 	def push_level_eds_var_map(cls):
-		print cls.eds_var_map
-		print cls.eds_var_map[0].keys()
+		#print cls.eds_var_map
+		#print cls.eds_var_map[0].keys()
 		cls.eds_var_map.insert(0, {})	
 	@classmethod
 	def pop_level_eds_var_map(cls):
-		print cls.eds_var_map
-		print cls.eds_var_map[0].keys()
+		#print cls.eds_var_map
+		#print cls.eds_var_map[0].keys()
 		cls.eds_var_map.pop(0)
 	@classmethod
 	def get_from_eds_var_map(cls, name):

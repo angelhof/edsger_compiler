@@ -526,8 +526,9 @@ class Function(Identifier):
 			print previous_scope_frame_keys
 
 			'''
-			An to megethos eiani 2 shmainei oti 
-			den uparxei pio prin giati eimaste global
+			- An to megethos eiani 2 shmainei oti 
+			  den uparxei pio prin giati eimaste global
+			- Ebala to idio sto function call
 			TODO: Elegxw an isxuei auto 
 			'''
 			if( len(IR_State.eds_var_map) > 2):
@@ -1176,7 +1177,9 @@ class Function_call(Expr):
 
 
 		# Pass the scope struct as the last argument
- 		args.append(scope_struct)
+		# Ann den eiani global sunarthsh
+		if( len(IR_State.eds_var_map) > 2):
+ 			args.append(scope_struct)
 
 		name = "_temp"+str(IR_State.var_counter)		
 		
