@@ -37,6 +37,8 @@ class IR_State(object):
 	# Maps the function name to a function (Maybe stack of maps)
 	# Remember to go to its enty block like this -> IRBuilder.goto_entry_block()
 	function_map = [{}]
+	# It exists so that we give unique names to every current_scope register
+	current_scope_cnt = 0
 	# Unreachable array so that we go and make sure all unreachable blocks get terminated
 	unreachable_array =[]
 	# Empty Module
@@ -109,10 +111,12 @@ class IR_State(object):
 	@classmethod
 	def push_level_eds_var_map(cls):
 		print cls.eds_var_map
+		print cls.eds_var_map[0].keys()
 		cls.eds_var_map.insert(0, {})	
 	@classmethod
 	def pop_level_eds_var_map(cls):
 		print cls.eds_var_map
+		print cls.eds_var_map[0].keys()
 		cls.eds_var_map.pop(0)
 	@classmethod
 	def get_from_eds_var_map(cls, name):
@@ -122,10 +126,14 @@ class IR_State(object):
 				return stack_level[name]
 		# TODO: Fix this error print
 		print "Variable with name: " + name + " was not found in the map"
-		exit(1)
+		return None
 	@classmethod
 	def add_to_eds_var_map(cls, name, value):
 		cls.eds_var_map[0][name] = value
+	@classmethod
+	def add_if_not_to_eds_var_map(cls, name, value):
+		if not name in cls.eds_var_map[0]:
+			 cls.eds_var_map[0][name] = value
 	@classmethod
 	def get_curr_level_of_eds_var_map(cls):
 		return cls.eds_var_map[0]
@@ -142,7 +150,13 @@ class Function_With_Metadata():
 	def __init__(self, function):
 		self.function = function
 		self.metadata = {}
+		self.scope_struct = None
 	def set_metadata(self, name, data):
 		self.metadata[name] = data
 	def get_metadata(self, name):
 		return self.metadata[name]
+	def set_scope_struct(self, scope_struct):
+		self.scope_struct = scope_struct
+	def get_scope_struct(self):
+		return self.scope_struct
+

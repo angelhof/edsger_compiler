@@ -91,6 +91,58 @@ def transform_type(var):
 
 	return (var_type, array_size)
 
+'''
+Creates the scope struct, allocates space, and gives the pointers
+the variable addresses
+'''
+def create_scope_struct():
+	'''
+		TODO:
+		- Meta to declaration olwn twn metablhtwn 
+		  exoume th dunatothta na dhmiourghsoume kai
+		  to scope struct tou epipedou
+		- Briskoume ton tupo tou
+		- To kanoume allocate
+		- Dinoume stous deiktes tou tis theseis twn metablitwn
+		- To kalo einai oti an den uparxoun alles sunarthseis
+		  pio mesa pou an to kaloun feugei sta optimizations
+		  ara den mas endiaferei h apodosh tou
+	'''
+	#print "Ti theloume apo edw"
+	#print IR_State.eds_var_map
+	#print sorted(IR_State.get_curr_level_of_eds_var_map().keys())
+	# We sort them so that they have some kind of order
+	current_scope = IR_State.get_curr_level_of_eds_var_map()
+	current_scope_keys = sorted(current_scope.keys())
+	current_scope_types = []
+	for var_in_curr_scope_key in current_scope_keys:
+		var_in_curr_scope = current_scope[var_in_curr_scope_key]
+		current_scope_types.append(var_in_curr_scope.type)
+
+	# Add the scope struct as the last argument of the function
+	scope_struct_type = ir.LiteralStructType(current_scope_types)
+	allocated_scope_struct = IR_State.builder.alloca( 
+				scope_struct_type,  
+				name="_current_scope" )
+	IR_State.add_to_eds_var_map("_current_scope"
+				, allocated_scope_struct)
+	#print allocated_scope_struct
+	# Add the pointer values to the struct
+	for i in range(len(current_scope_keys)):
+		struct_element = IR_State.builder.gep(
+					allocated_scope_struct ,
+					[ ir.Constant(ir.IntType(32), 0)
+					, ir.Constant(ir.IntType(32), i) 
+					] ,
+					name="_"+current_scope_keys[i] )
+		#print struct_element, struct_element.type
+
+		saved_element = IR_State.builder.store(
+					current_scope[current_scope_keys[i]],
+					struct_element )
+		#print saved_element, saved_element.type
+
+
 ## All useful classes
 class AST(object):
 	head = None
@@ -395,13 +447,16 @@ class Function(Identifier):
 
 		'''
 			TODO: 
-			- Edw prepei na brw thn scope_struct pou 
-			  tha brisketai mesa sto eds_var_map h se kapoio
-			  paromoio stack data_structure
-			- Otan th brw thn pernaw sto function with metadata
+			- Kane kati gia to None
 		'''
-		#function_arg_types.append(scope_struct)
-		#print function_arg_types
+		#print self
+		#print "Stack"
+		#print IR_State.eds_var_map
+		scope_struct = IR_State.get_from_eds_var_map("_current_scope")
+		# TODO: AN einai none kane akti
+		if scope_struct is not None:	
+			function_arg_types.append(scope_struct.type)
+			print function_arg_types
 
 		# Find the return type
 		ret_type = ir.IntType(32)
@@ -413,6 +468,7 @@ class Function(Identifier):
 		# THe original command has been kept before testing
 		# IR_State.function_map[self.name] = function
 		function_with_metadata = Function_With_Metadata(function)
+		function_with_metadata.set_scope_struct(scope_struct)
 		IR_State.add_to_function_map(self.name, function_with_metadata)
 
 		# Anoixe kainourgio scope level
@@ -426,12 +482,9 @@ class Function(Identifier):
 		IR_State.block_counter += 1
 
 		# Map the arguments to their real names
-		''' TODO: Ebala edw to -1 gia na mhn mapparw kai to scope
-				  Kala ekana ??? 
-				  Ekana to idio kai sto function call an to allaxw
-				  edw na to allxw kai ekei
-		'''
-		for i in range(len(self.parameters) - 1):
+		
+
+		for i in range(len(self.parameters)):
 			eds_param_name = self.parameters[i].name
 			llvm_param = function.args[i]
 			
@@ -455,55 +508,50 @@ class Function(Identifier):
 
 		# Evaluate the function declarations and statements
 		with IR_State.builder.goto_block(block):
-			for element in enlist(self.declarations):
+			variable_decls = [x for x in enlist(
+					self.declarations) if isinstance(x, Variable)]
+			function_decls = [x for x in enlist(
+					self.declarations) if isinstance(x, Function)]
+			for element in variable_decls:
 				element.code_gen_decl()
+			
 
 			'''
-				TODO:
-				- Meta to declaration olwn twn metablhtwn 
-				  exoume th dunatothta na dhmiourghsoume kai
-				  to scope struct tou epipedou
-				- Briskoume ton tupo tou
-				- To kanoume allocate
-				- Dinoume stous deiktes tou tis theseis twn metablitwn
-				- To kalo einai oti an den uparxoun alles sunarthseis
-				  pio mesa pou an to kaloun feugei sta optimizations
-				  ara den mas endiaferei h apodosh tou
+			Map the variables to their real value
 			'''
+			previous_scope_frame = IR_State.eds_var_map[1]
+			previous_scope_frame_keys = [x for x in sorted(
+					previous_scope_frame.keys()) if not x=="_current_scope"]
+			print "Prohgoumeno"
+			print previous_scope_frame_keys
 
-			print "Ti theloume apo edw"
-			print IR_State.get_curr_level_of_eds_var_map()
-			print sorted(IR_State.get_curr_level_of_eds_var_map().keys())
-			# We sort them so that they have some kind of order
-			current_scope = IR_State.get_curr_level_of_eds_var_map()
-			current_scope_keys = sorted(current_scope.keys())
-			current_scope_types = []
-			for var_in_curr_scope_key in current_scope_keys:
-				var_in_curr_scope = current_scope[var_in_curr_scope_key]
-				current_scope_types.append(var_in_curr_scope.type)
-
-			# Add the scope struct as the last argument of the function
-			scope_struct_type = ir.LiteralStructType(current_scope_types)
-			allocated_scope_struct = IR_State.builder.alloca( 
-						scope_struct_type,  
-						name="_current_scope" )
-			IR_State.add_to_eds_var_map("_current_scope"
-						, allocated_scope_struct)
-			print allocated_scope_struct
-			# Add the pointer values to the struct
-			for i in range(len(current_scope_keys)):
-				struct_element = IR_State.builder.gep(
-							allocated_scope_struct ,
-							[ ir.Constant(ir.IntType(32), 1)
+			'''
+			An to megethos eiani 2 shmainei oti 
+			den uparxei pio prin giati eimaste global
+			TODO: Elegxw an isxuei auto 
+			'''
+			if( len(IR_State.eds_var_map) > 2):
+				for i in range(len(previous_scope_frame_keys)):
+					key = previous_scope_frame_keys[i]
+					print function.args[-1]
+					scope_variable_address = IR_State.builder.gep(
+							function.args[-1] ,
+							[ ir.Constant(ir.IntType(32), 0)
 							, ir.Constant(ir.IntType(32), i) 
 							] ,
-							name="_"+current_scope_keys[i] )
-				print struct_element.type
-				'''
-					TODO: 
-					- Having the element pointer , store the 
-					  variable address
-				'''
+							name="__"+key )
+					scope_variable = IR_State.builder.load(
+							scope_variable_address,
+							name="___"+key )
+					IR_State.add_if_not_to_eds_var_map(key, scope_variable)
+
+
+			# Create the current scope_struct
+			create_scope_struct()
+
+			for element in function_decls:
+				element.code_gen_decl()
+			
 
 			for element in enlist(self.statements):
 				element.code_gen()
@@ -1110,12 +1158,13 @@ class Function_call(Expr):
 		# function = IR_State.function_map[self.name)]
 		function_with_metadata = IR_State.get_from_function_map(self.name)
 		function = function_with_metadata.function
+		scope_struct = function_with_metadata.get_scope_struct()
 
 		# Evaluate the args
 		# In order to evaluate the byref args we change the l-side var
 		args = []
 		byref_metadata = function_with_metadata.metadata["byref"].split(" ")
-		for i in range(len(self.actual_parameters) - 1):
+		for i in range(len(self.actual_parameters)):
 			act_param = self.actual_parameters[i]
 			# Check if the attributes list contains something
 			if('byval' == byref_metadata[i][-5:]):
@@ -1125,13 +1174,9 @@ class Function_call(Expr):
 				args.append(act_param.code_gen())
 				IR_State.left_side = False
 
-		'''
-			TODO:
-			- Edw pairnw to scope_struct apo to 
-			  function_with_metadata kai apla to pernaw
-			  sta arguments
- 		'''
- 		
+
+		# Pass the scope struct as the last argument
+ 		args.append(scope_struct)
 
 		name = "_temp"+str(IR_State.var_counter)		
 		
