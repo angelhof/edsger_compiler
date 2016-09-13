@@ -58,6 +58,8 @@ class IR_State(object):
 				cls.rec_code_generation(element)
 		else:
 			head.code_gen()
+		# Debug only
+		print cls.module
 	@classmethod
 	def code_generation(cls, head):
 		cls.rec_code_generation(head)

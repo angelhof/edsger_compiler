@@ -86,6 +86,8 @@ def transform_type(var):
 	elif our_type.isGenDouble():
 		var_size = TypeSizes.double
 		var_type = ir.DoubleType()
+	else:
+		var_type = ir.VoidType()
 
 	# If it is not primitive
 	if not our_type.isPrimitive():

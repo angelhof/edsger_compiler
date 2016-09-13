@@ -136,25 +136,33 @@ lexer_process(input_file.read(), lexer_base)
 
 # After that we can call parser on each separate lexers[i]
 initial_scope = ({}, {})
+# Tree heads
+tree_heads = []
 # We call all the parser on the libraries first
 # And then we have the scope to call it also on the main program
 for lexer_file in lexers[1:]:
     warning_messages.file_name = "library"
     curr_parser,initial_scope = parse( lexer_file.lexdata, lexer_file, initial_scope)
     parsers.append(curr_parser)
+    tree_heads.append(edsger_semantic_classes.AST.head)
 
 warning_messages.file_name = sys.argv[1]
 curr_parser,scope = parse( lexers[0].lexdata, lexers[0], initial_scope)
 #print "No syntax error at program: " + sys.argv[1] + " :)"
 parsers.insert(0, curr_parser)
+tree_heads.insert(0, edsger_semantic_classes.AST.head)
+
+print tree_heads
 
 # DEBUG ONLY
 edsger_semantic_classes.AST.print_tree(f_out)
 
-tree_head = edsger_semantic_classes.AST.head
+# edsger_ir.IR_State.rec_code_generation(tree_heads[0])
+edsger_ir.IR_State.code_generation(tree_heads[0])
 
-edsger_ir.IR_State.code_generation(tree_head)
-
-
+'''
+TODO: Make a function in IR_State that will first execute 
+      the trees and then the main tree
+'''
 
 
