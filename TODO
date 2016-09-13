@@ -8,8 +8,6 @@
 4) Change line errors
     For example it doesnt count the comment lines
 
-5) Todo cast bonus (Apo poia se poia kai pws )
-
 6) Make the included libraries return asts also
 
 7) Fix warning when you have declared but not defined a function, it gives error that you redefine it
