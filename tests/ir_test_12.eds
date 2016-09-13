@@ -1,0 +1,34 @@
+int main(){
+	int a;
+	char b;
+	int *c;
+	double d;
+
+	(bool) 0;
+
+	(int) a;
+	(char) a;
+	(double) a;
+	(bool) a;
+	
+	(int) b;
+	(char) b;
+	(double) b;
+	(bool) b;
+	
+	(int) d;
+	(char) d;
+	(double) d;
+	(bool) d;
+	//(int*) d;
+	
+	(int) c;
+	(char) c;
+	//(double) c;
+	(bool) c;
+	(char *) c;
+
+	// Problhmatiko logo 2 byte integer
+	(int) &a;
+	return (int) &a;
+}

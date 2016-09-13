@@ -44,7 +44,7 @@ class IR_State(object):
 	# Empty Module
 	module = ir.Module(name=__file__)
 	# Create a function inside the module
-	func = ir.Function(module, ir.FunctionType(ir.IntType(32), []), name="_global_decs_func")
+	func = ir.Function(module, ir.FunctionType(ir.IntType(16), []), name="_global_decs_func")
 	# Insert an unreachable block, and the main block
 	block = func.append_basic_block(name="_global_decs")
 	block_map["_global_decs"] = block
@@ -63,7 +63,7 @@ class IR_State(object):
 		cls.rec_code_generation(head)
 		
 		with cls.builder.goto_block(cls.block):
-			ret_result = ir.Constant(ir.IntType(32), 0)
+			ret_result = ir.Constant(ir.IntType(16), 0)
 			cls.builder.ret(ret_result)
 
 		cls.terminate_blocks()

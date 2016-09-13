@@ -8,6 +8,20 @@ from edsger_ir import IR_State, Function_With_Metadata
 ## Useful ##
 ############
 
+'''
+A class that holds the bit size of its type
+TODO:
+- Bool needs to be 8 but then we have to change code
+- Double number is never used ( Have to check official docs)
+- Pointer type is never used
+'''
+class TypeSizes(object):
+	int = 16
+	char = 8
+	bool = 1
+	double = 80
+	pointer = 16
+
 def create_unreachable():
 	unreachable = IR_State.builder.append_basic_block("_unreachable")
 	IR_State.unreachable_array.append(unreachable)
@@ -61,16 +75,16 @@ def transform_type(var):
 	# If the variable is primitive
 	var_size = 0
 	if our_type.isGenBool():
-		var_size = 1
+		var_size = TypeSizes.bool
 		var_type = ir.IntType(var_size)
 	elif our_type.isGenChar():
-		var_size = 8
+		var_size = TypeSizes.char
 		var_type = ir.IntType(var_size)
 	elif our_type.isGenInt():
-		var_size = 32
+		var_size = TypeSizes.int
 		var_type = ir.IntType(var_size)
 	elif our_type.isGenDouble():
-		var_size = 64
+		var_size = TypeSizes.double
 		var_type = ir.DoubleType()
 
 	# If it is not primitive
@@ -82,12 +96,16 @@ def transform_type(var):
 			var_type = ir.PointerType(var_type)	
 
 
-	# If it is an array
-	if var.array_expr is not None:
-		# Evaluate the expression 
-		# TODO: For now it only works for constant
+	
+	# It could be a function or a variable
+	if(isinstance(var, Variable)):
+		# If it is an array
+		if var.array_expr is not None:
+			# Evaluate the expression 
+			# TODO: For now it only works for constant
 
-		array_size = int(var.array_expr.value)
+			array_size = int(var.array_expr.value)
+
 
 	return (var_type, array_size)
 
@@ -127,6 +145,12 @@ def create_scope_struct():
 	IR_State.add_to_eds_var_map("_current_scope"
 				, allocated_scope_struct)
 	#print allocated_scope_struct
+	'''
+	Note: Check that the IntType indice below is 32 
+		  not regarding the int size because of llvm
+		  limitation
+		  ! To idio sumbainei kai sto function class 
+	'''
 	# Add the pointer values to the struct
 	for i in range(len(current_scope_keys)):
 		struct_element = IR_State.builder.gep(
@@ -305,14 +329,14 @@ class Constant_Value(Expr):
     	## --- WORK IN PROGRESS ---
 		## TODO: Make checks for types
 		if self.type.isInt():
-			dest = ir.Constant(ir.IntType(32), self.value)
+			dest = ir.Constant(ir.IntType(TypeSizes.int), self.value)
 		elif self.type.isDouble():
 			dest = ir.Constant(ir.DoubleType(), self.value)
 		elif self.type.isBool():
-			dest = ir.Constant(ir.IntType(1), self.value)
+			dest = ir.Constant(ir.IntType(TypeSizes.bool), self.value)
 		elif self.type.isChar():
 			# Supposing that characters are always 3 chars long
-			dest = ir.Constant(ir.IntType(8), ord(self.value[1]))
+			dest = ir.Constant(ir.IntType(TypeSizes.char), ord(self.value[1]))
 		elif self.type.isGenChar() and self.type.pointer == 1:
 			pass
 		else:
@@ -459,7 +483,11 @@ class Function(Identifier):
 			print function_arg_types
 
 		# Find the return type
-		ret_type = ir.IntType(32)
+		'''
+			TODO:
+			- Bres to return type ths sunarthshs
+		'''
+		ret_type = transform_type(self)[0]
 
 		# Create a new function and and save it at its map 
 		function_type = ir.FunctionType(ret_type, function_arg_types)
@@ -850,22 +878,22 @@ class Node_unary_operation(Expr):
 				floatzero = ir.Constant(ir.DoubleType(), 0.0)
 				dest = IR_State.builder.fadd(var_s, floatzero, name=name)
 			else:
-				intzero = ir.Constant(ir.IntType(32), 0)
+				intzero = ir.Constant(ir.IntType(TypeSizes.int), 0)
 				dest = IR_State.builder.add(var_s, intzero, name=name)
 		elif(op== "u-"):
 			if(op_type.isDouble()):
 				floatzero = ir.Constant(ir.DoubleType(), 0.0)
 				dest = IR_State.builder.fsub(floatzero, var_s, name=name)
 			else:
-				intzero = ir.Constant(ir.IntType(32), 0)
+				intzero = ir.Constant(ir.IntType(TypeSizes.int), 0)
 				dest = IR_State.builder.sub(intzero, var_s, name=name)
 		elif(op == "u*"):
 			dest = IR_State.builder.load(var_s, name=name)
 		elif(op == "&"):
-			intzero = ir.Constant(ir.IntType(32), 0)
+			intzero = ir.Constant(ir.IntType(TypeSizes.int), 0)
 			dest = IR_State.builder.gep(var_s,[intzero], name=name)
 		elif(op == "!"):
-			bin_one = ir.Constant(ir.IntType(1), 1)
+			bin_one = ir.Constant(ir.IntType(TypeSizes.bool), 1)
 			dest = IR_State.builder.xor(var_s,bin_one, name=name)
 		else:
 			print("Exit violently :O")
@@ -983,7 +1011,7 @@ class Node_pre_unary_assignment(Expr):
 		left_side = self.exp.code_gen()
 		IR_State.left_side = False
 		var_s1 = self.exp.code_gen()
-		var_s2 = ir.Constant(ir.IntType(32), 1)
+		var_s2 = ir.Constant(ir.IntType(TypeSizes.int), 1)
 		op_type = self.type
 		
 		name = "_temp"+str(IR_State.var_counter)
@@ -1032,7 +1060,7 @@ class Node_post_unary_assignment(Expr):
 		left_side = self.exp.code_gen()
 		IR_State.left_side = False
 		var_s1 = self.exp.code_gen()
-		var_s2 = ir.Constant(ir.IntType(32), 1)
+		var_s2 = ir.Constant(ir.IntType(TypeSizes.int), 1)
 		op_type = self.type
 		
 		name = "_temp"+str(IR_State.var_counter)
@@ -1177,8 +1205,17 @@ class Function_call(Expr):
 
 
 		# Pass the scope struct as the last argument
-		# Ann den eiani global sunarthsh
-		if( len(IR_State.eds_var_map) > 2):
+		# An exei scope struct
+		# TODO: Elegxe mexri akrwn an auto einai swsto
+		'''
+		Old Implementation
+		print IR_State.eds_var_map
+		print len(IR_State.eds_var_map)
+		print scope_struct
+		if( len(IR_State.eds_var_map) >= 2):	
+ 			args.append(scope_struct)
+ 		'''
+ 		if( scope_struct is not None):	
  			args.append(scope_struct)
 
 		name = "_temp"+str(IR_State.var_counter)		
@@ -1219,23 +1256,118 @@ class Delimiter():
 
 
 class Type_cast(Expr):
-	basic = ["int", "char", "double", "bool"]
-	basic_types = [basic, basic, basic, basic]
-	allowed = {"int":0, "char":1, "double":2, "bool":3}
 	def  __init__(self, from_expr, to_type, lineno):
 		self.old_expr=from_expr
 		self.type=to_type
 		self.lineno = lineno
 	def is_valid_type_cast(self):
-		if(self.type.type in self.basic_types[self.allowed[self.old_expr.type.type]]):
-			return True
-		else:	
-			return False
+		if(self.old_expr.type.isPrimitive()):
+			if(self.type.isPrimitive()):
+				return True
+			else:
+				return False
+		else:
+			if(self.type.isInt()  or
+			   self.type.isBool() or
+			   self.type.isChar() or
+			   not self.type.isPrimitive()):
+				return True
+			else:
+				return False
+		#else:	
+		#	return False
 	def __str__(self):
 		return "Casting: " + str(self.type) 
 	def __iter__(self):
 		rlist = self.old_expr
 		return iter(rlist)
+	def code_gen(self):
+		old_type = self.old_expr.type
+		new_type = self.type
+
+		old_type_llvm = transform_type(self.old_expr)[0]
+		new_type_llvm = transform_type(self)[0]
+
+		eval_exp = var_s = self.old_expr.code_gen()
+		
+		print "Typoi"
+		print old_type, new_type
+		print old_type_llvm.is_pointer
+		try:
+			print old_type_llvm.width
+		except:
+			pass
+		print dir(old_type_llvm)
+		print dir(new_type_llvm)
+		print type(old_type_llvm)
+		print type(new_type_llvm)
+		print isinstance(old_type_llvm, ir.types.DoubleType)
+		print isinstance(new_type_llvm, ir.types.DoubleType)
+		name = "_temp"+str(IR_State.var_counter)
+
+		'''
+		We have to check every case of old and new type
+		in order to apply an instruction
+		We considered that primitive types can be 
+		converted in any primitive type and pointers can
+		be converted in pointers and integers
+		'''
+		dest = None
+		if(isinstance(old_type_llvm, ir.types.IntType)):
+			if(isinstance(new_type_llvm, ir.types.IntType)):
+				if(old_type_llvm.width < new_type_llvm.width):
+					dest = IR_State.builder.sext(eval_exp
+							, new_type_llvm
+							, name=name)
+				else:
+					dest = IR_State.builder.trunc(eval_exp
+							, new_type_llvm
+							, name=name)
+			elif(isinstance(new_type_llvm, ir.types.DoubleType)):
+				dest = IR_State.builder.sitofp(eval_exp
+						, new_type_llvm
+						, name=name)
+			else:
+				print "This shouldnt have passed the semantic analysis"
+				print "You cannot cast an integer into a pointer"
+				exit(1)
+		elif(isinstance(old_type_llvm, ir.types.DoubleType)):
+			if(isinstance(new_type_llvm, ir.types.IntType)):
+				dest = IR_State.builder.fptosi(eval_exp
+						, new_type_llvm
+						, name=name)
+			elif(isinstance(new_type_llvm, ir.types.DoubleType)):
+				dest = IR_State.builder.fpext(eval_exp
+						, new_type_llvm
+						, name=name)
+			else:
+				print "This shouldnt have passed the semantic analysis"
+				print "You cannot cast a double into a pointer"
+				exit(1)		
+		elif(isinstance(old_type_llvm, ir.types.PointerType)):
+			if(isinstance(new_type_llvm, ir.types.PointerType)):
+				dest = IR_State.builder.bitcast(eval_exp
+						, new_type_llvm
+						, name=name)
+			elif(isinstance(new_type_llvm, ir.types.IntType)):
+				dest = IR_State.builder.ptrtoint(eval_exp
+						, new_type_llvm
+						, name=name)
+			else:
+				print "This shouldnt have passed the semantic analysis"
+				print "You cannot cast a pointer to a double"
+				exit(1)
+		else:
+			print "Something very bad happened. Here is the fault:"
+			print old_type_llvm
+			exit(1)
+		
+
+		IR_State.var_map.append(dest) 
+		IR_State.var_counter += 1
+
+
+		return dest
 
 class Array_Deref(Expr):
 	def __init__(self, left_expression, index, lineno):
