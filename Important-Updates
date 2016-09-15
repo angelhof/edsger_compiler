@@ -12,3 +12,12 @@ Here we keep all the choices we took, some implementation difficulties that we f
 3) Testing
 ===========
 	We implemented a testing program that runs on all test input, prints their output in files in the output folder (depending on the debug level) and counts how many of them are correct. 
+
+4) Function Binding
+====================
+
+	We consider every function with the same name but any difference in types a different function
+	Example: 
+	// The following are two different functions
+	int pipi(char a);
+	int pipi(byref char a);

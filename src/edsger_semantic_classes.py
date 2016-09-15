@@ -340,7 +340,33 @@ class Constant_Value(Expr):
 			# Supposing that characters are always 3 chars long
 			dest = ir.Constant(ir.IntType(TypeSizes.char), ord(self.value[1]))
 		elif self.type.isGenChar() and self.type.pointer == 1:
-			pass
+			# First make the string normal
+			string_val = decoded_string = self.value[1:-1].decode('string_escape')
+			address = IR_State.builder.alloca(
+					ir.IntType(TypeSizes.char), 
+					len(string_val)+1)
+			
+			# Save each character
+			for i in range(len(string_val)):
+				temp_add = IR_State.builder.gep(
+					address,
+					[ir.Constant(ir.IntType(32), i)])
+				ir_val = ir.Constant(ir.IntType(TypeSizes.char), 
+					ord(string_val[i]))
+				IR_State.builder.store(ir_val,
+					temp_add)
+
+			# Add the final character
+			temp_add = IR_State.builder.gep(
+					address,
+					[ir.Constant(ir.IntType(32), 
+					len(string_val))])
+			ir_val = ir.Constant(ir.IntType(TypeSizes.char), 
+					ord('\0'))
+			IR_State.builder.store(ir_val,
+					temp_add)
+
+			dest = address
 		else:
 			print"Exit like we got a big problem :'("
 			exit(1)
@@ -484,112 +510,145 @@ class Function(Identifier):
 			function_arg_types.append(scope_struct.type)
 			print function_arg_types
 
-		# Find the return type
+
 		'''
-			TODO:
-			- Bres to return type ths sunarthshs
+		Elegxoume an uparxei h sunarthsh hdh declared
+		kai thn kanoume bind me auth
 		'''
-		ret_type = transform_type(self)[0]
-
-		# Create a new function and and save it at its map 
-		function_type = ir.FunctionType(ret_type, function_arg_types)
-		function = ir.Function(IR_State.module, function_type, name=self.name)
-		
-		# THe original command has been kept before testing
-		# IR_State.function_map[self.name] = function
-		function_with_metadata = Function_With_Metadata(function)
-		function_with_metadata.set_scope_struct(scope_struct)
-		IR_State.add_to_function_map(self.name, function_with_metadata)
-
-		# Anoixe kainourgio scope level
-		IR_State.push_level_function_map()
-		IR_State.push_level_eds_var_map()
-
-		# Get a new block name and Crete a new block
-		block_name = "_block" + str(IR_State.block_counter)
-		block = function.append_basic_block(name=block_name)
-		IR_State.block_map[block_name] = block
-		IR_State.block_counter += 1
-
-		# Map the arguments to their real names
-		
-
-		for i in range(len(self.parameters)):
-			eds_param_name = self.parameters[i].name
-			llvm_param = function.args[i]
-			
-			IR_State.add_to_eds_var_map(eds_param_name, llvm_param)
-
-
-		# Store as function metadata the byref
-		# We store whether the arguments are byref so that
-		# We can load them properly afterwards
-		byref_array = []
-		for i in range(len(self.parameters)):
-			eds_param_byref = self.parameters[i].byref
-			llvm_param = function.args[i]
-
-			if eds_param_byref == 0:
-				byref_array.append(self.parameters[i].name + "->byval")
+		function_with_metadata = IR_State.get_from_function_map(self.name)
+		if(function_with_metadata is not None):
+			function = function_with_metadata.function
+			if(function.is_declaration):
+				pass
 			else:
-				byref_array.append(self.parameters[i].name + "->byref")
-		function_with_metadata.set_metadata("byref", " ".join(byref_array))
+				# An h sunarthsh einai hdh dhlwmenh problhma
+				'''
+				TODO:
+				- Should the user redefine functions ? 
+				- This error will come even if the user 
+				  defines a function with a different
+				  signature 
+				- In order to solve this change function 
+				  naming
+				'''
+				print "Why did you try to redefine function: " + self.name
+				exit(1)	
+		else:
+			# Find the return type
+			'''
+				TODO:
+				- Bres to return type ths sunarthshs
+			'''
+			ret_type = transform_type(self)[0]
+
+			# Create a new function and and save it at its map 
+			function_type = ir.FunctionType(ret_type, function_arg_types)
+			function = ir.Function(IR_State.module, function_type, name=self.name)
+			
+			# THe original command has been kept before testing
+			# IR_State.function_map[self.name] = function
+			function_with_metadata = Function_With_Metadata(function)
+			function_with_metadata.set_scope_struct(scope_struct)
+			IR_State.add_to_function_map(self.name, function_with_metadata)
+
+
+			# Store as function metadata the byref
+			# We store whether the arguments are byref so that
+			# We can load them properly afterwards
+			byref_array = []
+			for i in range(len(self.parameters)):
+				eds_param_byref = self.parameters[i].byref
+				llvm_param = function.args[i]
+
+				if eds_param_byref == 0:
+					byref_array.append(self.parameters[i].name + "->byval")
+				else:
+					byref_array.append(self.parameters[i].name + "->byref")
+			function_with_metadata.set_metadata("byref", " ".join(byref_array))
+		
 		
 
-		# Evaluate the function declarations and statements
-		with IR_State.builder.goto_block(block):
-			variable_decls = [x for x in enlist(
-					self.declarations) if isinstance(x, Variable)]
-			function_decls = [x for x in enlist(
-					self.declarations) if isinstance(x, Function)]
-			for element in variable_decls:
-				element.code_gen_decl()
-			
+		# An h sunarthsh den einai declaration
+		if(len(self.declarations)>0 or
+			len(self.statements)>0):
 
-			'''
-			Map the variables to their real value
-			'''
-			previous_scope_frame = IR_State.eds_var_map[1]
-			previous_scope_frame_keys = [x for x in sorted(
-					previous_scope_frame.keys()) if not x=="_current_scope"]
-			print "Prohgoumeno"
-			print previous_scope_frame_keys
+			# Anoixe kainourgio scope level
+			IR_State.push_level_function_map()
+			IR_State.push_level_eds_var_map()
 
-			'''
-			- An to megethos eiani 2 shmainei oti 
-			  den uparxei pio prin giati eimaste global
-			- Ebala to idio sto function call
-			TODO: Elegxw an isxuei auto 
-			'''
-			if( len(IR_State.eds_var_map) > 2):
-				for i in range(len(previous_scope_frame_keys)):
-					key = previous_scope_frame_keys[i]
-					print function.args[-1]
-					scope_variable_address = IR_State.builder.gep(
-							function.args[-1] ,
-							[ ir.Constant(ir.IntType(32), 0)
-							, ir.Constant(ir.IntType(32), i) 
-							] ,
-							name="__"+key )
-					scope_variable = IR_State.builder.load(
-							scope_variable_address,
-							name="___"+key )
-					IR_State.add_if_not_to_eds_var_map(key, scope_variable)
+			# Get a new block name and Crete a new block
+			block_name = "_block" + str(IR_State.block_counter)
+			block = function.append_basic_block(name=block_name)
+			IR_State.block_map[block_name] = block
+			IR_State.block_counter += 1
+
+			# Map the arguments to their real names
+			for i in range(len(self.parameters)):
+				eds_param_name = self.parameters[i].name
+				llvm_param = function.args[i]
+				
+				IR_State.add_to_eds_var_map(eds_param_name, llvm_param)
 
 
-			# Create the current scope_struct
-			create_scope_struct()
 
-			for element in function_decls:
-				element.code_gen_decl()
-			
+			# Evaluate the function declarations and statements
+			with IR_State.builder.goto_block(block):
 
-			for element in enlist(self.statements):
-				element.code_gen()
+				# Kane prwta ola ta variable declarations
+				# Gia na mporesei na dhmiourghsei to scope
+				# struct
+				variable_decls = [x for x in enlist(
+						self.declarations) if isinstance(x, Variable)]
+				function_decls = [x for x in enlist(
+						self.declarations) if isinstance(x, Function)]
+				for element in variable_decls:
+					element.code_gen_decl()
+				
 
-		# Kleise to scope level
-		IR_State.pop_level_function_map()
-		IR_State.pop_level_eds_var_map()
+				'''
+				Map the variables to their real value
+				'''
+				previous_scope_frame = IR_State.eds_var_map[1]
+				previous_scope_frame_keys = [x for x in sorted(
+						previous_scope_frame.keys()) if not x=="_current_scope"]
+				print "Prohgoumeno"
+				print previous_scope_frame_keys
+
+				'''
+				- An to megethos eiani 2 shmainei oti 
+				  den uparxei pio prin giati eimaste global
+				- Ebala to idio sto function call
+				TODO: Elegxw an isxuei auto 
+				'''
+				if( len(IR_State.eds_var_map) > 2):
+					for i in range(len(previous_scope_frame_keys)):
+						key = previous_scope_frame_keys[i]
+						print function.args[-1]
+						scope_variable_address = IR_State.builder.gep(
+								function.args[-1] ,
+								[ ir.Constant(ir.IntType(32), 0)
+								, ir.Constant(ir.IntType(32), i) 
+								] ,
+								name="__"+key )
+						scope_variable = IR_State.builder.load(
+								scope_variable_address,
+								name="___"+key )
+						IR_State.add_if_not_to_eds_var_map(key, scope_variable)
+
+
+				# Create the current scope_struct
+				create_scope_struct()
+
+				for element in function_decls:
+					element.code_gen_decl()
+				
+
+				for element in enlist(self.statements):
+					element.code_gen()
+
+			# Kleise to scope level
+			IR_State.pop_level_function_map()
+			IR_State.pop_level_eds_var_map()
 
 
 		

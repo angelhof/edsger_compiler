@@ -1,5 +1,18 @@
 #include "stdio.h"
 
+int pipi(int a);
+
+int pipi(int a){
+	return a;
+}
+
+
 int main() {
+	writeInteger(0);
+	writeString("\n");
+	writeString("me lene niko");
+	writeString("\n");
+	
+	writeInteger(pipi(9));
 	return 0;
 }

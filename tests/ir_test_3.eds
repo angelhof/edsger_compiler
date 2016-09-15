@@ -1,9 +1,16 @@
+#include "stdio.h"
+
 int main(){
 
 	// Return na teleiwnei thn protash enos if pou bgainei false bgazei seg fault
 	if(false){
 		return 5;
 	}
+	/**
+	 * Den ftanoume pote edw giati gia kapoio logo mpainoume 
+	 * sto else pou paei se unreachable
+	 */
+	writeString("Ola kala mexri edw");
 
 	return 0;
 }

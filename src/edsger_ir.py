@@ -59,7 +59,7 @@ class IR_State(object):
 		else:
 			head.code_gen()
 		# Debug only
-		print cls.module
+		# print cls.module
 	@classmethod
 	def code_generation(cls, head):
 		cls.rec_code_generation(head)
@@ -74,6 +74,22 @@ class IR_State(object):
 
 		fp = open("test_asm", "w")
 		fp.write(str(cls.module))	
+	@classmethod
+	def all_code_generation(cls, head_list):
+		for code_head in head_list[1:]:
+			cls.rec_code_generation(code_head)
+		cls.rec_code_generation(head_list[0])
+		
+		with cls.builder.goto_block(cls.block):
+			ret_result = ir.Constant(ir.IntType(16), 0)
+			cls.builder.ret(ret_result)
+
+		cls.terminate_blocks()
+
+		print cls.module
+
+		fp = open("test_asm", "w")
+		fp.write(str(cls.module))
 	@classmethod
 	def terminate_blocks(cls):
 		array = [x for x in cls.unreachable_array if not x.is_terminated]
@@ -100,8 +116,7 @@ class IR_State(object):
 			if name in  stack_level:
 				return stack_level[name]
 		# TODO: Fix this error print
-		print "Function with name: " + name + " was not found in the map"
-		exit(1)
+		return None
 	@classmethod
 	def add_to_function_map(cls, name, value):
 		cls.function_map[0][name] = value	

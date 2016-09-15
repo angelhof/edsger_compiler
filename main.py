@@ -158,8 +158,8 @@ print tree_heads
 edsger_semantic_classes.AST.print_tree(f_out)
 
 # edsger_ir.IR_State.rec_code_generation(tree_heads[0])
-edsger_ir.IR_State.code_generation(tree_heads[0])
-
+# edsger_ir.IR_State.code_generation(tree_heads[0])
+edsger_ir.IR_State.all_code_generation(tree_heads)
 '''
 TODO: Make a function in IR_State that will first execute 
       the trees and then the main tree
