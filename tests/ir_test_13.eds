@@ -2,6 +2,8 @@
 
 int pipi(int a);
 
+int koko();
+
 int pipi(int a){
 	return a;
 }

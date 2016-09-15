@@ -535,10 +535,6 @@ class Function(Identifier):
 				exit(1)	
 		else:
 			# Find the return type
-			'''
-				TODO:
-				- Bres to return type ths sunarthshs
-			'''
 			ret_type = transform_type(self)[0]
 
 			# Create a new function and and save it at its map 
