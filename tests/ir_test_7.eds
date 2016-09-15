@@ -1,3 +1,9 @@
+#include "stdio.h"
+
+int kaka(int b){
+	return b;
+}
+
 int main()
 {
 	
@@ -5,5 +11,7 @@ int main()
 
 	a = 'a';
 
+	writeChar(a);
+	writeInteger(10);
 	return 0;
 }

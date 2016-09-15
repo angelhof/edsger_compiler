@@ -8,6 +8,28 @@ from edsger_ir import IR_State, Function_With_Metadata
 ## Useful ##
 ############
 
+library_function_signatures = [
+	"writeInteger-1-int" ,
+	"writeBoolean-1-bool" ,
+	"writeChar-1-char" ,
+	"writeReal-1-double" ,
+	"writeString-1-char pointer" ,
+	"readInteger-0" ,
+	"readBoolean-0" ,
+	"readChar-0" ,
+	"readReal-0" ,
+	"readString-0"
+]
+
+def find_function_signature(identifier, type_list):
+	if(identifier == "main"):
+		return identifier
+	signature = identifier + "-" + str(len(type_list)) + reduce(operator.concat, map(lambda x: "-" + str(x), type_list) , "")
+	if signature in library_function_signatures:
+		return identifier
+	return signature
+
+
 '''
 A class that holds the bit size of its type
 TODO:
@@ -216,7 +238,7 @@ class Program_State(object):
 		return None
 	@classmethod
 	def function_in_scope(cls,identifier, type_list):
-		signature = identifier + "-" + str(len(type_list)) + reduce(operator.concat, map(lambda x: "-" + str(x), type_list) , "")
+		signature = find_function_signature(identifier, type_list)
 		for scope in cls.function_scope_stack:
 			if(signature in scope):
 				return scope[signature]
@@ -467,7 +489,7 @@ class Function(Identifier):
 		self.statements = statements
 
 	def get_signature(self):
-		return self.name + "-" + str(len(self.parameters)) + reduce(operator.concat, map(lambda x: "-" + str(x.type), self.parameters) , "")
+		return find_function_signature(self.name, map(lambda x: x.type, self.parameters) )
 
 	# Parameters will be a list of variables
 	def add_parameter(self,parameter):
@@ -515,7 +537,8 @@ class Function(Identifier):
 		Elegxoume an uparxei h sunarthsh hdh declared
 		kai thn kanoume bind me auth
 		'''
-		function_with_metadata = IR_State.get_from_function_map(self.name)
+		# function_with_metadata = IR_State.get_from_function_map(self.name)
+		function_with_metadata = IR_State.get_from_function_map(self.get_signature())
 		if(function_with_metadata is not None):
 			function = function_with_metadata.function
 			if(function.is_declaration):
@@ -539,13 +562,13 @@ class Function(Identifier):
 
 			# Create a new function and and save it at its map 
 			function_type = ir.FunctionType(ret_type, function_arg_types)
-			function = ir.Function(IR_State.module, function_type, name=self.name)
+			function = ir.Function(IR_State.module, function_type, name=self.get_signature())
 			
 			# THe original command has been kept before testing
 			# IR_State.function_map[self.name] = function
 			function_with_metadata = Function_With_Metadata(function)
 			function_with_metadata.set_scope_struct(scope_struct)
-			IR_State.add_to_function_map(self.name, function_with_metadata)
+			IR_State.add_to_function_map(self.get_signature(), function_with_metadata)
 
 
 			# Store as function metadata the byref
@@ -563,6 +586,10 @@ class Function(Identifier):
 			function_with_metadata.set_metadata("byref", " ".join(byref_array))
 		
 		
+		print "TO onoma mou einai"
+		print dir(function)
+		print function._get_name()
+		# print function._set_name()
 
 		# An h sunarthsh den einai declaration
 		if(len(self.declarations)>0 or
@@ -1242,7 +1269,7 @@ class Function_call(Expr):
 
 		# Get the function from its name ( Original Command has been kept)
 		# function = IR_State.function_map[self.name)]
-		function_with_metadata = IR_State.get_from_function_map(self.name)
+		function_with_metadata = IR_State.get_from_function_map(self.function.get_signature())
 		function = function_with_metadata.function
 		scope_struct = function_with_metadata.get_scope_struct()
 
@@ -1279,6 +1306,7 @@ class Function_call(Expr):
 		
 		dest = IR_State.builder.call(function, args, name=name)
 
+		
 		IR_State.var_map.append(dest) 
 		IR_State.var_counter += 1
 		
