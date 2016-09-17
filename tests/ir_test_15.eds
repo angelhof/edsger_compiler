@@ -5,6 +5,8 @@ int b[5];
 
 int main(){
 	
+	//b[0];
+	a = 1;
 	writeInteger(a);
 	return 0;
 

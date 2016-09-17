@@ -94,6 +94,8 @@ def transform_type(var):
 	
 	array_size = 1
 
+
+
 	# If the variable is primitive
 	var_size = 0
 	if our_type.isGenBool():
@@ -119,15 +121,14 @@ def transform_type(var):
 		for i in range(pointer_number):
 			var_type = ir.PointerType(var_type)	
 
+		# It could be a function or a variable
 
-	
-	# It could be a function or a variable
+
 	if(isinstance(var, Variable)):
 		# If it is an array
 		if var.array_expr is not None:
 			# Evaluate the expression 
 			# TODO: For now it only works for constant
-
 			array_size = int(var.array_expr.value)
 
 
@@ -459,24 +460,41 @@ class Variable(Identifier):
 		array_size = type_and_size[1]
 		
 
-		'''
-		TODO:
-		- Check if it is better to declare variables
-		  as allocate 
-		'''
+
 		if(self.isGlobal):
+
+
+			'''
+			TODO:
+			- FTiaxnw ta global arrays ws exhs
+			  Ftiaxnw dio values, ena me to array
+			  kai ena me otn pointer tou
+			  opws kaname sto variable.code_gen_decl()
+			 '''
 			if(array_size > 1):
 				var_type = ir.ArrayType(var_type, array_size)
+
 			ret_val = ir.GlobalVariable(IR_State.module, 
 						var_type, 
 						our_name)	
+			ret_val.linkage = "private"
+			
 
-			if (self.type.defaultValue() is not None):
-				ret_val.initializer = self.type.defaultValue()	
+			print "KAKANA"
 			print dir(ret_val)
 			IR_State.add_to_eds_var_map(our_name, ret_val)
-		else: 
-			ret_val = IR_State.builder.alloca( var_type, 
+		else:
+			# If it an array we have to do 2 steps
+			if(array_size > 1):
+				arr_vals = IR_State.builder.alloca( var_type.pointee, 
+						size=array_size, name=our_name+"+array_vals" )
+				ret_val = IR_State.builder.alloca( var_type, 
+						size=1, name=our_name )
+				point_to_vals = IR_State.builder.store(
+						arr_vals , 
+						ret_val)
+			else:
+				ret_val = IR_State.builder.alloca( var_type, 
 						size=array_size, name=our_name )
 			IR_State.add_to_eds_var_map(our_name, ret_val)
 		return ret_val
@@ -623,10 +641,14 @@ class Function(Identifier):
 			function_with_metadata.set_metadata("byref", " ".join(byref_array))
 		
 		
+		'''
+		Debug
 		print "TO onoma mou einai"
 		print dir(function)
 		print function._get_name()
-		# print function._set_name()
+		
+		print function._set_name()
+		'''
 
 		# An h sunarthsh den einai declaration
 		if(len(self.declarations)>0 or
