@@ -47,17 +47,21 @@ class IR_State(object):
 	func = ir.Function(module, ir.FunctionType(ir.IntType(16), []), name="_global_decs_func")
 	# Insert an unreachable block, and the main block
 	block = func.append_basic_block(name="_global_decs")
-	block_map["_global_decs"] = block
+	#block_map["_global_decs"] = block
 	# Basic IR module, the builder
+	#builder = ir.IRBuilder()
 	builder = ir.IRBuilder(block)
+
 	@classmethod
 	def rec_code_generation(cls, head):
 
+		# Globally exoume mono declarations ara sta
+		# head tha kanoume code_gen_decl()
 		if(type(head) is list):
 			for element in head:
 				cls.rec_code_generation(element)
 		else:
-			head.code_gen()
+			head.code_gen_decl()
 		# Debug only
 		# print cls.module
 	@classmethod
@@ -76,6 +80,9 @@ class IR_State(object):
 		fp.write(str(cls.module))	
 	@classmethod
 	def all_code_generation(cls, head_list):
+
+		# Import the new and delete functions
+
 		for code_head in head_list[1:]:
 			cls.rec_code_generation(code_head)
 		cls.rec_code_generation(head_list[0])

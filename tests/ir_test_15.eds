@@ -1,0 +1,11 @@
+#include "stdio.h"
+
+int a;
+int b[5];
+
+int main(){
+	
+	writeInteger(a);
+	return 0;
+
+}

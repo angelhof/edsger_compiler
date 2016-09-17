@@ -90,6 +90,8 @@ def p_global_declaration(p):
 		if(p[1][0] == '#'):
 			p[0] = None	   
 	else:
+		if(isinstance(p[1][0], Variable)):
+			p[1][0].isGlobal = True
 		p[0] = p[1]
 
 def p_variable_declaration(p):

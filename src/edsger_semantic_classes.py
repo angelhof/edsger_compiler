@@ -337,6 +337,21 @@ class Type():
 		return self.type == "double" and self.isPrimitive()	
 	def isPrimitive(self):
 		return self.pointer == 0 
+	def defaultValue(self):
+		ret_val = None
+		if(self.isInt()):
+			ret_val = ir.Constant(ir.IntType(TypeSizes.int), 
+					0)
+		elif(self.isChar()):
+			ret_val = ir.Constant(ir.IntType(TypeSizes.char), 
+					0)
+		elif(self.isBool()):
+			ret_val = ir.Constant(ir.IntType(TypeSizes.bool), 
+					0)
+		elif(self.isDouble()):
+			ret_val = ir.Constant(ir.DoubleType(), 
+					0)
+		return ret_val
 
 # Constant value
 class Constant_Value(Expr):
@@ -410,6 +425,7 @@ class Variable(Identifier):
 		self.name = name
 		self.lineno = lineno
 		self.array_expr = array_expr
+		self.isGlobal = False
 
 	def declare_type(self,vtype):
 		self.type = vtype
@@ -420,6 +436,9 @@ class Variable(Identifier):
 	def code_gen(self):
 		var_name = self.name 
 		name = "_temp"+str(IR_State.var_counter)
+
+		print IR_State.eds_var_map
+
 		ptr = IR_State.get_from_eds_var_map(var_name)
 
 		if(not IR_State.left_side):		
@@ -431,7 +450,7 @@ class Variable(Identifier):
 			return ptr
 
 	def code_gen_decl(self):
-		
+
 		our_name = self.name 
 
 		type_and_size = transform_type(self)
@@ -439,9 +458,27 @@ class Variable(Identifier):
 		var_type = type_and_size[0]
 		array_size = type_and_size[1]
 		
-		ret_val = IR_State.builder.alloca( var_type, 
-					size=array_size, name=our_name )
-		IR_State.add_to_eds_var_map(our_name, ret_val)
+
+		'''
+		TODO:
+		- Check if it is better to declare variables
+		  as allocate 
+		'''
+		if(self.isGlobal):
+			if(array_size > 1):
+				var_type = ir.ArrayType(var_type, array_size)
+			ret_val = ir.GlobalVariable(IR_State.module, 
+						var_type, 
+						our_name)	
+
+			if (self.type.defaultValue() is not None):
+				ret_val.initializer = self.type.defaultValue()	
+			print dir(ret_val)
+			IR_State.add_to_eds_var_map(our_name, ret_val)
+		else: 
+			ret_val = IR_State.builder.alloca( var_type, 
+						size=array_size, name=our_name )
+			IR_State.add_to_eds_var_map(our_name, ret_val)
 		return ret_val
 
 
