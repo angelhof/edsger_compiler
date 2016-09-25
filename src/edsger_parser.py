@@ -708,7 +708,7 @@ def p_ternary_operation(p):
 
 def p_delete(p):
 	'''delete : DELETE expression'''
-	p[0]=p[2]
+	p[0]=Delete_Pointer(p[2])
 
 
 def p_constant_value(p):

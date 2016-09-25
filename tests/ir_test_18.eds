@@ -1,0 +1,23 @@
+#include "stdio.h"
+
+int main(){
+	int *a;
+	char *b;
+
+	a = new int[5];
+	writeInteger(a[0]);
+	a[0] = 1;
+	writeInteger(a[0]);
+
+	b = new char[3];
+	b[0] = 'a';
+	b[1] = 'b';
+	b[2] = '\0';
+	writeString(b);
+
+	// DElete doesnt really delete the memory
+	delete b;
+	writeString(b);
+
+	return 0;
+}

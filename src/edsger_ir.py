@@ -90,7 +90,7 @@ class IR_State(object):
 		cls.initialize_string_constants()
 
 		# Import the new and delete functions
-		# TODO
+		cls.import_new_and_delete()
 
 		for code_head in head_list[1:]:
 			cls.rec_code_generation(code_head)
@@ -150,7 +150,24 @@ class IR_State(object):
 			StringConstants.strings[string_constant] = string_ir_value
 
 			i+=1
-
+	@classmethod
+	def import_new_and_delete(cls):
+		'''
+		Warning: I used generic int pointers 
+			(Might need to change that)
+		'''
+		# Declare _new
+		IR_State.new_function = ir.Function(cls.module,
+			ir.FunctionType( \
+				ir.PointerType(ir.IntType(TypeSizes.int)), 
+				[ir.IntType(TypeSizes.int)]), "new")
+		# Declare _dispose
+		IR_State.dispose_function = ir.Function(cls.module,
+			ir.FunctionType( \
+				ir.VoidType(), 
+				[ir.PointerType(ir.IntType(TypeSizes.int))]), 
+				"dispose")
+		pass
 	##
 	# The following set of 4 functions offer
 	# the basic functionality for the stack of function maps

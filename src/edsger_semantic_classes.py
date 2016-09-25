@@ -11,17 +11,17 @@ from edsger_ir import IR_State, \
 ## Useful ##
 ############
 
-library_function_signatures = [
-	"writeInteger-1-int" ,
-	"writeBoolean-1-bool" ,
-	"writeChar-1-char" ,
-	"writeReal-1-double" ,
-	"writeString-1-char pointer" ,
-	"readInteger-0" ,
-	"readBoolean-0" ,
-	"readChar-0" ,
-	"readReal-0" ,
-	"readString-0"
+library_function_names = [
+	"writeInteger" ,
+	"writeBoolean" ,
+	"writeChar" ,
+	"writeReal" ,
+	"writeString" ,
+	"readInteger" ,
+	"readBoolean" ,
+	"readChar" ,
+	"readReal" ,
+	"readString"
 ]
 
 def find_function_signature(identifier, type_list):
@@ -32,7 +32,7 @@ def find_function_signature(identifier, type_list):
 		return identifier
 	'''
 	signature = identifier + "-" + str(len(type_list)) + reduce(operator.concat, map(lambda x: "-" + str(x), type_list) , "")
-	if signature in library_function_signatures:
+	if identifier in library_function_names:
 		return identifier
 	return signature
 
@@ -77,17 +77,13 @@ def l_val_typecheck(head, maybe):
 	return False;
 
 '''
-Transforms our type into an LLVM type instance and it returns
-Returns (LLVM_Type, Array_Size (Only useful for allocation))
+Transforms our type instance in LLVM IR type
 '''
-def transform_type(var):
-
-	our_type = var.type
+def transform_type_basic(our_type):
 	our_type_name = our_type.type
 	our_type_pointer = our_type.pointer
 	
-	array_size = 1
-
+	
 
 
 	# If the variable is primitive
@@ -117,6 +113,20 @@ def transform_type(var):
 
 		# It could be a function or a variable
 
+	return var_type
+
+
+'''
+Transforms the variable type into an LLVM type instance and it returns
+Returns (LLVM_Type, Array_Size (Only useful for allocation))
+'''
+def transform_type(var):
+
+	array_size = 1
+
+	our_type = var.type
+	
+	var_type = transform_type_basic(our_type)	
 
 	if(isinstance(var, Variable)):
 		# If it is an array
@@ -372,8 +382,8 @@ class Constant_Value(Expr):
 		elif self.type.isBool():
 			dest = ir.Constant(ir.IntType(TypeSizes.bool), self.value)
 		elif self.type.isChar():
-			# Supposing that characters are always 3 chars long
-			dest = ir.Constant(ir.IntType(TypeSizes.char), ord(self.value[1]))
+			# Decode the character and save it
+			dest = ir.Constant(ir.IntType(TypeSizes.char), ord(self.value[1:-1].decode("string_escape")))
 		elif self.type.isGenChar() and self.type.pointer == 1:
 			
 			# Find the string in the dictionary
@@ -1335,7 +1345,72 @@ class New(Expr):
 	def __iter__(self):
 		rlist = []
 		return iter(rlist)
+	def code_gen(self):
+	
+		# Evaluate the size of the new		
+		if self.array_expr is not None:
+			new_positions = self.array_expr.code_gen()
+		else:
+			new_positions = ir.Constant(ir.IntType(TypeSizes.int), 1)
 
+		# Transform the type
+		ir_type = transform_type_basic(self.type)
+		print ir_type
+
+		name = "_temp"+str(IR_State.var_counter)		
+		
+
+		dest_generic = IR_State.builder.call(IR_State.new_function, 
+				[new_positions], 
+				name=name+"-generic")
+
+		# Having declared new with a generic
+		# Return Type: i16 pointer
+		# We need to explicitly change the pointer to
+		# the desired type
+		dest = IR_State.builder.bitcast(dest_generic
+						, ir_type
+						, name=name)
+
+		IR_State.var_map.append(dest) 
+		IR_State.var_counter += 1
+
+		return dest
+
+class Delete_Pointer(Expr):
+	def __init__(self, pointer):
+		self.pointer = pointer
+	def __str__(self):
+		return "Delete " + str(self.pointer)
+	def __iter__(self):
+		rlist = []
+		return iter(rlist)
+	def code_gen(self):
+		
+		'''
+		TODO:
+		Check if the pointer has been allocated by new
+		'''
+		pointer_eval = self.pointer.code_gen()
+		print "Deikths gai katastrofh"
+		print pointer_eval
+		print dir(pointer_eval)
+
+		name = "_temp"+str(IR_State.var_counter)		
+		
+		pointer_casted = IR_State.builder.bitcast(pointer_eval
+						, ir.PointerType(ir.IntType(TypeSizes.int))
+						, name=name+"-casted")
+
+
+		dest = IR_State.builder.call(IR_State.dispose_function, 
+				[pointer_casted], 
+				name=name)
+
+		IR_State.var_map.append(dest) 
+		IR_State.var_counter += 1
+
+		return dest
 
 
 class Function_call(Expr):
