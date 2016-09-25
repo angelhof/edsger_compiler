@@ -1,4 +1,5 @@
 from llvmlite import ir
+
 '''
 So the final ir module will look like this
 
@@ -18,6 +19,7 @@ So the final ir module will look like this
 ##  Because of all the checks we have already made there is no need to check anything else , except for the dynamic ones.
 ##  So we just generate code with all the functions in the same place with the only thing differentiating them be their signature
 '''
+
 
 class IR_State(object):
 	# Counter that keeps the next variable number
@@ -84,7 +86,11 @@ class IR_State(object):
 	@classmethod
 	def all_code_generation(cls, head_list):
 
+		# Initialize all the string constants
+		cls.initialize_string_constants()
+
 		# Import the new and delete functions
+		# TODO
 
 		for code_head in head_list[1:]:
 			cls.rec_code_generation(code_head)
@@ -117,6 +123,34 @@ class IR_State(object):
 		for block in array:
 			IR_State.builder.position_at_end(block)
 			IR_State.builder.branch(block)
+	@classmethod
+	def initialize_string_constants(cls):
+		i = 0
+		for string_constant in StringConstants.strings:
+			
+			string_decoded_value = (string_constant[1:-1]+'\0').decode('string_escape')
+			string_value = [ord(c) for c in string_decoded_value]
+			print len(string_constant)
+			print string_constant
+			print len(string_decoded_value)
+			print string_decoded_value
+			print len(string_value)
+			print string_value
+
+			string_type = ir.ArrayType( \
+						ir.IntType( \
+							TypeSizes.char \
+						), len(string_value))
+			string_ir_const_value = ir.Constant(string_type,
+						string_value)
+			string_ir_value = ir.GlobalVariable(cls.module, 
+							string_type, "_string-"+str(i))
+			string_ir_value.global_constant = True
+			string_ir_value.initializer = string_ir_const_value 
+			StringConstants.strings[string_constant] = string_ir_value
+
+			i+=1
+
 	##
 	# The following set of 4 functions offer
 	# the basic functionality for the stack of function maps
@@ -176,7 +210,14 @@ class IR_State(object):
 	def get_curr_level_of_eds_var_map(cls):
 		return cls.eds_var_map[0]
 		
-	
+'''
+A class that keeps all string constants so that they can
+be referenced in the code_gen step
+'''
+class StringConstants(object):
+	strings = {}
+
+
 
 
 ##
@@ -198,3 +239,17 @@ class Function_With_Metadata():
 	def get_scope_struct(self):
 		return self.scope_struct
 
+
+'''
+A class that holds the bit size of its type
+TODO:
+- Bool needs to be 8 but then we have to change code
+- Double number is never used ( Have to check official docs)
+- Pointer type is never used
+'''
+class TypeSizes(object):
+	int = 16
+	char = 8
+	bool = 1
+	double = 80
+	pointer = 16

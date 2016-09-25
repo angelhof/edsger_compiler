@@ -2,7 +2,10 @@ import warning_messages
 import itertools
 import operator
 from llvmlite import ir
-from edsger_ir import IR_State, Function_With_Metadata
+from edsger_ir import IR_State, \
+					  Function_With_Metadata, \
+					  StringConstants, \
+					  TypeSizes
 
 ############
 ## Useful ##
@@ -34,19 +37,6 @@ def find_function_signature(identifier, type_list):
 	return signature
 
 
-'''
-A class that holds the bit size of its type
-TODO:
-- Bool needs to be 8 but then we have to change code
-- Double number is never used ( Have to check official docs)
-- Pointer type is never used
-'''
-class TypeSizes(object):
-	int = 16
-	char = 8
-	bool = 1
-	double = 80
-	pointer = 16
 
 def create_unreachable():
 	unreachable = IR_State.builder.append_basic_block("_unreachable")
@@ -363,10 +353,13 @@ class Constant_Value(Expr):
     def __init__(self,lineno,constant_type,value):
     	if(constant_type == "string"):
     		self.type = Type("char", 1)
+    		# Save the value 
+    		StringConstants.strings[value] = None
     	else: 
         	self.type = Type(constant_type)
         self.value = value
         self.lineno = lineno
+        print self.value
     def __str__(self):
     	return "Constant_Value( " + str(self.type) + ", " + str(self.value) + " )"
     def code_gen(self):
@@ -382,8 +375,17 @@ class Constant_Value(Expr):
 			# Supposing that characters are always 3 chars long
 			dest = ir.Constant(ir.IntType(TypeSizes.char), ord(self.value[1]))
 		elif self.type.isGenChar() and self.type.pointer == 1:
+			
+			# Find the string in the dictionary
+			global_string = StringConstants.strings[self.value]
+			print global_string
+			dest = IR_State.builder.bitcast(global_string, 
+					ir.PointerType(ir.IntType(TypeSizes.char))	)
+			'''
+			TODO: Delete - Old way of doing it
 			# First make the string normal
 			string_val = decoded_string = self.value[1:-1].decode('string_escape')
+			
 			address = IR_State.builder.alloca(
 					ir.IntType(TypeSizes.char), 
 					len(string_val)+1)
@@ -407,8 +409,10 @@ class Constant_Value(Expr):
 					ord('\0'))
 			IR_State.builder.store(ir_val,
 					temp_add)
-
+			
 			dest = address
+			'''
+
 		else:
 			print"Exit like we got a big problem :'("
 			exit(1)
@@ -482,7 +486,7 @@ class Variable(Identifier):
 							arr_type, 
 							our_name+"+array_vals")
 				arr_vals.linkage = "private"
-				
+
 				ret_val = ir.GlobalVariable(IR_State.module, 
 							var_type, 
 							our_name)	

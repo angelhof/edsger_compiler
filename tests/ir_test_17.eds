@@ -1,0 +1,20 @@
+#include "stdio.h"
+
+int main(){
+	char a[5];
+	char *b;
+
+	"pipipo";
+	// Check if this should or shouldnt be allowed
+	a = "kok\n";
+	writeString(a);
+	
+	// Prepei na einai allowed auto ??
+	b = "kakana\n\x43";
+	writeString(b);
+	// An pas na allaxeis timi string skaei me segfault
+	b[0] = 'a';
+
+
+	return 0;
+}
