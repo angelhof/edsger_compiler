@@ -5,9 +5,12 @@ int b[5];
 
 int main(){
 	
-	//b[0];
+	int c[5];
+	b[0];
 	a = 1;
+	b[0] = 2;
 	writeInteger(a);
+	writeInteger(b[0]);
 	return 0;
 
 }

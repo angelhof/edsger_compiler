@@ -44,13 +44,12 @@ class IR_State(object):
 	# Empty Module
 	module = ir.Module(name=__file__)
 	# Create a function inside the module
-	func = ir.Function(module, ir.FunctionType(ir.IntType(16), []), name="_global_decs_func")
+	func = ir.Function(module, ir.FunctionType(ir.IntType(16), []), name="main")
 	# Insert an unreachable block, and the main block
-	block = func.append_basic_block(name="_global_decs")
-	#block_map["_global_decs"] = block
+	block = func.append_basic_block(name="main")
 	# Basic IR module, the builder
-	#builder = ir.IRBuilder()
 	builder = ir.IRBuilder(block)
+	# Function main will be saved here so that we know
 
 	@classmethod
 	def rec_code_generation(cls, head):
@@ -68,9 +67,13 @@ class IR_State(object):
 	def code_generation(cls, head):
 		cls.rec_code_generation(head)
 		
+		'''
+		It is deleted because main now is compiler named
+		main that handels the main output and returns it
 		with cls.builder.goto_block(cls.block):
 			ret_result = ir.Constant(ir.IntType(16), 0)
 			cls.builder.ret(ret_result)
+		'''
 
 		cls.terminate_blocks()
 
@@ -87,9 +90,13 @@ class IR_State(object):
 			cls.rec_code_generation(code_head)
 		cls.rec_code_generation(head_list[0])
 		
+		'''
+		It is deleted because main now is compiler named
+		main that handels the main output and returns it
 		with cls.builder.goto_block(cls.block):
 			ret_result = ir.Constant(ir.IntType(16), 0)
 			cls.builder.ret(ret_result)
+		'''
 
 		cls.terminate_blocks()
 
@@ -99,6 +106,13 @@ class IR_State(object):
 		fp.write(str(cls.module))
 	@classmethod
 	def terminate_blocks(cls):
+		# Call the main function from the global main
+		main_function = cls.get_from_function_map("main-0").function
+		with cls.builder.goto_block(cls.block):
+			dest = IR_State.builder.call(main_function, 
+						[], name="_main_value")
+			cls.builder.ret(dest)
+		# Terminate the blocks that have no termination
 		array = [x for x in cls.unreachable_array if not x.is_terminated]
 		for block in array:
 			IR_State.builder.position_at_end(block)

@@ -22,8 +22,12 @@ library_function_signatures = [
 ]
 
 def find_function_signature(identifier, type_list):
+	'''
+	Commented this because main will be 
+	a compiler made function
 	if(identifier == "main"):
 		return identifier
+	'''
 	signature = identifier + "-" + str(len(type_list)) + reduce(operator.concat, map(lambda x: "-" + str(x), type_list) , "")
 	if signature in library_function_signatures:
 		return identifier
@@ -472,11 +476,29 @@ class Variable(Identifier):
 			  opws kaname sto variable.code_gen_decl()
 			 '''
 			if(array_size > 1):
-				var_type = ir.ArrayType(var_type, array_size)
+				# Declare the array space and the  pointer space
+				arr_type = ir.ArrayType(var_type.pointee, array_size)
+				arr_vals = ir.GlobalVariable(IR_State.module, 
+							arr_type, 
+							our_name+"+array_vals")
+				arr_vals.linkage = "private"
+				
+				ret_val = ir.GlobalVariable(IR_State.module, 
+							var_type, 
+							our_name)	
+				
+				# Assign the pointer to the array space
+				with IR_State.builder.goto_block(IR_State.block):
+					arr_vals_converted = IR_State. \
+						builder.bitcast(arr_vals, var_type)
+					point_to_vals = IR_State.builder.store(
+						arr_vals_converted , 
+						ret_val)
 
-			ret_val = ir.GlobalVariable(IR_State.module, 
-						var_type, 
-						our_name)	
+			else:
+				ret_val = ir.GlobalVariable(IR_State.module, 
+							var_type, 
+							our_name)	
 			ret_val.linkage = "private"
 			
 
