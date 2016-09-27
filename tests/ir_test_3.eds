@@ -10,7 +10,7 @@ int main(){
 	 * Den ftanoume pote edw giati gia kapoio logo mpainoume 
 	 * sto else pou paei se unreachable
 	 */
-	writeString("Ola kala mexri edw");
+	writeString("Ola kala mexri edw\n");
 
 	return 0;
 }

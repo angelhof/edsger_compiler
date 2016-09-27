@@ -17,7 +17,7 @@ int main(){
 
 	// DElete doesnt really delete the memory
 	delete b;
-	writeString(b);
+	//writeString(b);
 
 	return 0;
 }

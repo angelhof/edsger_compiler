@@ -7,16 +7,10 @@
 int pipi(char * a);
 
 int pipi(int a){
-	return a;
+	return a+2;
 }
 
-// Auth h dhlwsh apotugxanei lanthasmena
-// Kanonika tha eprepe na pernaei gia auto prepei na
-// enswmatwsoume to signature sta onomata twn sunarthsewn
-/*
-char pipi(){
-	return 'a';
-}*/
+
 
 
 int main(){

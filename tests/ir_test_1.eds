@@ -1,3 +1,5 @@
+#include "stdio.h"
+
 int main(){
 
 	
@@ -21,7 +23,8 @@ int main(){
 	10.1 * 11.1 / 3.2 + 8.3 / 4.5;
 
 	if(true){
-		return 1;
+		writeInteger(1);
+		writeString("\n");
 	}
 
 
@@ -30,8 +33,10 @@ int main(){
 	true || false && false || true ;
 
 	if (true){
-		1+2;
-		return 1;
+		writeInteger(1+2);
+		writeChar(' ');
+		writeInteger(1+3);
+		writeChar('\n');
 	}
 
 	if (true) 
@@ -44,16 +49,18 @@ int main(){
 
 	if(1 == 2 || 2 != 2 || (  (3 > 2))){
 		2+100;
-		return 1, 2, 3, 666, 5;
+		writeInteger((1, 2, 3, 666, 5));
+		writeChar('\n');
+		
 	}
 
 
-	return 111111;
 
 
 	if (true) {
 		1 + 1;
-		return ((-10) * 10);
+		writeInteger((-10) * 10);
+		writeChar('\n');
 	}
 	else
 		return 20 * 20;
@@ -61,5 +68,5 @@ int main(){
 
 	
 
-	return  true && false ? 1+2 : 3+4;
+	return  true && false ? 1+2 : 0;
 }

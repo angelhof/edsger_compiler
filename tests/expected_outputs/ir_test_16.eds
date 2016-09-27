@@ -5,7 +5,6 @@ int main(){
 
 	a = 1.0;
 
-	// HAngs Probably because of different format
 	writeReal(a);
 	return 0;
 }

@@ -1,3 +1,4 @@
+#include "stdio.h"
 int papotsi(int *a){
 	return 0;
 }
@@ -15,7 +16,11 @@ int main(){
 	int *a;
 	papotsi(a);
 	i = 5;
+	writeInteger(i);
+	writeChar('\n');
 	carotsi(i, 0);
-	return i;	
+	writeInteger(i);
+	writeChar('\n');
+	return 0;	
 }
 

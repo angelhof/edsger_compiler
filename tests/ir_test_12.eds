@@ -1,3 +1,5 @@
+#include "stdio.h"
+
 int main(){
 	int a;
 	char b;
@@ -22,6 +24,8 @@ int main(){
 	(bool) d;
 	//(int*) d;
 	
+	b = '\n';
+
 	(int) c;
 	(char) c;
 	//(double) c;
@@ -30,5 +34,8 @@ int main(){
 
 	// Problhmatiko logo 2 byte integer
 	(int) &a;
-	return (int) &a;
+
+	writeInteger((int) b);
+
+	return 0;
 }

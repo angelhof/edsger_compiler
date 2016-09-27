@@ -1,3 +1,5 @@
+#include "stdio.h"
+
 int main()
 {
 	int a; 
@@ -11,7 +13,10 @@ int main()
 	// First simple test
 	b = &a;
 	a = 5;
+	writeInteger(a);
+	writeInteger(*b);
 	c = *b;
+	writeInteger(c);
 
 	// Second Test
 	d = &b;
@@ -22,6 +27,11 @@ int main()
 	a = 6;
 
 	**d = 7;
+	writeInteger(a);
+	writeInteger(*b);
+	writeInteger(c);
+	writeInteger(**d);
+	a = 0;
 
 	l = &k;
 

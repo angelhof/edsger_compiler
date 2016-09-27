@@ -1,6 +1,7 @@
 #include "stdio.h"
 
 int kaka(int b){
+	writeInteger(b);
 	return b;
 }
 

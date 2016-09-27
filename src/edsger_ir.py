@@ -117,7 +117,11 @@ class IR_State(object):
 		with cls.builder.goto_block(cls.block):
 			dest = IR_State.builder.call(main_function, 
 						[], name="_main_value")
-			cls.builder.ret(dest)
+			if isinstance(main_function.ftype.return_type, ir.types.VoidType):
+				cls.builder.ret(ir.Constant(ir.IntType(TypeSizes.int), 0))
+			else:	
+				cls.builder.ret(dest)
+
 		# Terminate the blocks that have no termination
 		array = [x for x in cls.unreachable_array if not x.is_terminated]
 		for block in array:

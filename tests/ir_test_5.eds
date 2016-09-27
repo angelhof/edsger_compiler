@@ -1,3 +1,4 @@
+#include "stdio.h"
 int main()
 {
 	int a; 
@@ -10,14 +11,21 @@ int main()
 	d = 0.0;
 
 	c = 1;
+	writeInteger(c);
+	b = 0;
+	writeInteger(b);
 	a = b;
+	writeInteger(a);
 	a = b = c;
+	writeInteger(a);
+	writeInteger(b);
 
 	d = --e;
 	d ++;
-	++ a;
+	writeInteger(++ a);
+
 	a = --b;
-	
+	writeInteger(a);	
 	
 
 

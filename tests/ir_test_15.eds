@@ -9,8 +9,10 @@ int main(){
 	b[0];
 	a = 1;
 	b[0] = 2;
+	c[4] = b[0] + 1;
 	writeInteger(a);
 	writeInteger(b[0]);
+	writeInteger(c[4]);
 	return 0;
 
 }

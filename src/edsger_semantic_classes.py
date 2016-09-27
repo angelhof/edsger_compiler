@@ -109,7 +109,7 @@ def transform_type_basic(our_type):
 		pointer_number = our_type_pointer
 		
 		for i in range(pointer_number):
-			var_type = ir.PointerType(var_type)	
+			var_type = ir.PointerType(var_type) 
 
 		# It could be a function or a variable
 
@@ -126,7 +126,7 @@ def transform_type(var):
 
 	our_type = var.type
 	
-	var_type = transform_type_basic(our_type)	
+	var_type = transform_type_basic(our_type)   
 
 	if(isinstance(var, Variable)):
 		# If it is an array
@@ -224,7 +224,7 @@ class Program_State(object):
 		cls.function_scope_stack.insert(0, scope)
 	@classmethod
 	def pop(cls):
-		return ( cls.variable_scope_stack.pop(0), cls.function_scope_stack.pop(0) )	
+		return ( cls.variable_scope_stack.pop(0), cls.function_scope_stack.pop(0) ) 
 	@classmethod
 	def add_variable_to_curr_scope(cls,identifier):
 		if(identifier.name in cls.variable_scope_stack[0]):
@@ -261,7 +261,7 @@ class Loop_Stack(object):
 		cls.stack.insert(0, loop)
 	@classmethod
 	def pop(cls):
-		return cls.stack.pop(0)	
+		return cls.stack.pop(0) 
 	@classmethod
 	def isEmpty(cls):
 		return not cls.stack
@@ -284,7 +284,7 @@ class Function_Stack(object):
 		cls.stack.insert(0, function)
 	@classmethod
 	def pop(cls):
-		return cls.stack.pop(0)	
+		return cls.stack.pop(0) 
 	@classmethod
 	def isEmpty(cls):
 		return not cls.stack
@@ -318,7 +318,7 @@ class Type():
 		return not self.__eq__(other)
 	def __str__(self):
 		return str(self.type) + (" pointer" * self.pointer)
-	def copyfrom(self, other):	
+	def copyfrom(self, other):  
 		self.type=other.type
 		self.pointer=other.pointer
 	def __iter__(self):
@@ -339,9 +339,11 @@ class Type():
 	def isChar(self):
 		return self.type == "char" and self.isPrimitive()
 	def isDouble(self):
-		return self.type == "double" and self.isPrimitive()	
+		return self.type == "double" and self.isPrimitive() 
 	def isPrimitive(self):
 		return self.pointer == 0 
+	def isVoid(self):
+		return self.type == "void"
 	def defaultValue(self):
 		ret_val = None
 		if(self.isInt()):
@@ -360,20 +362,20 @@ class Type():
 
 # Constant value
 class Constant_Value(Expr):
-    def __init__(self,lineno,constant_type,value):
-    	if(constant_type == "string"):
-    		self.type = Type("char", 1)
-    		# Save the value 
-    		StringConstants.strings[value] = None
-    	else: 
-        	self.type = Type(constant_type)
-        self.value = value
-        self.lineno = lineno
-        print self.value
-    def __str__(self):
-    	return "Constant_Value( " + str(self.type) + ", " + str(self.value) + " )"
-    def code_gen(self):
-    	## --- WORK IN PROGRESS ---
+	def __init__(self,lineno,constant_type,value):
+		if(constant_type == "string"):
+			self.type = Type("char", 1)
+			# Save the value 
+			StringConstants.strings[value] = None
+		else: 
+			self.type = Type(constant_type)
+		self.value = value
+		self.lineno = lineno
+		print self.value
+	def __str__(self):
+		return "Constant_Value( " + str(self.type) + ", " + str(self.value) + " )"
+	def code_gen(self):
+		## --- WORK IN PROGRESS ---
 		## TODO: Make checks for types
 		if self.type.isInt():
 			dest = ir.Constant(ir.IntType(TypeSizes.int), self.value)
@@ -383,6 +385,8 @@ class Constant_Value(Expr):
 			dest = ir.Constant(ir.IntType(TypeSizes.bool), self.value)
 		elif self.type.isChar():
 			# Decode the character and save it
+			print self.value
+			print ord(self.value[1:-1].decode("string_escape"))
 			dest = ir.Constant(ir.IntType(TypeSizes.char), ord(self.value[1:-1].decode("string_escape")))
 		elif self.type.isGenChar() and self.type.pointer == 1:
 			
@@ -390,7 +394,7 @@ class Constant_Value(Expr):
 			global_string = StringConstants.strings[self.value]
 			print global_string
 			dest = IR_State.builder.bitcast(global_string, 
-					ir.PointerType(ir.IntType(TypeSizes.char))	)
+					ir.PointerType(ir.IntType(TypeSizes.char))  )
 			'''
 			TODO: Delete - Old way of doing it
 			# First make the string normal
@@ -460,7 +464,7 @@ class Variable(Identifier):
 
 		ptr = IR_State.get_from_eds_var_map(var_name)
 
-		if(not IR_State.left_side):		
+		if(not IR_State.left_side):     
 			dest = IR_State.builder.load(ptr, name=name)
 			IR_State.var_map.append(dest) 
 			IR_State.var_counter += 1
@@ -499,7 +503,7 @@ class Variable(Identifier):
 
 				ret_val = ir.GlobalVariable(IR_State.module, 
 							var_type, 
-							our_name)	
+							our_name)   
 				
 				# Assign the pointer to the array space
 				with IR_State.builder.goto_block(IR_State.block):
@@ -512,7 +516,7 @@ class Variable(Identifier):
 			else:
 				ret_val = ir.GlobalVariable(IR_State.module, 
 							var_type, 
-							our_name)	
+							our_name)   
 			ret_val.linkage = "private"
 			
 
@@ -550,7 +554,7 @@ class Parameter(Variable):
 		self.array_expr = None
 
 	def __str__(self):
-		return "Parameter( " + str(self.name) + " , " + str(self.byref) + " " + str(self.type) + " )" 	
+		return "Parameter( " + str(self.name) + " , " + str(self.byref) + " " + str(self.type) + " )"   
 
 	def code_gen(self):
 		var_name = self.name 
@@ -560,7 +564,7 @@ class Parameter(Variable):
 			param_value = IR_State.get_from_eds_var_map(var_name)
 		else:
 			ptr = IR_State.get_from_eds_var_map(var_name)
-			if(not IR_State.left_side):		
+			if(not IR_State.left_side):     
 				param_value = IR_State.builder.load(ptr, name=self.name)
 				IR_State.var_map.append(param_value) 
 				IR_State.var_counter += 1
@@ -619,7 +623,7 @@ class Function(Identifier):
 		#print IR_State.eds_var_map
 		scope_struct = IR_State.get_from_eds_var_map("_current_scope")
 		# TODO: AN einai none kane akti
-		if scope_struct is not None:	
+		if scope_struct is not None:    
 			function_arg_types.append(scope_struct.type)
 			print function_arg_types
 
@@ -646,7 +650,7 @@ class Function(Identifier):
 				  naming
 				'''
 				print "Why did you try to redefine function: " + self.name
-				exit(1)	
+				exit(1) 
 		else:
 			# Find the return type
 			ret_type = transform_type(self)[0]
@@ -764,6 +768,9 @@ class Function(Identifier):
 				for element in enlist(self.statements):
 					element.code_gen()
 
+				# Termatise tis void sunarthseis
+				if (self.type.isVoid()):
+					IR_State.builder.ret_void()
 			# Kleise to scope level
 			IR_State.pop_level_function_map()
 			IR_State.pop_level_eds_var_map()
@@ -790,19 +797,22 @@ class If_Statement():
 		predicate = self.predicate.code_gen()
 
 		## TODO: Maybe fix the bug with return by using if _then and if_else
-		with IR_State.builder.if_else(predicate) as (then, otherwise):
-		    with then:
-		        # emit instructions for when the predicate is true
-		        for stmt in enlist(self.then_stmts):
-		        	stmt.code_gen()
-		    with otherwise:
-		        # emit instructions for when the predicate is false
-		        if(self.else_stmts):
-		        	for stmt in enlist(self.else_stmts):
-		        		stmt.code_gen()
-		        else:
-		        	IR_State.builder.unreachable()		
-		
+		if(self.else_stmts):
+			with IR_State.builder.if_else(predicate) as (then, otherwise):
+				with then:
+					# emit instructions for when the predicate is true
+					for stmt in enlist(self.then_stmts):
+						stmt.code_gen()
+				with otherwise:
+					# emit instructions for when the predicate is false
+					for stmt in enlist(self.else_stmts):
+						stmt.code_gen()
+		else:
+			with IR_State.builder.if_then(predicate) as then:
+				# emit instructions for when the predicate is true
+				for stmt in enlist(self.then_stmts):
+					stmt.code_gen()
+			
 
 
 class For_Statement():
@@ -981,10 +991,10 @@ class Operator():
 		elif (self.operator == ","):
 			return self.unary_typecheck(exp2_type) and self.unary_typecheck(exp1_type)
 		#elif(self.operator == "<" or self.operator == ">" or self.operator == ">=" or self.operator == "<="):
-		#	if(exp2_type == exp1_type):
-		# 		TODO check for the binary <= >= etc indexes in the same array only!!!!!!!!!!!!!!!!
-		#		if(exp2_type.pointer > 0 and exp1_type.pointer >0):  
-		#		return self.check_operator_expr(exp1_type.type)
+		#   if(exp2_type == exp1_type):
+		#       TODO check for the binary <= >= etc indexes in the same array only!!!!!!!!!!!!!!!!
+		#       if(exp2_type.pointer > 0 and exp1_type.pointer >0):  
+		#       return self.check_operator_expr(exp1_type.type)
 		else: #all the other binary operators make the same type check
 			if(exp2_type.similar(exp1_type)):
 				return self.unary_typecheck(exp1_type)
@@ -1017,7 +1027,7 @@ class Operator():
 		return iter(rlist)
 
 class Node_unary_operation(Expr):
-	def __init__(self, operator, exp, lineno):	
+	def __init__(self, operator, exp, lineno):  
 		self.operator=operator
 		self.exp=exp
 		self.lineno=lineno
@@ -1047,7 +1057,7 @@ class Node_unary_operation(Expr):
 			IR_State.left_side = True
 			var_s = self.exp.code_gen()
 			IR_State.left_side = old_val
-		else:			
+		else:           
 			var_s = self.exp.code_gen()
 
 
@@ -1085,7 +1095,7 @@ class Node_unary_operation(Expr):
 		return dest
 
 class Node_binary_operation(Expr):
-	def __init__(self, operator, exp1, exp2, lineno):	
+	def __init__(self, operator, exp1, exp2, lineno):   
 		self.operator=operator
 		self.exp1=exp1
 		self.exp2=exp2
@@ -1103,7 +1113,7 @@ class Node_binary_operation(Expr):
 		elif(operator.operator == "<" or operator.operator == ">" or operator.operator == "<=" or operator.operator == ">=" or operator.operator == "==" or operator.operator == "!=" or operator.operator == "&&" or operator.operator == "||"):
 			self.type=Type("bool", 0)
 		#elif(operator.operator == ","):
-		#	self.type=Type(exp2.type, exp2.pointer)
+		#   self.type=Type(exp2.type, exp2.pointer)
 		else:
 			self.type=Type(exp2.type.type, exp2.type.pointer)
 	def __str__(self):
@@ -1145,7 +1155,7 @@ class Node_binary_operation(Expr):
 			else:
 				dest = IR_State.builder.sdiv(var_s1, var_s2, name=name)
 		elif(op == "%"):
-			dest = IR_State.builder.srem(var_s1, var_s2, name=name)		
+			dest = IR_State.builder.srem(var_s1, var_s2, name=name)     
 		elif(op == "||"):
 			dest = IR_State.builder.or_(var_s1, var_s2, name=name)
 		elif(op == "&&"):
@@ -1155,7 +1165,7 @@ class Node_binary_operation(Expr):
 				dest = IR_State.builder.fcmp_signed(op, var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.icmp_signed(op, var_s1, var_s2, name=name)
-		elif(op == ","):	
+		elif(op == ","):    
 			dest = var_s2
 		else:
 			print("Exit violently :O")
@@ -1168,7 +1178,7 @@ class Node_binary_operation(Expr):
 
 
 class Node_pre_unary_assignment(Expr):
-	def __init__(self, operator, exp, lineno, typeop):	
+	def __init__(self, operator, exp, lineno, typeop):  
 		self.operator=operator
 		if(self.operator.operator == "b+"):
 			self.operator.operator="++"
@@ -1217,7 +1227,7 @@ class Node_pre_unary_assignment(Expr):
 		return dest
 
 class Node_post_unary_assignment(Expr):
-	def __init__(self, operator, exp, lineno, typeop):	
+	def __init__(self, operator, exp, lineno, typeop):  
 		self.operator=operator
 		if(self.operator.operator == "b+"):
 			self.operator.operator="++"
@@ -1269,7 +1279,7 @@ class Node_post_unary_assignment(Expr):
 
 
 class Node_whole_assignment(Expr):
-	def __init__(self, operator, exp1, exp2, lineno, typeop):	
+	def __init__(self, operator, exp1, exp2, lineno, typeop):   
 		self.operator=operator
 		if(self.operator.operator =="b+"):
 			self.operator.operator="+="
@@ -1325,7 +1335,7 @@ class Ternary(Expr):
 		
 		predicate = self.predicate.code_gen()
 
-		name = "_temp"+str(IR_State.var_counter)		
+		name = "_temp"+str(IR_State.var_counter)        
 		
 		dest = IR_State.builder.select(predicate, var_s1, var_s2, name=name)
 
@@ -1347,7 +1357,7 @@ class New(Expr):
 		return iter(rlist)
 	def code_gen(self):
 	
-		# Evaluate the size of the new		
+		# Evaluate the size of the new      
 		if self.array_expr is not None:
 			new_positions = self.array_expr.code_gen()
 		else:
@@ -1357,7 +1367,7 @@ class New(Expr):
 		ir_type = transform_type_basic(self.type)
 		print ir_type
 
-		name = "_temp"+str(IR_State.var_counter)		
+		name = "_temp"+str(IR_State.var_counter)        
 		
 
 		dest_generic = IR_State.builder.call(IR_State.new_function, 
@@ -1396,7 +1406,7 @@ class Delete_Pointer(Expr):
 		print pointer_eval
 		print dir(pointer_eval)
 
-		name = "_temp"+str(IR_State.var_counter)		
+		name = "_temp"+str(IR_State.var_counter)        
 		
 		pointer_casted = IR_State.builder.bitcast(pointer_eval
 						, ir.PointerType(ir.IntType(TypeSizes.int))
@@ -1456,13 +1466,13 @@ class Function_call(Expr):
 		print IR_State.eds_var_map
 		print len(IR_State.eds_var_map)
 		print scope_struct
-		if( len(IR_State.eds_var_map) >= 2):	
- 			args.append(scope_struct)
- 		'''
- 		if( scope_struct is not None):	
- 			args.append(scope_struct)
+		if( len(IR_State.eds_var_map) >= 2):    
+			args.append(scope_struct)
+		'''
+		if( scope_struct is not None):  
+			args.append(scope_struct)
 
-		name = "_temp"+str(IR_State.var_counter)		
+		name = "_temp"+str(IR_State.var_counter)        
 		
 		dest = IR_State.builder.call(function, args, name=name)
 
@@ -1519,8 +1529,8 @@ class Type_cast(Expr):
 				return True
 			else:
 				return False
-		#else:	
-		#	return False
+		#else:  
+		#   return False
 	def __str__(self):
 		return "Casting: " + str(self.type) 
 	def __iter__(self):
@@ -1588,7 +1598,7 @@ class Type_cast(Expr):
 			else:
 				print "This shouldnt have passed the semantic analysis"
 				print "You cannot cast a double into a pointer"
-				exit(1)		
+				exit(1)     
 		elif(isinstance(old_type_llvm, ir.types.PointerType)):
 			if(isinstance(new_type_llvm, ir.types.PointerType)):
 				dest = IR_State.builder.bitcast(eval_exp
@@ -1640,11 +1650,11 @@ class Array_Deref(Expr):
 		old_left_side = IR_State.left_side
 		IR_State.left_side = False
 		left_exp = self.left_expression.code_gen()
-		IR_State.left_side = old_left_side	
+		IR_State.left_side = old_left_side  
 
 		name = "_temp"+str(IR_State.var_counter)
 
-		if(not IR_State.left_side):		
+		if(not IR_State.left_side):     
 			dest_temp = IR_State.builder.gep(left_exp,[arr_index])
 			dest = IR_State.builder.load(dest_temp, name=name)
 		else:

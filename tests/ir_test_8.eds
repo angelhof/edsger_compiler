@@ -10,7 +10,6 @@ int main()
 	
 	a = &b;
 
-	// The following gives an error 
 	b[0] = 1;
 	writeInteger(b[0]);
 	a[0][0] = 2;
