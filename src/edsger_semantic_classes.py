@@ -582,6 +582,7 @@ class Function(Identifier):
 		self.lineno = lineno
 		self.declarations = declarations
 		self.statements = statements
+		self.scope_level = None
 
 	def get_signature(self):
 		return find_function_signature(self.name, map(lambda x: x.type, self.parameters) )
@@ -736,6 +737,9 @@ class Function(Identifier):
 				print "Prohgoumeno"
 				print previous_scope_frame_keys
 
+				# Kratame to scope level gia to function call
+				# kai to scope struct
+				self.scope_level = len(IR_State.eds_var_map)
 				'''
 				- An to megethos eiani 2 shmainei oti 
 				  den uparxei pio prin giati eimaste global
@@ -1458,17 +1462,12 @@ class Function_call(Expr):
 				IR_State.left_side = False
 
 
+		print "Auto einai to scope pou brhka sto call"
+		print scope_struct
+
 		# Pass the scope struct as the last argument
 		# An exei scope struct
 		# TODO: Elegxe mexri akrwn an auto einai swsto
-		'''
-		Old Implementation
-		print IR_State.eds_var_map
-		print len(IR_State.eds_var_map)
-		print scope_struct
-		if( len(IR_State.eds_var_map) >= 2):    
-			args.append(scope_struct)
-		'''
 		if( scope_struct is not None):  
 			args.append(scope_struct)
 
