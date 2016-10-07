@@ -165,13 +165,20 @@ def create_scope_struct():
 	for var_in_curr_scope_key in current_scope_keys:
 		var_in_curr_scope = current_scope[var_in_curr_scope_key]
 		current_scope_types.append(var_in_curr_scope.type)
+	'''
+	TODO: 7/10/2016
+	Oxi append ta keys alla append to prohgoumeno scope
+	kai ta twrina variables kai arguments 
+	'''
 
+	
+	scope_depth = len(IR_State.eds_var_map)
 	# Add the scope struct as the last argument of the function
 	scope_struct_type = ir.LiteralStructType(current_scope_types)
 	allocated_scope_struct = IR_State.builder.alloca( 
 				scope_struct_type,  
-				name="_current_scope" )
-	IR_State.add_to_eds_var_map("_current_scope"
+				name="_current_scope_"+str(scope_depth) )
+	IR_State.add_to_eds_var_map("_current_scope_"+str(scope_depth)
 				, allocated_scope_struct)
 	#print allocated_scope_struct
 	'''
@@ -615,15 +622,19 @@ class Function(Identifier):
 				arg_type = arg_type.as_pointer()
 			function_arg_types.append(arg_type)
 
-		'''
-			TODO: 
-			- Kane kati gia to None
-		'''
+
 		#print self
 		#print "Stack"
 		#print IR_State.eds_var_map
-		scope_struct = IR_State.get_from_eds_var_map("_current_scope")
-		# TODO: AN einai none kane akti
+
+		'''
+		TODO: 7/10/2016
+		Bres to sosto _current_scope_ me bash to level tou
+		PX. "_current_scope_2"
+		'''
+		scope_depth = len(IR_State.eds_var_map)
+		scope_struct = IR_State.get_from_eds_var_map("_current_scope_"+str(scope_depth))
+		# An einai None prepei na kna wkati? 
 		if scope_struct is not None:    
 			function_arg_types.append(scope_struct.type)
 			print function_arg_types
@@ -733,9 +744,11 @@ class Function(Identifier):
 				'''
 				previous_scope_frame = IR_State.eds_var_map[1]
 				previous_scope_frame_keys = [x for x in sorted(
-						previous_scope_frame.keys()) if not x=="_current_scope"]
-				print "Prohgoumeno"
-				print previous_scope_frame_keys
+						previous_scope_frame.keys()) 
+							if not x[:len("_current_scope_")] ==
+							"_current_scope_"]
+				#print "Prohgoumeno"
+				#print previous_scope_frame_keys
 
 				# Kratame to scope level gia to function call
 				# kai to scope struct
@@ -747,6 +760,12 @@ class Function(Identifier):
 				TODO: Elegxw an isxuei auto 
 				'''
 				if( len(IR_State.eds_var_map) > 2):
+					
+					'''
+					TODO: 7/10/2016
+				
+					'''
+
 					for i in range(len(previous_scope_frame_keys)):
 						key = previous_scope_frame_keys[i]
 						print function.args[-1]
@@ -1369,7 +1388,7 @@ class New(Expr):
 
 		# Transform the type
 		ir_type = transform_type_basic(self.type)
-		print ir_type
+		#print ir_type
 
 		name = "_temp"+str(IR_State.var_counter)        
 		
@@ -1406,9 +1425,9 @@ class Delete_Pointer(Expr):
 		Check if the pointer has been allocated by new
 		'''
 		pointer_eval = self.pointer.code_gen()
-		print "Deikths gai katastrofh"
-		print pointer_eval
-		print dir(pointer_eval)
+		#print "Deikths gai katastrofh"
+		#print pointer_eval
+		#print dir(pointer_eval)
 
 		name = "_temp"+str(IR_State.var_counter)        
 		
@@ -1462,9 +1481,9 @@ class Function_call(Expr):
 				IR_State.left_side = False
 
 
-		print "Auto einai to scope pou brhka sto call"
-		print scope_struct
-		
+		#print "Auto einai to scope pou brhka sto call"
+		#print scope_struct
+
 
 		# Pass the scope struct as the last argument
 		# An exei scope struct
@@ -1545,19 +1564,19 @@ class Type_cast(Expr):
 
 		eval_exp = var_s = self.old_expr.code_gen()
 		
-		print "Typoi"
-		print old_type, new_type
-		print old_type_llvm.is_pointer
+		#print "Typoi"
+		#print old_type, new_type
+		#print old_type_llvm.is_pointer
 		try:
 			print old_type_llvm.width
 		except:
 			pass
-		print dir(old_type_llvm)
-		print dir(new_type_llvm)
-		print type(old_type_llvm)
-		print type(new_type_llvm)
-		print isinstance(old_type_llvm, ir.types.DoubleType)
-		print isinstance(new_type_llvm, ir.types.DoubleType)
+		#print dir(old_type_llvm)
+		#print dir(new_type_llvm)
+		#print type(old_type_llvm)
+		#print type(new_type_llvm)
+		#print isinstance(old_type_llvm, ir.types.DoubleType)
+		#print isinstance(new_type_llvm, ir.types.DoubleType)
 		name = "_temp"+str(IR_State.var_counter)
 
 		'''
@@ -1613,7 +1632,7 @@ class Type_cast(Expr):
 				print "You cannot cast a pointer to a double"
 				exit(1)
 		else:
-			print "Something very bad happened. Here is the fault:"
+			print "Something very bad happened. Here is some info:"
 			print old_type_llvm
 			exit(1)
 		
