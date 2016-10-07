@@ -1464,6 +1464,7 @@ class Function_call(Expr):
 
 		print "Auto einai to scope pou brhka sto call"
 		print scope_struct
+		
 
 		# Pass the scope struct as the last argument
 		# An exei scope struct

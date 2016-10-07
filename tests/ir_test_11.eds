@@ -3,7 +3,7 @@
  * epitrepetai ston xrhsth na anathesh timh se parametrous 
  * pou den eiani byref
  **/
-
+#include "stdio.h"
 
 int carotsi(byref int a){
 	
@@ -15,7 +15,10 @@ int carotsi(byref int a){
 int main(){
 
 	int i;
+	i = -1;
+	writeInteger(i);
 	carotsi(i);
+
 	return i;	
 }
 
