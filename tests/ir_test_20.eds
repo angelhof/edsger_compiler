@@ -1,0 +1,18 @@
+#include "stdio.h"
+
+int pipi(char * a);
+int pipi(int a);
+
+int pipi(int a){
+	return a+2;
+}
+
+int main(){
+	int pipi(int a){
+		return a+3;
+	}
+	writeInteger( pipi(9) );
+	writeString("\n");
+	return 0;
+}
+

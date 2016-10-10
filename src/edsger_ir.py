@@ -51,7 +51,13 @@ class IR_State(object):
 	block = func.append_basic_block(name="main")
 	# Basic IR module, the builder
 	builder = ir.IRBuilder(block)
+	# Function Unique Identifier
+	function_unique_identifier = 0
+	# main pointer steady
+	main_anchor = None
+
 	# Function main will be saved here so that we know
+
 
 	@classmethod
 	def rec_code_generation(cls, head):
@@ -113,7 +119,8 @@ class IR_State(object):
 	@classmethod
 	def terminate_blocks(cls):
 		# Call the main function from the global main
-		main_function = cls.get_from_function_map("main-0").function
+		print IR_State.main_anchor
+		main_function = cls.get_from_function_map(IR_State.main_anchor).function
 		with cls.builder.goto_block(cls.block):
 			dest = IR_State.builder.call(main_function, 
 						[], name="_main_value")

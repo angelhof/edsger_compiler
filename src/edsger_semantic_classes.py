@@ -24,14 +24,17 @@ library_function_names = [
 	"readString"
 ]
 
-def find_function_signature(identifier, type_list):
+def find_function_signature(identifier, type_list, extended_id = -1):
 	'''
 	Commented this because main will be 
 	a compiler made function
 	if(identifier == "main"):
 		return identifier
 	'''
+
 	signature = identifier + "-" + str(len(type_list)) + reduce(operator.concat, map(lambda x: "-" + str(x), type_list) , "")
+	if (not extended_id == -1):
+		signature += "-"  + str(extended_id)
 	if identifier in library_function_names:
 		return identifier
 	return signature
@@ -590,9 +593,13 @@ class Function(Identifier):
 		self.declarations = declarations
 		self.statements = statements
 		self.scope_level = None
+		self.uid = -1
 
 	def get_signature(self):
 		return find_function_signature(self.name, map(lambda x: x.type, self.parameters) )
+
+	def get_extended_signature(self):
+		return  find_function_signature(self.name, map(lambda x: x.type, self.parameters), self.uid) 
 
 	# Parameters will be a list of variables
 	def add_parameter(self,parameter):
@@ -640,17 +647,30 @@ class Function(Identifier):
 			print function_arg_types
 
 
+		# If we are getting for the first time in declaration or definiton
+		# we should check the uid if it has been initialized or otherwise we should do it here
+		if(self.uid == -1):
+			IR_State.function_unique_identifier += 1
+			self.uid = IR_State.function_unique_identifier
+			if(self.get_signature()=="main-0" and  scope_depth == 1):
+				IR_State.main_anchor = self.get_extended_signature()
+
 		'''
 		Elegxoume an uparxei h sunarthsh hdh declared
 		kai thn kanoume bind me auth
 		'''
+
 		# function_with_metadata = IR_State.get_from_function_map(self.name)
-		function_with_metadata = IR_State.get_from_function_map(self.get_signature())
+		# We had the simple signature checking but now we 
+		# will need the extended with the id included
+		function_with_metadata = IR_State.get_from_function_map(self.get_extended_signature())
 		if(function_with_metadata is not None):
 			function = function_with_metadata.function
 			if(function.is_declaration):
 				pass
 			else:
+				#WE assume that semantic prevent two same declarations in tha same scope
+
 				# An h sunarthsh einai hdh dhlwmenh problhma
 				'''
 				TODO:
@@ -669,13 +689,13 @@ class Function(Identifier):
 
 			# Create a new function and and save it at its map 
 			function_type = ir.FunctionType(ret_type, function_arg_types)
-			function = ir.Function(IR_State.module, function_type, name=self.get_signature())
+			function = ir.Function(IR_State.module, function_type, name=self.get_extended_signature())
 			
 			# THe original command has been kept before testing
 			# IR_State.function_map[self.name] = function
 			function_with_metadata = Function_With_Metadata(function)
 			function_with_metadata.set_scope_struct(scope_struct)
-			IR_State.add_to_function_map(self.get_signature(), function_with_metadata)
+			IR_State.add_to_function_map(self.get_extended_signature(), function_with_metadata)
 
 
 			# Store as function metadata the byref
@@ -691,20 +711,11 @@ class Function(Identifier):
 				else:
 					byref_array.append(self.parameters[i].name + "->byref")
 			function_with_metadata.set_metadata("byref", " ".join(byref_array))
-		
-		
-		'''
-		Debug
-		print "TO onoma mou einai"
-		print dir(function)
-		print function._get_name()
-		
-		print function._set_name()
-		'''
 
-		# An h sunarthsh den einai declaration
-		if(len(self.declarations)>0 or
-			len(self.statements)>0):
+			
+
+		# If the function is not declared but it is defined it should pass this control only once
+		if(len(self.declarations)>0 or len(self.statements)>0):
 
 			# Anoixe kainourgio scope level
 			IR_State.push_level_function_map()
@@ -794,7 +805,8 @@ class Function(Identifier):
 				# Termatise tis void sunarthseis
 				if (self.type.isVoid()):
 					IR_State.builder.ret_void()
-			# Kleise to scope level
+
+			# Kleise to scope level We are out of the "with" block 
 			IR_State.pop_level_function_map()
 			IR_State.pop_level_eds_var_map()
 
@@ -1462,7 +1474,7 @@ class Function_call(Expr):
 
 		# Get the function from its name ( Original Command has been kept)
 		# function = IR_State.function_map[self.name)]
-		function_with_metadata = IR_State.get_from_function_map(self.function.get_signature())
+		function_with_metadata = IR_State.get_from_function_map(self.function.get_extended_signature())
 		function = function_with_metadata.function
 		scope_struct = function_with_metadata.get_scope_struct()
 
