@@ -21,3 +21,7 @@ Here we keep all the choices we took, some implementation difficulties that we f
 	// The following are two different functions
 	int pipi(char a);
 	int pipi(byref char a);
+
+5) Functions Scope
+========================
+Every function declared in some block is able to see EVERY other variable inside this scope
