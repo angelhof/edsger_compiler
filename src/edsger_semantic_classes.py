@@ -39,7 +39,18 @@ def find_function_signature(identifier, type_list, extended_id = -1):
 		return identifier
 	return signature
 
-
+def unflatten_previous_scope():
+	tuples = [(x, y[0], y[1]) for x,y in IR_State.eds_var_map[1].iteritems()]
+	result_dict = {}
+	for tuple in [x for x in tuples if not x[0][:len("_current_scope_")] ==
+								"_current_scope_"]:
+		if tuple[2] not in result_dict:
+			result_dict[tuple[2]] = [(tuple[0], tuple[1])]
+		else:
+			result_dict[tuple[2]].append((tuple[0], tuple[1]))
+	for scope in result_dict:
+		result_dict[scope].sort()
+	return result_dict
 
 def create_unreachable():
 	unreachable = IR_State.builder.append_basic_block("_unreachable")
@@ -140,6 +151,35 @@ def transform_type(var):
 
 
 	return (var_type, array_size)
+'''
+'''
+def retrieve_previous_scope_structs(llvm_scope_struct, scope_structs_names):
+	#print "Retrieve function"
+	#print llvm_scope_struct
+	#print scope_structs_names
+	if( len(scope_structs_names) == 0):
+		return
+	else:
+		curr_name = scope_structs_names[0]
+		names_tail = scope_structs_names[1:]
+
+		curr_struct = 	IR_State.builder.gep(
+						llvm_scope_struct ,
+						[ ir.Constant(ir.IntType(32), 0)
+						] ,
+						name=curr_name)
+
+		next_struct = 	IR_State.builder.gep(
+						llvm_scope_struct ,
+						[ ir.Constant(ir.IntType(32), 0)
+						] ,
+						name=curr_name+"_next")
+
+
+		IR_State.add_to_eds_var_map(curr_name, curr_struct, 
+					len(IR_State.eds_var_map))
+
+		retrieve_previous_scope_structs(next_struct, names_tail)
 
 '''
 Creates the scope struct, allocates space, and gives the pointers
@@ -160,11 +200,35 @@ def create_scope_struct():
 	'''
 	#print "Ti theloume apo edw"
 	#print IR_State.eds_var_map
-	#print sorted(IR_State.get_curr_level_of_eds_var_map().keys())
 	# We sort them so that they have some kind of order
 	current_scope = IR_State.get_curr_level_of_eds_var_map()
-	current_scope_keys = sorted(current_scope.keys())
+	current_scope_keys = 	[x for x in sorted(
+						 	current_scope.keys()) 
+								if not x[:len("_current_scope_")] ==
+								"_current_scope_"]
+	#print current_scope_keys
+
+	all_previous_scope_keys = 	[x for x in 
+						 		current_scope.keys() 
+									if x[:len("_current_scope_")] ==
+									"_current_scope_"]
+
+	# Pernoume ton arithmo tou teleutaiou scope
+	try:
+		previous_scope_key = str(sorted(map(lambda x: int(x.split("_")[-1]) , 
+				all_previous_scope_keys))[-1])
+	except:
+		previous_scope_key = None
+
+	#print previous_scope_key
+
 	current_scope_types = []
+	# Prosthese ton tupo tou prohgoumenou struct
+	if previous_scope_key is not None:
+		print current_scope["_current_scope_"+previous_scope_key].type
+		current_scope_types.append(current_scope["_current_scope_"+previous_scope_key].type)
+
+	# Prosthese tous tupous twn metablhtwn tou twrinou scope
 	for var_in_curr_scope_key in current_scope_keys:
 		var_in_curr_scope = current_scope[var_in_curr_scope_key]
 		current_scope_types.append(var_in_curr_scope.type)
@@ -182,7 +246,7 @@ def create_scope_struct():
 				scope_struct_type,  
 				name="_current_scope_"+str(scope_depth) )
 	IR_State.add_to_eds_var_map("_current_scope_"+str(scope_depth)
-				, allocated_scope_struct)
+				, allocated_scope_struct, scope_depth)
 	#print allocated_scope_struct
 	'''
 	Note: Check that the IntType indice below is 32 
@@ -190,6 +254,10 @@ def create_scope_struct():
 		  limitation
 		  ! To idio sumbainei kai sto function class 
 	'''
+	if previous_scope_key is not None:
+		temp_key = "_current_scope_"+previous_scope_key
+		current_scope_keys.insert(0, temp_key)
+
 	# Add the pointer values to the struct
 	for i in range(len(current_scope_keys)):
 		struct_element = IR_State.builder.gep(
@@ -470,7 +538,7 @@ class Variable(Identifier):
 		var_name = self.name 
 		name = "_temp"+str(IR_State.var_counter)
 
-		print IR_State.eds_var_map
+		#print IR_State.eds_var_map
 
 		ptr = IR_State.get_from_eds_var_map(var_name)
 
@@ -530,9 +598,9 @@ class Variable(Identifier):
 			ret_val.linkage = "private"
 			
 
-			print "KAKANA"
-			print dir(ret_val)
-			IR_State.add_to_eds_var_map(our_name, ret_val)
+			
+			IR_State.add_to_eds_var_map(our_name, ret_val, 
+						len(IR_State.eds_var_map))
 		else:
 			# If it an array we have to do 2 steps
 			if(array_size > 1):
@@ -546,7 +614,8 @@ class Variable(Identifier):
 			else:
 				ret_val = IR_State.builder.alloca( var_type, 
 						size=array_size, name=our_name )
-			IR_State.add_to_eds_var_map(our_name, ret_val)
+			IR_State.add_to_eds_var_map(our_name, ret_val, 
+						len(IR_State.eds_var_map))
 		return ret_val
 
 
@@ -594,6 +663,7 @@ class Function(Identifier):
 		self.statements = statements
 		self.scope_level = None
 		self.uid = -1
+
 
 	def get_signature(self):
 		return find_function_signature(self.name, map(lambda x: x.type, self.parameters) )
@@ -732,7 +802,8 @@ class Function(Identifier):
 				eds_param_name = self.parameters[i].name
 				llvm_param = function.args[i]
 				
-				IR_State.add_to_eds_var_map(eds_param_name, llvm_param)
+				IR_State.add_to_eds_var_map(eds_param_name, llvm_param, 
+							len(IR_State.eds_var_map))
 
 
 
@@ -761,6 +832,19 @@ class Function(Identifier):
 				#print "Prohgoumeno"
 				#print previous_scope_frame_keys
 
+				#print "Variable stack prin to 'declaration' paliwn scope"
+				#print previous_scope_frame
+				previous_scope_structs = [x for x in sorted(
+						previous_scope_frame.keys()) 
+							if x[:len("_current_scope_")] ==
+							"_current_scope_"]
+				#print previous_scope_structs
+				if( len(previous_scope_structs) > 0):
+					retrieve_previous_scope_structs(function.args[-1], previous_scope_structs)
+
+				# Create the current scope_struct
+				create_scope_struct()
+
 				# Kratame to scope level gia to function call
 				# kai to scope struct
 				self.scope_level = len(IR_State.eds_var_map)
@@ -774,26 +858,45 @@ class Function(Identifier):
 					
 					'''
 					TODO: 7/10/2016
-				
+					Auto skaei kai prepei na kanw swsta to anoigma twn metablitwn
 					'''
+					#print "Variable Retrieval"
+					#print previous_scope_frame_keys
+					#print [(x, y[1]) for x,y in IR_State.eds_var_map[1].iteritems()]
+					#print IR_State.eds_var_map
+					#print function.args[-1]
 
-					for i in range(len(previous_scope_frame_keys)):
-						key = previous_scope_frame_keys[i]
-						print function.args[-1]
-						scope_variable_address = IR_State.builder.gep(
-								function.args[-1] ,
-								[ ir.Constant(ir.IntType(32), 0)
-								, ir.Constant(ir.IntType(32), i) 
-								] ,
-								name="__"+key )
-						scope_variable = IR_State.builder.load(
-								scope_variable_address,
-								name="___"+key )
-						IR_State.add_if_not_to_eds_var_map(key, scope_variable)
+					previous_variables_and_depth = unflatten_previous_scope()
+
+					#print previous_variables_and_depth
+
+					
+					for level in previous_variables_and_depth:
+						for i in range(0,len(previous_variables_and_depth[level])):
+							key = previous_variables_and_depth[level][i][0]
+							value = previous_variables_and_depth[level][i][1]
+
+							containing_scope = IR_State.get_from_eds_var_map( \
+									"_current_scope_" + str(level))
+
+							#print "TO SOSTO TO SCOPE"
+							#print key, value
+							#print containing_scope
+
+							scope_variable_address = IR_State.builder.gep(
+									containing_scope ,
+									[ ir.Constant(ir.IntType(32), 0)
+									, ir.Constant(ir.IntType(32), i) 
+									] ,
+									name="__"+key )
+							scope_variable = IR_State.builder.load(
+									scope_variable_address,
+									name="___"+key )
+							IR_State.add_if_not_to_eds_var_map(key, scope_variable,
+										level)
 
 
-				# Create the current scope_struct
-				create_scope_struct()
+				
 
 				for element in function_decls:
 					element.code_gen_decl()

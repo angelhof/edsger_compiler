@@ -223,19 +223,34 @@ class IR_State(object):
 		# Check from the top to the bottom of the stack
 		for stack_level in cls.eds_var_map:
 			if name in  stack_level:
+				return stack_level[name][0]
+		# TODO: Fix this error print
+		print "Variable with name: " + name + " was not found in the map"
+		return None
+	@classmethod
+	def get_from_eds_var_map_ext(cls, name):
+		# Check from the top to the bottom of the stack
+		for stack_level in cls.eds_var_map:
+			if name in  stack_level:
 				return stack_level[name]
 		# TODO: Fix this error print
 		print "Variable with name: " + name + " was not found in the map"
 		return None
 	@classmethod
-	def add_to_eds_var_map(cls, name, value):
-		cls.eds_var_map[0][name] = value
+	def add_to_eds_var_map(cls, name, value, depth):
+		cls.eds_var_map[0][name] = (value, depth)
 	@classmethod
-	def add_if_not_to_eds_var_map(cls, name, value):
+	def add_if_not_to_eds_var_map(cls, name, value, depth):
 		if not name in cls.eds_var_map[0]:
-			 cls.eds_var_map[0][name] = value
+			 cls.eds_var_map[0][name] = (value, depth)
 	@classmethod
 	def get_curr_level_of_eds_var_map(cls):
+		new_dict = {}
+		for key, val in cls.eds_var_map[0].iteritems():
+			new_dict[key] = val[0]
+		return new_dict
+	@classmethod
+	def get_curr_level_of_eds_var_map_ext(cls):
 		return cls.eds_var_map[0]
 		
 '''
