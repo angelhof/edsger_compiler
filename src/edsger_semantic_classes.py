@@ -36,6 +36,23 @@ def find_function_signature(identifier, type_list):
 		return identifier
 	return signature
 
+'''
+This function creates a binary operation node
+that will then be code_gen()-ed
+'''
+def create_bin_op_for_whole_ass(whole_assignment):
+
+	old_op = whole_assignment.operator
+	old_exp1 = whole_assignment.exp1
+	old_exp2 = whole_assignment.exp2
+	
+	new_operator = Operator(old_op.lineno, old_op.operator[0], True)
+	new_binary_operation = Node_binary_operation(new_operator, 
+			old_exp1, old_exp2, old_op.lineno)
+	
+	return new_binary_operation
+
+
 def unflatten_previous_scope():
 	tuples = [(x, y[0], y[1]) for x,y in IR_State.eds_var_map[1].iteritems()]
 	result_dict = {}
@@ -1428,10 +1445,16 @@ class Node_whole_assignment(Expr):
 		return iter(rlist)
 
 	def code_gen(self):
+
+
 		IR_State.left_side = True
 		left_ptr = self.exp1.code_gen()
 		IR_State.left_side = False
-		right_value = self.exp2.code_gen()
+		if(self.operator.operator == "="):
+			right_value = self.exp2.code_gen()
+		else:
+			bin_op = create_bin_op_for_whole_ass(self)
+			right_value = bin_op.code_gen()
 		IR_State.builder.store(right_value, left_ptr)
 		return right_value
 

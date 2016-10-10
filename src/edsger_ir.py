@@ -171,7 +171,7 @@ class IR_State(object):
 				ir.VoidType(), 
 				[ir.PointerType(ir.IntType(TypeSizes.int))]), 
 				"dispose")
-		pass
+		
 	##
 	# The following set of 4 functions offer
 	# the basic functionality for the stack of function maps
