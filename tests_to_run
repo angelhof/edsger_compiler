@@ -13,7 +13,11 @@ ir_test_12.eds
 ir_test_13.eds
 ir_test_14.eds
 ir_test_15.eds
-ir_test_16.eds
 ir_test_17.eds
 ir_test_18.eds
 ir_test_20.eds
+ir_test_21.eds
+hanoi.eds in
+primes.eds in
+reverse.eds
+test_libraries.eds in

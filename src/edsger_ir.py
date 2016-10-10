@@ -52,7 +52,7 @@ class IR_State(object):
 	# Basic IR module, the builder
 	builder = ir.IRBuilder(block)
 	# Function Unique Identifier
-	function_unique_identifier = 0
+	function_unique_identifiers = {}
 	# main pointer steady
 	main_anchor = None
 
@@ -252,6 +252,14 @@ class IR_State(object):
 	@classmethod
 	def get_curr_level_of_eds_var_map_ext(cls):
 		return cls.eds_var_map[0]
+
+	@classmethod 
+	def update_function_unique_identifier(cls, sig):
+		if (sig in cls.function_unique_identifiers):
+			cls.function_unique_identifiers[sig] += 1
+		else:
+			cls.function_unique_identifiers[sig] = 0
+		return cls.function_unique_identifiers[sig]
 		
 '''
 A class that keeps all string constants so that they can

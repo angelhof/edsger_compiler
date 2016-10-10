@@ -11,18 +11,6 @@ from edsger_ir import IR_State, \
 ## Useful ##
 ############
 
-library_function_names = [
-	"writeInteger" ,
-	"writeBoolean" ,
-	"writeChar" ,
-	"writeReal" ,
-	"writeString" ,
-	"readInteger" ,
-	"readBoolean" ,
-	"readChar" ,
-	"readReal" ,
-	"readString"
-]
 
 def find_function_signature(identifier, type_list, extended_id = -1):
 	'''
@@ -35,8 +23,6 @@ def find_function_signature(identifier, type_list, extended_id = -1):
 	signature = identifier + "-" + str(len(type_list)) + reduce(operator.concat, map(lambda x: "-" + str(x), type_list) , "")
 	if (not extended_id == -1):
 		signature += "-"  + str(extended_id)
-	if identifier in library_function_names:
-		return identifier
 	return signature
 
 '''
@@ -412,7 +398,7 @@ class Type():
 	def __ne__(self, other):
 		return not self.__eq__(other)
 	def __str__(self):
-		return str(self.type) + (" pointer" * self.pointer)
+		return str(self.type) + ("_pointer" * self.pointer)
 	def copyfrom(self, other):  
 		self.type=other.type
 		self.pointer=other.pointer
@@ -737,8 +723,7 @@ class Function(Identifier):
 		# If we are getting for the first time in declaration or definiton
 		# we should check the uid if it has been initialized or otherwise we should do it here
 		if(self.uid == -1):
-			IR_State.function_unique_identifier += 1
-			self.uid = IR_State.function_unique_identifier
+			self.uid = IR_State.update_function_unique_identifier(self.get_signature())
 			if(self.get_signature()=="main-0" and  scope_depth == 1):
 				IR_State.main_anchor = self.get_extended_signature()
 
@@ -1798,7 +1783,7 @@ class Array_Deref(Expr):
 
 		
 
-		arr_index = self.index.code_gen()
+		
 		
 		# We are keeping the left_side value
 		# We change it to False always ,
@@ -1806,6 +1791,7 @@ class Array_Deref(Expr):
 		# but rather somewhere relative to its value
 		old_left_side = IR_State.left_side
 		IR_State.left_side = False
+		arr_index = self.index.code_gen()
 		left_exp = self.left_expression.code_gen()
 		IR_State.left_side = old_left_side  
 
