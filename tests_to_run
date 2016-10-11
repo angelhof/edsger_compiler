@@ -22,3 +22,5 @@ hanoi.eds in
 primes.eds in
 reverse.eds
 test_libraries.eds in
+bsort.eds
+meanrand.eds

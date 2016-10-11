@@ -1,6 +1,7 @@
 import warning_messages
 import itertools
 import operator
+from copy import deepcopy
 from llvmlite import ir
 from edsger_ir import IR_State, \
 					  Function_With_Metadata, \
@@ -504,7 +505,7 @@ class Variable(Identifier):
 		self.isGlobal = False
 
 	def declare_type(self,vtype):
-		self.type = vtype
+		self.type = deepcopy(vtype)
 
 	def __str__(self):
 		return "Variable( " + str(self.name)  + " , " + str(self.type) + " )" + (" [ " + str(self.array_expr) + " ] " )*(not self.array_expr is None) 
@@ -955,12 +956,16 @@ class For_Statement():
 		IR_State.block_map[loop_name] = loop_block
 		IR_State.block_map[loop_name + ".exit"] = exit_loop_block
 
-		exp1 = self.expression1.code_gen()
+		exp1 = None
+		if(self.expression1 is not None):
+			exp1 = self.expression1.code_gen()
 		IR_State.builder.branch(pred_loop_block)
 
 		with IR_State.builder.goto_block(pred_loop_block):
 			# emit instructions for the pred_loop_block
-			predicate = self.expression2.code_gen()
+			predicate = None
+			if(self.expression2 is not None):
+				predicate = self.expression2.code_gen()
 
 			IR_State.builder.cbranch(predicate, loop_block, exit_loop_block)
 
@@ -969,7 +974,10 @@ class For_Statement():
 			# emit instructions for the loop_block
 			for stmt in enlist(self.stmts):
 				stmt.code_gen()
-			exp3 = self.expression3.code_gen()
+			
+			exp3 = None
+			if(self.expression3 is not None):
+				exp3 = self.expression3.code_gen()
 			IR_State.builder.branch(pred_loop_block)
 
 		IR_State.builder.position_at_end(exit_loop_block)
@@ -1083,8 +1091,9 @@ class Operator():
 				return False
 
 	def binary_typecheck(self,exp1_type,exp2_type):
-		print "Typecheck"
-		print exp1_type, exp2_type
+		
+		#print "Typecheck " + str(self)
+		#print exp1_type, exp2_type
 		#check the binary typechecking practically the same type for both expressions all except COMMA 
 		if(self.operator == "b+" or self.operator == "b-"): # + or - binary
 			if(exp1_type.isInt()):

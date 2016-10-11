@@ -49,6 +49,7 @@ for test_name_newline in test_files.readlines():
 		my_output = open("tests/outputs/"+test_name).read()
 		expected_output = open("tests/expected_outputs/"+test_name).read()
 		'''Debug Only:
+		
 		print my_output
 		print expected_output
 		for i,s in enumerate(difflib.ndiff(my_output, expected_output)):
