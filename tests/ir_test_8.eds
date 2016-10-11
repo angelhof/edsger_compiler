@@ -16,13 +16,20 @@ int main()
 	*(b+1) = 1;
 	b[1] = 1;
 	
-	writeInteger(b[0]);
+
+	//a[0] = NULL;
+	
+	writeInteger(b[1]);
 	a[0][0] = 2;
 	writeInteger(a[0][0]);
 	*(b-2+3) = 8;
-	writeInteger(b[0]);
+	writeInteger(b[1]);
 	*(-2+b+3) = 9;
-	writeInteger(b[0]);
+	writeInteger(b[1]);
+	c = 1;
+	*(b+c) = 10;
+	writeInteger(b[1]);
+	
 	
 	return 0;
 }

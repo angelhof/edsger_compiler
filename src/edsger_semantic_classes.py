@@ -424,6 +424,8 @@ class Type():
 		return self.pointer == 0 
 	def isVoid(self):
 		return self.type == "void"
+	def isNull(self):
+		return self.type == "null"
 	def defaultValue(self):
 		ret_val = None
 		if(self.isInt()):
@@ -475,37 +477,7 @@ class Constant_Value(Expr):
 			print global_string
 			dest = IR_State.builder.bitcast(global_string, 
 					ir.PointerType(ir.IntType(TypeSizes.char))  )
-			'''
-			TODO: Delete - Old way of doing it
-			# First make the string normal
-			string_val = decoded_string = self.value[1:-1].decode('string_escape')
 			
-			address = IR_State.builder.alloca(
-					ir.IntType(TypeSizes.char), 
-					len(string_val)+1)
-			
-			# Save each character
-			for i in range(len(string_val)):
-				temp_add = IR_State.builder.gep(
-					address,
-					[ir.Constant(ir.IntType(32), i)])
-				ir_val = ir.Constant(ir.IntType(TypeSizes.char), 
-					ord(string_val[i]))
-				IR_State.builder.store(ir_val,
-					temp_add)
-
-			# Add the final character
-			temp_add = IR_State.builder.gep(
-					address,
-					[ir.Constant(ir.IntType(32), 
-					len(string_val))])
-			ir_val = ir.Constant(ir.IntType(TypeSizes.char), 
-					ord('\0'))
-			IR_State.builder.store(ir_val,
-					temp_add)
-			
-			dest = address
-			'''
 
 		else:
 			print"Exit like we got a big problem :'("
@@ -1110,6 +1082,8 @@ class Operator():
 				return False
 
 	def binary_typecheck(self,exp1_type,exp2_type):
+		print "Typecheck"
+		print exp1_type, exp2_type
 		#check the binary typechecking practically the same type for both expressions all except COMMA 
 		if(self.operator == "b+" or self.operator == "b-"): # + or - binary
 			if(exp1_type.isInt()):
@@ -1137,6 +1111,9 @@ class Operator():
 		else: #all the other binary operators make the same type check
 			if(exp2_type.similar(exp1_type)):
 				return self.unary_typecheck(exp1_type)
+			elif( (exp1_type.isNull() and not exp2_type.isPrimitive()) or
+				  (exp2_type.isNull() and not exp1_type.isPrimitive())):
+				return True
 			else: 
 				return False
 
@@ -1216,7 +1193,14 @@ class Node_unary_operation(Expr):
 				intzero = ir.Constant(ir.IntType(TypeSizes.int), 0)
 				dest = IR_State.builder.sub(intzero, var_s, name=name)
 		elif(op == "u*"):
-			dest = IR_State.builder.load(var_s, name=name)
+			# This control is made in order to allow *(p+1+1)
+			if(IR_State.left_side):
+				if(var_s.type.pointee.is_pointer):
+					dest = IR_State.builder.load(var_s, name=name)
+				else:
+					dest = var_s
+			else:
+				dest = IR_State.builder.load(var_s, name=name)
 		elif(op == "&"):
 			intzero = ir.Constant(ir.IntType(TypeSizes.int), 0)
 			dest = IR_State.builder.gep(var_s,[intzero], name=name)
@@ -1271,36 +1255,48 @@ class Node_binary_operation(Expr):
 		op = self.operator.operator
 		op_type = self.type
 		
-		
+		# Needed control if there is pointer add or sub
+		if(op in ["b+", "b-"]):
+			if(op_type.pointer > 0):
+				old_left_side = IR_State.left_side
+				if(self.exp1.type.isPrimitive()):
+					IR_State.left_side = False
+					int_var = self.exp1.code_gen()
+					IR_State.left_side = old_left_side
+					ptr_var = var_s2
+				else:
+					IR_State.left_side = False
+					int_var = self.exp2.code_gen()
+					IR_State.left_side = old_left_side
+					ptr_var = var_s1
+				print dir(ptr_var.type)
 
 		name = "_temp"+str(IR_State.var_counter)
 
 		if(op == "b+"):
 			if(op_type.pointer > 0):
-				if(self.exp1.type.isPrimitive()):
-					int_var = var_s1
-					ptr_var = var_s2
+				# An exei o pointer exei meinei pointer
+				if(ptr_var.type.pointee.is_pointer):
+					loaded = IR_State.builder.load(ptr_var, name=name+"-loaded")
+					dest = IR_State.builder.gep(loaded, [int_var], name=name)
 				else:
-					int_var = var_s2
-					ptr_var = var_s1	
-				print ptr_var
-				temp_dest = IR_State.builder.gep(ptr_var, [int_var], name=name+"_unpointered")
-				dest = temp_dest.pointer
+					dest = IR_State.builder.gep(ptr_var, [int_var], name=name)
 			elif(op_type.isDouble()):
 				dest = IR_State.builder.fadd(var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.add(var_s1, var_s2, name=name)
 		elif(op == "b-"):
 			if(op_type.pointer > 0):
-				if(self.exp1.type.isPrimitive()):
-					int_var = var_s1
-					ptr_var = var_s2
+				# We negate the int_var value
+				intzero = ir.Constant(ir.IntType(TypeSizes.int), 0)
+				int_var = IR_State.builder.sub(intzero, int_var, name=name+"-negated")
+				print dir(ptr_var.type)
+				# An exei o pointer exei meinei pointer
+				if(ptr_var.type.pointee.is_pointer):
+					loaded = IR_State.builder.load(ptr_var, name=name+"-loaded")
+					dest = IR_State.builder.gep(loaded, [int_var], name=name)
 				else:
-					int_var = var_s2
-					ptr_var = var_s1	
-				print ptr_var
-				temp_dest = IR_State.builder.gep(ptr_var, [int_var], name=name+"_unpointered")
-				dest = temp_dest.pointer
+					dest = IR_State.builder.gep(ptr_val, [int_var], name=name)
 			elif(op_type.isDouble()):
 				dest = IR_State.builder.fsub(var_s1, var_s2, name=name)
 			else:
@@ -1548,6 +1544,8 @@ class New(Expr):
 		dest = IR_State.builder.bitcast(dest_generic
 						, ir_type
 						, name=name)
+
+		
 
 		IR_State.var_map.append(dest) 
 		IR_State.var_counter += 1

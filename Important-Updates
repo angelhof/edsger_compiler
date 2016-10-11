@@ -50,6 +50,16 @@ Here we keep all the choices we took, some implementation difficulties that we f
 ==========================================
 	Explain
 
-11) Integers are 64 bits like the architecture
-===============================================
-	This is because adding pointers to integers needs casting of pointers to integers, this can be solved by doing a special casting there but there is no need for a thing like this
+11) Reals Policy
+========================
+	We have a midlayer of dynamically linked C code in order to be able to represent reals in
+	Edsger and convert them to IEEE 754 80 bits. We first compile the library and then use it from the 
+	python script. Cause otherwise we could not represent them with the prerequisite precision.
+	You can see further details in our imlementation.
+
+12) Pointer Arithmetic
+=======================
+	We allow most of the pointer arithmetic
+	Example:
+	*(p+1)
+	*(p+3-i) where i is an int

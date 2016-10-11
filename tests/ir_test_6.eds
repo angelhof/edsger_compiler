@@ -13,6 +13,7 @@ int main()
 	// First simple test
 	b = &a;
 	a = 5;
+
 	writeInteger(a);
 	writeInteger(*b);
 	c = *b;
@@ -27,10 +28,12 @@ int main()
 	a = 6;
 
 	**d = 7;
+	
 	writeInteger(a);
 	writeInteger(*b);
 	writeInteger(c);
 	writeInteger(**d);
+	
 	a = 0;
 
 	l = &k;
