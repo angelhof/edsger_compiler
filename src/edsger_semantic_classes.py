@@ -5,7 +5,8 @@ from llvmlite import ir
 from edsger_ir import IR_State, \
 					  Function_With_Metadata, \
 					  StringConstants, \
-					  TypeSizes
+					  TypeSizes, \
+					  Extended_DoubleType
 
 ############
 ## Useful ##
@@ -113,7 +114,7 @@ def transform_type_basic(our_type):
 		var_type = ir.IntType(var_size)
 	elif our_type.isGenDouble():
 		var_size = TypeSizes.double
-		var_type = ir.DoubleType()
+		var_type = Extended_DoubleType()
 	else:
 		var_type = ir.VoidType()
 
@@ -434,7 +435,7 @@ class Type():
 			ret_val = ir.Constant(ir.IntType(TypeSizes.bool), 
 					0)
 		elif(self.isDouble()):
-			ret_val = ir.Constant(ir.DoubleType(), 
+			ret_val = ir.Constant(Extended_DoubleType(), 
 					0)
 		return ret_val
 
@@ -458,7 +459,7 @@ class Constant_Value(Expr):
 		if self.type.isInt():
 			dest = ir.Constant(ir.IntType(TypeSizes.int), self.value)
 		elif self.type.isDouble():
-			dest = ir.Constant(ir.DoubleType(), self.value)
+			dest = ir.Constant(Extended_DoubleType(), self.value)
 		elif self.type.isBool():
 			dest = ir.Constant(ir.IntType(TypeSizes.bool), self.value)
 		elif self.type.isChar():
@@ -1202,14 +1203,14 @@ class Node_unary_operation(Expr):
 		
 		if(op== "u+"):
 			if(op_type.isDouble()):
-				floatzero = ir.Constant(ir.DoubleType(), 0.0)
+				floatzero = ir.Constant(Extended_DoubleType(), "0.0")
 				dest = IR_State.builder.fadd(var_s, floatzero, name=name)
 			else:
 				intzero = ir.Constant(ir.IntType(TypeSizes.int), 0)
 				dest = IR_State.builder.add(var_s, intzero, name=name)
 		elif(op== "u-"):
 			if(op_type.isDouble()):
-				floatzero = ir.Constant(ir.DoubleType(), 0.0)
+				floatzero = ir.Constant(Extended_DoubleType(), "0.0")
 				dest = IR_State.builder.fsub(floatzero, var_s, name=name)
 			else:
 				intzero = ir.Constant(ir.IntType(TypeSizes.int), 0)
@@ -1345,13 +1346,13 @@ class Node_pre_unary_assignment(Expr):
 
 		if (self.operator.operator == "++"):
 			if(op_type.isDouble()):
-				var_s2 = ir.Constant(ir.DoubleType(), 1.0)
+				var_s2 = ir.Constant(Extended_DoubleType(), "1.0")
 				dest = IR_State.builder.fadd(var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.add(var_s1, var_s2, name=name)
 		elif(self.operator.operator == "--"):
 			if(op_type.isDouble()):
-				var_s2 = ir.Constant(ir.DoubleType(), 1.0)
+				var_s2 = ir.Constant(Extended_DoubleType(), "1.0")
 				dest = IR_State.builder.fsub(var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.sub(var_s1, var_s2, name=name)
@@ -1394,13 +1395,13 @@ class Node_post_unary_assignment(Expr):
 
 		if (self.operator.operator == "++"):
 			if(op_type.isDouble()):
-				var_s2 = ir.Constant(ir.DoubleType(), 1.0)
+				var_s2 = ir.Constant(Extended_DoubleType(), "1.0")
 				dest = IR_State.builder.fadd(var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.add(var_s1, var_s2, name=name)
 		elif(self.operator.operator == "--"):
 			if(op_type.isDouble()):
-				var_s2 = ir.Constant(ir.DoubleType(), 1.0)
+				var_s2 = ir.Constant(Extended_DoubleType(), "1.0")
 				dest = IR_State.builder.fsub(var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.sub(var_s1, var_s2, name=name)
@@ -1712,7 +1713,7 @@ class Type_cast(Expr):
 					dest = IR_State.builder.trunc(eval_exp
 							, new_type_llvm
 							, name=name)
-			elif(isinstance(new_type_llvm, ir.types.DoubleType)):
+			elif(isinstance(new_type_llvm, Extended_DoubleType)):
 				dest = IR_State.builder.sitofp(eval_exp
 						, new_type_llvm
 						, name=name)
@@ -1720,12 +1721,12 @@ class Type_cast(Expr):
 				print "This shouldnt have passed the semantic analysis"
 				print "You cannot cast an integer into a pointer"
 				exit(1)
-		elif(isinstance(old_type_llvm, ir.types.DoubleType)):
+		elif(isinstance(old_type_llvm, Extended_DoubleType)):
 			if(isinstance(new_type_llvm, ir.types.IntType)):
 				dest = IR_State.builder.fptosi(eval_exp
 						, new_type_llvm
 						, name=name)
-			elif(isinstance(new_type_llvm, ir.types.DoubleType)):
+			elif(isinstance(new_type_llvm, Extended_DoubleType)):
 				dest = IR_State.builder.fpext(eval_exp
 						, new_type_llvm
 						, name=name)

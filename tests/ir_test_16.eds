@@ -3,7 +3,7 @@
 int main(){
 	double a;
 
-	a = 1.0;
+	a = 3.1415926535897932384626433832795028;
 
 	// HAngs Probably because of different format
 	writeReal(a);

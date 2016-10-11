@@ -7,9 +7,10 @@ int main()
 	double d;
 	double e;
 
-	e= 6.0;
-	d = 0.0;
-
+	e= 5.0;
+	d = 1.0;
+	d = --e;
+	
 	c = 1;
 	writeInteger(c);
 	b = 0;
@@ -20,8 +21,8 @@ int main()
 	writeInteger(a);
 	writeInteger(b);
 
-	d = --e;
-	d ++;
+	
+	d++;
 	writeInteger(++ a);
 
 	a = --b;
