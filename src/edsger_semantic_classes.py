@@ -1270,16 +1270,38 @@ class Node_binary_operation(Expr):
 		# Find the operation
 		op = self.operator.operator
 		op_type = self.type
+		
+		
 
 		name = "_temp"+str(IR_State.var_counter)
 
 		if(op == "b+"):
-			if(op_type.isDouble()):
+			if(op_type.pointer > 0):
+				if(self.exp1.type.isPrimitive()):
+					int_var = var_s1
+					ptr_var = var_s2
+				else:
+					int_var = var_s2
+					ptr_var = var_s1	
+				print ptr_var
+				temp_dest = IR_State.builder.gep(ptr_var, [int_var], name=name+"_unpointered")
+				dest = temp_dest.pointer
+			elif(op_type.isDouble()):
 				dest = IR_State.builder.fadd(var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.add(var_s1, var_s2, name=name)
 		elif(op == "b-"):
-			if(op_type.isDouble()):
+			if(op_type.pointer > 0):
+				if(self.exp1.type.isPrimitive()):
+					int_var = var_s1
+					ptr_var = var_s2
+				else:
+					int_var = var_s2
+					ptr_var = var_s1	
+				print ptr_var
+				temp_dest = IR_State.builder.gep(ptr_var, [int_var], name=name+"_unpointered")
+				dest = temp_dest.pointer
+			elif(op_type.isDouble()):
 				dest = IR_State.builder.fsub(var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.sub(var_s1, var_s2, name=name)

@@ -36,6 +36,11 @@ or run
 $ python main.py <input_file_name> [output_file_name]
 ```
 	
+Preparation
+============
+Set the llvm mtriple with your specific triple in order to run the tests.
 
+The default one is "x86_64-unknown-linux-gnu" 
+[Supported Triples](http://llvm.org/docs/CodeGenerator.html#x86-target-triples-supported)
 
  

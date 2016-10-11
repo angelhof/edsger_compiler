@@ -20,6 +20,20 @@ So the final ir module will look like this
 ##  So we just generate code with all the functions in the same place with the only thing differentiating them be their signature
 '''
 
+'''
+A class that holds the bit size of its type
+TODO:
+- Bool needs to be 8 but then we have to change code
+- Double number is never used ( Have to check official docs)
+- Pointer type is never used
+'''
+class TypeSizes(object):
+	int = 16
+	char = 8
+	bool = 1
+	double = 80
+	pointer = 64
+
 
 class IR_State(object):
 	# Counter that keeps the next variable number
@@ -46,7 +60,7 @@ class IR_State(object):
 	# Empty Module
 	module = ir.Module(name=__file__)
 	# Create a function inside the module
-	func = ir.Function(module, ir.FunctionType(ir.IntType(16), []), name="main")
+	func = ir.Function(module, ir.FunctionType(ir.IntType(TypeSizes.int), []), name="main")
 	# Insert an unreachable block, and the main block
 	block = func.append_basic_block(name="main")
 	# Basic IR module, the builder
@@ -291,16 +305,3 @@ class Function_With_Metadata():
 		return self.scope_struct
 
 
-'''
-A class that holds the bit size of its type
-TODO:
-- Bool needs to be 8 but then we have to change code
-- Double number is never used ( Have to check official docs)
-- Pointer type is never used
-'''
-class TypeSizes(object):
-	int = 16
-	char = 8
-	bool = 1
-	double = 80
-	pointer = 16
