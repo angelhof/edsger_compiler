@@ -5,8 +5,13 @@ int main(){
 	char *b;
 
 	"pipipo";
-	// Check if this should or shouldnt be allowed
-	a = "kok\n";
+	// This shouldnt be allowed
+	// a = "kok\n";
+	a[0] = 'k';
+	a[1] = 'o';
+	a[2] = 'k';
+	a[3] = '\n';
+	a[4] = '\0';
 	writeString(a);
 	
 	// Prepei na einai allowed auto ??

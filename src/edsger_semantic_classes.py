@@ -70,28 +70,27 @@ def enlist(element):
 	return element
 
 
-# We are running down the tree until we find a variable
-def l_val_typecheck(head, maybe):
+'''
+Checks if the expression on the left is an L-Val
+'''
+def new_l_val_check(head):
 	print head
-	if (isinstance(head, Variable)):
-		return True;
-	elif (isinstance(head, Parenthesial_expression)):
-		return l_val_typecheck(head.expr, maybe)
+	if(isinstance(head, Variable)):
+		if(head.array_expr is not None):
+			return False
+		else:
+			return True
+	elif(isinstance(head, Parenthesial_expression)):
+		return new_l_val_check(head.expr)
 	elif (isinstance(head, Array_Deref)):
-		return l_val_typecheck(head.left_expression, maybe)
+		if(head.left_expression.type.pointer > 0):
+			return True
 	elif (isinstance(head, Node_unary_operation)):
 		if( head.operator.operator == "u*"):
-			return l_val_typecheck(head.exp, True)
-	elif(isinstance(head, Node_pre_unary_assignment) or isinstance(head, Node_post_unary_assignment)):
-		pass
-	## TODO WHOLE ASSIGNEMENT AND PRE UNARY ASSIGNEMNT
-	elif (isinstance(head, Node_binary_operation)):
-		if( (head.operator.operator in ["b+", "b-"]) and maybe and (head.exp1.type.pointer > 0 or head.exp2.type.pointer > 0)):
-			if(head.exp1.type.pointer > 0):
-				return l_val_typecheck(head.exp1, maybe)
-			else:
-				return l_val_typecheck(head.exp2, maybe)
-	return False;
+			if(head.exp.type.pointer > 0):
+				return True
+	# Catcher False
+	return False
 
 '''
 Transforms our type instance in LLVM IR type

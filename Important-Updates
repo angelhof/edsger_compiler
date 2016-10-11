@@ -24,4 +24,12 @@ Here we keep all the choices we took, some implementation difficulties that we f
 
 5) Functions Scope
 ========================
-Every function declared in some block is able to see EVERY other variable inside this scope
+	Every function declared in some block is able to see EVERY other variable inside this scope ( even if the variable is declared after it)
+
+6) Array Immutability
+======================
+	Arrays are not considered L-Values
+	The following is not allowed:
+	char a[5];
+	a = "foo\n";
+	PS: Allowing this behaviour is very easy and requires a small change at the new_l_val_check function
