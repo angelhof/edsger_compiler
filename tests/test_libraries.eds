@@ -1,0 +1,51 @@
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
+#include "math.h"
+
+
+int main(){
+	int i;
+	bool b;
+	char c;
+	char * s;
+	double d;
+
+	// All library functions
+	i = readInteger();
+	writeInteger(i);
+	writeString("\n");
+
+	writeInteger(ord(chr(abs(i))));
+	writeString("\n");
+	
+	/*
+	d = readReal();
+	writeReal(d);
+	writeString("\n");
+	writeReal(fabs(d));
+	writeString("\n");
+	writeReal(sin(d));
+	writeString("\n");
+	writeReal(cos(d));
+	writeString("\n");
+	writeReal(tan(d));
+	writeString("\n");
+	writeReal(atan(d));
+	writeString("\n");
+	writeReal(ln(d));
+	writeString("\n");
+	writeReal(exp(d));
+	writeString("\n");
+	writeReal(sqrt(d));
+	writeString("\n");
+	writeInteger(round(d));
+	writeString("\n");
+	writeInteger(trunc(d));
+	writeString("\n");
+	*/
+
+	
+
+	return 0;
+}

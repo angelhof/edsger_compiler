@@ -1,0 +1,21 @@
+#include "stdio.h"
+
+int main(){
+	int i;
+	i = 10;
+	writeInteger(i);
+	writeString("\n");
+	i += 2;
+	writeInteger(i);
+	writeString("\n");
+	i -= 100;
+	writeInteger(i);
+	writeString("\n");
+	i *= 5;
+	writeInteger(i);
+	writeString("\n");
+	i /= 8;
+	writeInteger(i);
+	writeString("\n");
+	return 0;
+}

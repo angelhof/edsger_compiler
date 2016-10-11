@@ -12,18 +12,6 @@ from edsger_ir import IR_State, \
 ## Useful ##
 ############
 
-library_function_names = [
-	"writeInteger" ,
-	"writeBoolean" ,
-	"writeChar" ,
-	"writeReal" ,
-	"writeString" ,
-	"readInteger" ,
-	"readBoolean" ,
-	"readChar" ,
-	"readReal" ,
-	"readString"
-]
 
 def find_function_signature(identifier, type_list, extended_id = -1):
 	'''
@@ -36,9 +24,24 @@ def find_function_signature(identifier, type_list, extended_id = -1):
 	signature = identifier + "-" + str(len(type_list)) + reduce(operator.concat, map(lambda x: "-" + str(x), type_list) , "")
 	if (not extended_id == -1):
 		signature += "-"  + str(extended_id)
-	if identifier in library_function_names:
-		return identifier
 	return signature
+
+'''
+This function creates a binary operation node
+that will then be code_gen()-ed
+'''
+def create_bin_op_for_whole_ass(whole_assignment):
+
+	old_op = whole_assignment.operator
+	old_exp1 = whole_assignment.exp1
+	old_exp2 = whole_assignment.exp2
+	
+	new_operator = Operator(old_op.lineno, old_op.operator[0], True)
+	new_binary_operation = Node_binary_operation(new_operator, 
+			old_exp1, old_exp2, old_op.lineno)
+	
+	return new_binary_operation
+
 
 def unflatten_previous_scope():
 	tuples = [(x, y[0], y[1]) for x,y in IR_State.eds_var_map[1].iteritems()]
@@ -68,28 +71,27 @@ def enlist(element):
 	return element
 
 
-# We are running down the tree until we find a variable
-def l_val_typecheck(head, maybe):
+'''
+Checks if the expression on the left is an L-Val
+'''
+def new_l_val_check(head):
 	print head
-	if (isinstance(head, Variable)):
-		return True;
-	elif (isinstance(head, Parenthesial_expression)):
-		return l_val_typecheck(head.expr, maybe)
+	if(isinstance(head, Variable)):
+		if(head.array_expr is not None):
+			return False
+		else:
+			return True
+	elif(isinstance(head, Parenthesial_expression)):
+		return new_l_val_check(head.expr)
 	elif (isinstance(head, Array_Deref)):
-		return l_val_typecheck(head.left_expression, maybe)
+		if(head.left_expression.type.pointer > 0):
+			return True
 	elif (isinstance(head, Node_unary_operation)):
 		if( head.operator.operator == "u*"):
-			return l_val_typecheck(head.exp, True)
-	elif(isinstance(head, Node_pre_unary_assignment) or isinstance(head, Node_post_unary_assignment)):
-		pass
-	## TODO WHOLE ASSIGNEMENT AND PRE UNARY ASSIGNEMNT
-	elif (isinstance(head, Node_binary_operation)):
-		if( (head.operator.operator in ["b+", "b-"]) and maybe and (head.exp1.type.pointer > 0 or head.exp2.type.pointer > 0)):
-			if(head.exp1.type.pointer > 0):
-				return l_val_typecheck(head.exp1, maybe)
-			else:
-				return l_val_typecheck(head.exp2, maybe)
-	return False;
+			if(head.exp.type.pointer > 0):
+				return True
+	# Catcher False
+	return False
 
 '''
 Transforms our type instance in LLVM IR type
@@ -396,7 +398,7 @@ class Type():
 	def __ne__(self, other):
 		return not self.__eq__(other)
 	def __str__(self):
-		return str(self.type) + (" pointer" * self.pointer)
+		return str(self.type) + ("_pointer" * self.pointer)
 	def copyfrom(self, other):  
 		self.type=other.type
 		self.pointer=other.pointer
@@ -721,8 +723,7 @@ class Function(Identifier):
 		# If we are getting for the first time in declaration or definiton
 		# we should check the uid if it has been initialized or otherwise we should do it here
 		if(self.uid == -1):
-			IR_State.function_unique_identifier += 1
-			self.uid = IR_State.function_unique_identifier
+			self.uid = IR_State.update_function_unique_identifier(self.get_signature())
 			if(self.get_signature()=="main-0" and  scope_depth == 1):
 				IR_State.main_anchor = self.get_extended_signature()
 
@@ -1270,16 +1271,38 @@ class Node_binary_operation(Expr):
 		# Find the operation
 		op = self.operator.operator
 		op_type = self.type
+		
+		
 
 		name = "_temp"+str(IR_State.var_counter)
 
 		if(op == "b+"):
-			if(op_type.isDouble()):
+			if(op_type.pointer > 0):
+				if(self.exp1.type.isPrimitive()):
+					int_var = var_s1
+					ptr_var = var_s2
+				else:
+					int_var = var_s2
+					ptr_var = var_s1	
+				print ptr_var
+				temp_dest = IR_State.builder.gep(ptr_var, [int_var], name=name+"_unpointered")
+				dest = temp_dest.pointer
+			elif(op_type.isDouble()):
 				dest = IR_State.builder.fadd(var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.add(var_s1, var_s2, name=name)
 		elif(op == "b-"):
-			if(op_type.isDouble()):
+			if(op_type.pointer > 0):
+				if(self.exp1.type.isPrimitive()):
+					int_var = var_s1
+					ptr_var = var_s2
+				else:
+					int_var = var_s2
+					ptr_var = var_s1	
+				print ptr_var
+				temp_dest = IR_State.builder.gep(ptr_var, [int_var], name=name+"_unpointered")
+				dest = temp_dest.pointer
+			elif(op_type.isDouble()):
 				dest = IR_State.builder.fsub(var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.sub(var_s1, var_s2, name=name)
@@ -1441,10 +1464,16 @@ class Node_whole_assignment(Expr):
 		return iter(rlist)
 
 	def code_gen(self):
+
+
 		IR_State.left_side = True
 		left_ptr = self.exp1.code_gen()
 		IR_State.left_side = False
-		right_value = self.exp2.code_gen()
+		if(self.operator.operator == "="):
+			right_value = self.exp2.code_gen()
+		else:
+			bin_op = create_bin_op_for_whole_ass(self)
+			right_value = bin_op.code_gen()
 		IR_State.builder.store(right_value, left_ptr)
 		return right_value
 
@@ -1776,7 +1805,7 @@ class Array_Deref(Expr):
 
 		
 
-		arr_index = self.index.code_gen()
+		
 		
 		# We are keeping the left_side value
 		# We change it to False always ,
@@ -1784,6 +1813,7 @@ class Array_Deref(Expr):
 		# but rather somewhere relative to its value
 		old_left_side = IR_State.left_side
 		IR_State.left_side = False
+		arr_index = self.index.code_gen()
 		left_exp = self.left_expression.code_gen()
 		IR_State.left_side = old_left_side  
 

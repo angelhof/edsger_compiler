@@ -5,7 +5,6 @@ void main ()
 	bool prime (int n)
 	{
 		int i;
-		writeString("EFTASA EDW\n");
 		if (n < 0)
 		return prime(-n);
 		if (n < 2)
@@ -15,15 +14,8 @@ void main ()
 		if (n % 2 == 0)
 		return false;
 		for (i = 3; i <= n / 2; i += 2)
-		{
-			//writeInteger(i);
-			//writeString("\n");
-			if (n % i == 0)
-			{	
-				return false;
-			}
-			
-		}
+		if (n % i == 0)
+		return false;
 		return true;
 	}
 	writeString("Please, give the upper limit: ");
@@ -46,7 +38,6 @@ void main ()
 		writeInteger(number - 1);
 		writeString("\n");
 		}
-		writeString("EFTASA EDW");
 		if (number != limit && prime(number + 1)) {
 			counter++;
 			writeInteger(number + 1);

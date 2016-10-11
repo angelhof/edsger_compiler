@@ -7,13 +7,22 @@ int main()
 	int b[2];
 	int c;
 
+	// This shouldnt be allowed
+	//a = &b;
 	
-	a = &b;
+	a[0] = b;
 
-	b[0] = 1;
+	// TODO: Fix this
+	*(b+1) = 1;
+	b[1] = 1;
+	
 	writeInteger(b[0]);
 	a[0][0] = 2;
 	writeInteger(a[0][0]);
+	*(b-2+3) = 8;
 	writeInteger(b[0]);
+	*(-2+b+3) = 9;
+	writeInteger(b[0]);
+	
 	return 0;
 }

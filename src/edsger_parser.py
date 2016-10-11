@@ -641,7 +641,7 @@ def p_left_assignment(p):
 		exit(1)
 	equiv_node=Node_binary_operation(equiv,One_expr,p[2],p[1].lineno)
 	# Not an L-Value
-	if(not l_val_typecheck(p[2], False)):
+	if(not new_l_val_check(p[2])):
 		print warning_messages.not_l_value(str(p[2].lineno))
 		exit(1)
 	p[0]=Node_pre_unary_assignment(equiv_node.operator,p[2],p[1].lineno,equiv_node.type)
@@ -666,7 +666,7 @@ def p_right_assignment(p):
 		exit(1)
 	equiv_node=Node_binary_operation(equiv,One_expr,p[1],p[2].lineno)
 	# Not an L-Value
-	if(not l_val_typecheck(p[1], False)):
+	if(not new_l_val_check(p[1])):
 		print warning_messages.not_l_value(str(p[1].lineno))
 		exit(1)
 	p[0]=Node_post_unary_assignment(equiv_node.operator,p[1],p[2].lineno,equiv_node.type)
@@ -684,7 +684,7 @@ def p_whole_assignment(p):
 		exit(1)
 	equiv_node=Node_binary_operation(p[2],p[1],p[3],p[2].lineno)
 	# Not an L-Value
-	if(not l_val_typecheck(p[1], False)):
+	if(not new_l_val_check(p[1])):
 		print warning_messages.not_l_value(str(p[1].lineno))
 		exit(1)
 	p[0]=Node_whole_assignment(p[2],p[1],p[3],p[2].lineno,equiv_node.type)
