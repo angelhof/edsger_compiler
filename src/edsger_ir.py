@@ -1,4 +1,5 @@
 from llvmlite import ir
+import ctypes
 
 '''
 So the final ir module will look like this
@@ -19,6 +20,42 @@ So the final ir module will look like this
 ##  Because of all the checks we have already made there is no need to check anything else , except for the dynamic ones.
 ##  So we just generate code with all the functions in the same place with the only thing differentiating them be their signature
 '''
+class Extended_DoubleType(ir.DoubleType):
+	null = '0.0'
+	intrinsic_name = 'fp80'
+
+	def __str__(self):
+		return 'x86_fp80'
+
+	def format_constant(self, value):
+		return string_to_Expanded_DoubleType(value)
+
+def python_strtold(strn):
+	libstrtold = ctypes.CDLL("./src/libstrtold.so")
+	strtoddler = libstrtold.strtolden
+	p = ctypes.pointer(ctypes.c_char()) 
+	strtoddler.restype = ctypes.c_char_p
+	result = strtoddler(str(strn))
+	return result
+
+def string_to_Expanded_DoubleType(strn):
+	number = python_strtold(strn)
+	if ("-" in number.split("x")[0]):
+		sign = "0x8000"
+	else:
+		sign = "0x0000"
+	fraction = number.split("x")[1]
+	exponent = int(fraction.split("p")[1])
+	fraction = fraction.split("p")[0].replace(".","")
+
+	exponent = hex(int(sign,16) 
+					+ int("0x4000", 16)
+					+ exponent+2)
+	result = (str(exponent).split("0x")[1]+ fraction)
+	result = result + (20-len(result))*"0"
+	result = "0xK" + result 
+	return result
+
 
 '''
 A class that holds the bit size of its type
@@ -69,7 +106,7 @@ class IR_State(object):
 	function_unique_identifiers = {}
 	# main pointer steady
 	main_anchor = None
-
+	Extended_DoubleType._create_instance()
 	# Function main will be saved here so that we know
 
 
@@ -281,8 +318,6 @@ be referenced in the code_gen step
 '''
 class StringConstants(object):
 	strings = {}
-
-
 
 
 ##
