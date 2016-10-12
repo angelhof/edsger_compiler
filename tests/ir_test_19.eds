@@ -1,0 +1,32 @@
+#include "stdio.h"
+
+int main(){
+	
+	int *a, b;
+	int c;
+
+	a == NULL;
+	if(NULL == NULL)
+		writeString("Cool\n");
+	if(NULL != (NULL))
+		writeString("Not so cool\n");
+	else
+		writeString("Cooler\n");
+	
+	a = ((NULL));
+	if(a == NULL)
+		writeString("The coolest\n");
+
+	a = true ? NULL : b;
+	if(a == NULL)
+		writeString("The coolest-er\n");
+
+
+	/* Not allowed
+	c = NULL;
+	NULL > NULL;
+	NULL + NULL;
+	*/
+
+	return NULL;
+}

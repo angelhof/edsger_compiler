@@ -36,11 +36,11 @@ Here we keep all the choices we took, some implementation difficulties that we f
 
 7) String Immutability 
 =======================
-	Explain
+	String Constants are implemented as global constants only only once, and then are referenced by pointers. That is why constant strings are immutable.
 
 8) Nested Functions
 ====================
-	Explain
+	Nested functions have access to the outer functions' scope; we achieved this by passing a struct with the scope of the outer functions on the inside ones. 
 
 9) Runtime Checks Implementation
 =================================
@@ -48,7 +48,9 @@ Here we keep all the choices we took, some implementation difficulties that we f
 
 10) Library function names and signatures
 ==========================================
-	Explain
+	We recompiled the library functions so that their names conform to the compielr standards which are.
+	<function_name>-<#args>-<arg1_type>-...-<argn_type>-<uid>
+	We used this  name policy so that there can exist many functions with the same name but with different arguments in the same scope and also many functions with the same name and the same arguments in different scopes.
 
 11) Reals Policy
 ========================

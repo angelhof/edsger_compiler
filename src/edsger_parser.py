@@ -318,7 +318,7 @@ def p_statement(p):
 			p[2] = Expr(p.lineno(1), Type("void"))
 	
 		function = Function_Stack.stack[0] 
-		if(not function.type == p[2].type):
+		if(not function.type == p[2].type and not p[2].type.isNull()):
 			print warning_messages.type_mismatch(str(p[2].type), str(p.lineno(1)))
 			exit(1)
 		

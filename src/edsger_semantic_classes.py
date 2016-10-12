@@ -390,6 +390,9 @@ class Type():
 		self.type = constant_type
 		self.pointer = pointer
 	def similar(self, other):
+		if((other.isNull() and not self.isPrimitive()) or 
+		   (self.isNull() and not other.isPrimitive())):
+			return True
 		return (isinstance(other, self.__class__) and self.type == other.type and (self.pointer > 0) == (other.pointer > 0))
 	def __eq__(self, other):
 		return (isinstance(other, self.__class__) and self.type == other.type and self.pointer == other.pointer )
@@ -479,8 +482,8 @@ class Constant_Value(Expr):
 			print global_string
 			dest = IR_State.builder.bitcast(global_string, 
 					ir.PointerType(ir.IntType(TypeSizes.char))  )
-			
-
+		elif self.type.isNull():
+			dest = ir.Constant(ir.IntType(TypeSizes.int), None)
 		else:
 			print"Exit like we got a big problem :'("
 			exit(1)
@@ -1074,6 +1077,7 @@ class Operator():
 		return "OP: "+str(self.operator) + (" binary " * self.binar) 
 
 	def unary_typecheck(self,exp_type):
+
 		valid_list=self.validtypes
 		exp_checking_type=exp_type.type
 		exp_pointer = exp_type.pointer
@@ -1119,11 +1123,15 @@ class Operator():
 		#       if(exp2_type.pointer > 0 and exp1_type.pointer >0):  
 		#       return self.check_operator_expr(exp1_type.type)
 		else: #all the other binary operators make the same type check
-			if(exp2_type.similar(exp1_type)):
+			if( ((exp1_type.isNull() and not exp2_type.isPrimitive()) or
+				   (exp2_type.isNull() and not exp1_type.isPrimitive()) or
+				   (exp2_type.isNull() and exp1_type.isNull()))):
+				if((self.operator in ["=","==","!="])):
+					return True
+				else:
+					return False
+			elif(exp2_type.similar(exp1_type)):
 				return self.unary_typecheck(exp1_type)
-			elif( (exp1_type.isNull() and not exp2_type.isPrimitive()) or
-				  (exp2_type.isNull() and not exp1_type.isPrimitive())):
-				return True
 			else: 
 				return False
 
@@ -1328,7 +1336,16 @@ class Node_binary_operation(Expr):
 		elif(op == "&&"):
 			dest = IR_State.builder.and_(var_s1, var_s2, name=name)
 		elif(op in ["==", "<", ">", "<=", ">=", "!="]):
-			if(self.exp1.type.isDouble()): # TODO: Check the need of flags
+			if(self.exp1.type.isNull() or self.exp2.type.isNull()):
+				if(self.exp1.type.isNull() and self.exp2.type.isNull()):
+					dest = IR_State.builder.icmp_signed(op, var_s1, var_s2, name=name)
+				elif(self.exp1.type.isNull()):
+					casted_var_s1 = var_s1.inttoptr(var_s2.type)
+					dest = IR_State.builder.icmp_signed(op, casted_var_s1, var_s2, name=name)
+				else:
+					casted_var_s2 = var_s2.inttoptr(var_s1.type)
+					dest = IR_State.builder.icmp_signed(op, var_s1, casted_var_s2, name=name)
+			elif(self.exp1.type.isDouble()): # TODO: Check the need of flags
 				dest = IR_State.builder.fcmp_signed(op, var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.icmp_signed(op, var_s1, var_s2, name=name)
@@ -1475,7 +1492,11 @@ class Node_whole_assignment(Expr):
 		left_ptr = self.exp1.code_gen()
 		IR_State.left_side = False
 		if(self.operator.operator == "="):
-			right_value = self.exp2.code_gen()
+			if(self.exp2.type.isNull()):
+				null_val = self.exp2.code_gen()
+				right_value = null_val.inttoptr(left_ptr.type.pointee)
+			else:	
+				right_value = self.exp2.code_gen()
 		else:
 			bin_op = create_bin_op_for_whole_ass(self)
 			right_value = bin_op.code_gen()
@@ -1496,6 +1517,8 @@ class Ternary(Expr):
 		self.then_expr = then_expr
 		self.else_expr = else_expr
 		self.type = then_expr.type
+		if(then_expr.type.isNull() and not else_expr.type.isNull()):
+			self.type = else_expr.type
 		self.lineno = lineno
 	def __str__(self):
 		return "Ternary ? :"
@@ -1508,7 +1531,13 @@ class Ternary(Expr):
 		
 		predicate = self.predicate.code_gen()
 
-		name = "_temp"+str(IR_State.var_counter)        
+		name = "_temp"+str(IR_State.var_counter)  
+
+		if(self.then_expr.type.isNull() and not self.else_expr.type.isNull()):
+			var_s1 = IR_State.builder.inttoptr(var_s1, var_s2.type, name=name+"-casted")
+		elif(self.else_expr.type.isNull() and not self.then_expr.type.isNull()):
+			var_s2 = IR_State.builder.inttoptr(var_s2, var_s1.type, name=name+"-casted")
+		      
 		
 		dest = IR_State.builder.select(predicate, var_s1, var_s2, name=name)
 
