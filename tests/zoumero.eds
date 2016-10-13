@@ -8,6 +8,8 @@ int Initialize(byref int x) {
     return x + 123;
 }
 
+
+/*
 int SomeOtherFunc(int a) {
     int i;
 
@@ -39,14 +41,16 @@ int SomeOtherFunc(int a) {
     i = SecondAux(a, 88.33);
     return i;
 }
-
+*/
 void SomeFunc(int a) {
     int x;
     int ForwardDeclared(int b);
+
     
     void NestedFirstLevel(int a) {
         int pipa;
 
+        /* Spotted a scope struct bug here
         int NestedSecondLevel() {
             int cantThinkOfAName;
             cantThinkOfAName = ForwardDeclared(x);
@@ -57,26 +61,29 @@ void SomeFunc(int a) {
 
             return cantThinkOfAName - 102 + x;
         }
-
+        */
         pipa = a;
         writeString("pipa: ");
         writeInteger(pipa);
         writeChar('\n');
-        pipa += NestedSecondLevel();
+        //pipa += NestedSecondLevel();
         x = pipa;
     }    
 
+    
     int somethingElse;
 
     int ForwardDeclared(int b) {
         if (b > 0)
-            return 1 + ForwardDeclared(--b);
+            return 1 + ForwardDeclared(b-1);
         somethingElse = 12;
 
         return 42;
     }
+    
 
     x = 100;
+    
     somethingElse = 17;
     writeString("x before nestedFirstLevel: ");
     writeInteger(x);
@@ -89,6 +96,7 @@ void SomeFunc(int a) {
     writeString("somethingElse after nestedFirstLevel (should be 12): ");
     writeInteger(somethingElse);
     writeChar('\n');
+    
 }
 
 void FillAndPrint(int* arr, int nElements) {
@@ -107,10 +115,13 @@ void FillAndPrint(int* arr, int nElements) {
     }
 }
 
+
 void main() {
     int a;
-    int x[Initialize(a)];
+    int x[165];
     int i;
+
+    a = 42;
 
     writeInteger(a);
     writeChar('\n');

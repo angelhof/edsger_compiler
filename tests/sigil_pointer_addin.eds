@@ -1,0 +1,47 @@
+#include "stdio.h"
+void main(){
+int black(int a, byref int c){
+	void white(int b,byref int a){
+		writeString("Calage \n");
+		a = b;		
+	}
+	void red(int v,int lll){
+		writeString("Bernstein\n");
+	}
+	int hmm;
+	white(a,c);
+	return 5;
+}
+int fexe(byref int a,byref int q){
+	void maki(char c){
+		writeString("Xor\n");
+	}
+	maki('a');
+	return 0;
+}
+int A[20];
+int *p;
+int i;
+for (i=0; i<19; i++){
+	A[i]=i;
+}
+p = A;
+p = (p+2);
+black(i+54,A[2]);
+fexe(A[2],A[5]);
+writeString("p+2 equals: ");
+writeInteger(*p);
+writeString("\np+4 equals: ");
+writeInteger(*(p+4));
+writeString("\nA+3 equals: ");
+writeInteger(*(A+3));
+writeString("\nA equals: ");
+writeInteger(*A);
+p=A+7;
+writeString("\np = A+7 equals: ");
+writeInteger(*p);
+writeString("\n");
+writeString("\np = A+7-3 equals: ");
+writeInteger(*(p-3));
+writeString("\n");
+}

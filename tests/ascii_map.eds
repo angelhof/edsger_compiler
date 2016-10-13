@@ -1,0 +1,34 @@
+#include "stdio.h"
+
+void main(){
+	int a;
+	char c;
+	bool x;
+	writeString("This is an int <-> ascii transformer made to test casting..\n");
+	for(a=0; ; ){
+		writeString("If you want to convert an integer to char press 0\nIf you want to convert a char to an integer press anything else\nPress -1 to quit.\n");
+		writeString("What do u want?\n");
+		c = readChar();	
+		if(a==-1){
+			break;
+		}
+		x = (bool)a;
+		if(x){
+			writeString("Char -> Integer\n");
+			writeString("Insert char: ");
+			c = readChar();
+			writeString("Integer represantation of this char is: ");
+			writeInteger((int)c);
+			writeString("\n");
+		}else{
+			writeInteger(a);
+			writeString("Integer -> Char\n");
+			writeString("Insert integer: ");
+			a = readInteger();
+			writeString("Char represantation of this integer is: ");
+			writeChar((char)a);
+			writeString("\n");
+		}
+	}
+	writeString("Ascii calculator finished..\nGoodbye\n");
+}

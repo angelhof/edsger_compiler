@@ -1,0 +1,23 @@
+#include "stdio.h"
+
+void main(){
+	char a[7];
+	char *p;
+	char *m;
+	
+	p = new char[7];
+	m = "Write a string(p):\n";
+	writeString(m);
+	readString(7,p);
+	m = "Write another string(a):\n";
+	writeString(m);
+	readString(7,a);
+	m = "a is: \n";
+	writeString(m);
+	writeString(a);
+	m= "\np is: \n";
+	writeString(m);
+	writeString(p);
+	m = "\n";
+	writeString(m);
+}

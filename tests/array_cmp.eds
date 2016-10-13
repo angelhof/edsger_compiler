@@ -1,0 +1,77 @@
+#include "stdio.h"
+void main(){
+	int a[5];
+	int *p;
+	int *q;
+	p = &(a[0]);
+	q = &(a[2]);
+
+	if(q>p){
+		writeString("True\n");
+	}
+	else{
+		writeString("False\n");
+	}
+
+	if(a<q){
+		writeString("True\n");
+	}
+	else{
+		writeString("False\n");
+	}
+
+	if(a<=q){
+		writeString("True\n");
+	}
+	else{
+		writeString("False\n");
+	}
+
+	if(a==p){
+		writeString("True\n");
+	}
+	else{
+		writeString("False\n");
+	}
+
+	if(!(a!=p)){
+		writeString("True\n");
+	}
+	else{
+		writeString("False\n");
+	}
+
+	if((a!=q)){
+		writeString("True\n");
+	}
+	else{
+		writeString("False\n");
+	}
+
+	if((a!=NULL)){
+		writeString("True\n");
+	}
+	else{
+		writeString("False\n");
+	}
+
+	if((q!=NULL)){
+		writeString("True\n");
+	}
+	else{
+		writeString("False\n");
+	}
+
+	if((NULL==NULL)){
+		writeString("True\n");
+	}
+	else{
+		writeString("False\n");
+	}
+	if(  ( (p>=q) ? q : a ) != ( (p<a) ?a  : NULL ) ){
+		writeString("True\n");
+	}
+	else{
+		writeString("False\n");
+	}
+}

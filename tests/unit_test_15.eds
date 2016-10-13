@@ -1,0 +1,13 @@
+#include "stdio.h"
+
+void main () {
+    char c; 
+
+    c = readChar();
+    writeChar(c);
+    c = readChar();
+    writeChar(c);
+    writeChar('\n');
+    
+    return;
+}

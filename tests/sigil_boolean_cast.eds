@@ -1,0 +1,20 @@
+#include "stdio.h"
+
+void main(){
+bool a;
+int c;
+writeString("Give a boolean:\n");
+a = readBoolean();
+writeString("Give a integer:\n");
+c = readInteger();
+if(a){
+	writeString("Boolean value of the integer:\n");
+	writeBoolean((bool)c);
+	writeString("\n");
+}
+else{
+	writeString("Integer value of the boolean:\n");
+	writeInteger((int)a);
+	writeString("\n");
+}
+}

@@ -1,0 +1,13 @@
+#include "stdio.h"
+
+void main(){
+
+writeString("This is a program made to test casting..\n");
+writeString("(int) ");
+writeChar('a');
+writeString(" = ");
+writeInteger((int)'a');
+writeString("\n(char) 76 = ");
+writeChar((char)76);
+writeString("\n");
+}

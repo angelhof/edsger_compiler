@@ -1,0 +1,13 @@
+#include "stdio.h"
+
+void main() {
+  int i,j,k,l;
+
+  i = 3;
+  j = 2;
+  k = i*j;
+
+  for (l = 0; l < k ; l ++ ) {
+      writeString("Hello\n");
+  }
+}

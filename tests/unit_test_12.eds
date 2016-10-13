@@ -1,0 +1,25 @@
+#include "stdio.h"
+
+void main () {
+    int i;
+    int n;
+
+    int factorial() {
+        if (n==0) return 1;
+        else {
+            n = n-1;
+            return (n+1)*factorial();
+        }
+    }
+    
+    n = 6;
+    i = factorial();
+
+    if ( 720 == i ) 
+        writeString("Right\n");
+    else 
+        writeString("Wrong\n");
+    
+    // Bug with return val
+    return;
+}

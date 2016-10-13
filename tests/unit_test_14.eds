@@ -1,0 +1,15 @@
+#include "stdio.h"
+
+void main () {
+    char c; 
+
+    c='h';
+    writeChar(c);
+    writeChar('e');
+    writeChar('l');
+    writeChar('l');
+    writeChar('o');
+    writeChar('\n');
+    
+    return;
+}

@@ -1,0 +1,82 @@
+#include "stdio.h"
+ 
+ int main()
+ {
+        /* screen ( integer) coordinate */
+        int iX,iY;
+        int iXmax; 
+        int iYmax;
+        /* world ( double) coordinate = parameter plane*/
+        double Cx,Cy;
+        double CxMin;
+        double CxMax;
+	    double CyMin;
+        double CyMax;
+        /* */
+        double PixelWidth;
+        double PixelHeight;
+
+        char temp_char;
+        /* Z=Zx+Zy*i  ;   Z0 = 0 */
+        double Zx, Zy;
+        double Zx2, Zy2; /* Zx2=Zx*Zx;  Zy2=Zy*Zy  */
+        /*  */
+        int Iteration;
+        int IterationMax;
+        /* bail-out value , radius of circle ;  */
+        double EscapeRadius;
+        double ER2;
+	    iXmax = 160; 
+        iYmax = 70;
+	    CxMin= - 2.5;
+        CxMax= 1.5;
+	    CyMin= - 2.0;
+        CyMax= 2.0;
+	    PixelWidth=(CxMax-CxMin)/(double)iXmax;
+        PixelHeight=(CyMax-CyMin)/(double)iYmax;
+    	IterationMax=200;
+    	EscapeRadius=2.0;
+    	ER2=EscapeRadius*EscapeRadius;
+    	writeString("Mandel Process\n ");
+    	writeString("#");
+    	writeString("\n ");
+    	writeInteger(iXmax);
+    	writeString("\n ");
+    	writeInteger(iYmax);
+    	writeString("\n");
+        /* compute and write image data bytes to the file*/
+        for(iY=0; iY<iYmax; iY++)
+        {
+             Cy=CyMin + (double)iY*PixelHeight;
+             if ((Cy>=0.0 && Cy < PixelHeight/2.0) || (Cy<0.0 && Cy > -PixelHeight/2.0)) Cy=0.0; /* Main antenna */
+             for(iX=0;iX<iXmax;iX++)
+             {
+                        Cx=CxMin + (double)iX*PixelWidth;
+                        /* initial value of orbit = critical point Z= 0 */
+                        Zx=0.0;
+                        Zy=0.0;
+                        Zx2=Zx*Zx;
+                        Zy2=Zy*Zy;
+                        /* */
+                        for (Iteration=0; Iteration < IterationMax && ((Zx2+Zy2)<ER2) ; Iteration++)
+                        {
+                            Zy=2.0*Zx*Zy + Cy;
+                            Zx=Zx2-Zy2 +Cx;
+                            Zx2=Zx*Zx;
+                            Zy2=Zy*Zy;
+                        }
+                        /* compute  pixel color (24 bit = 3 bytes) */
+                        if (Iteration==IterationMax)
+                        { /*  interior of Mandelbrot set = black */
+                          writeString("#");                 
+                        }
+                     else 
+                        { /* exterior of Mandelbrot set = white */
+                           writeString("*"); /* Red*/
+                        }
+                        /*write color to the file*/
+                }
+		writeString("\n");
+        }
+        return 0;
+ }

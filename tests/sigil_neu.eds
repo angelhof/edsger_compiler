@@ -1,0 +1,25 @@
+#include "stdio.h"
+void main(){
+int *q;
+int i;
+int a;
+void alloc(int a){
+	q = new int[a];
+}
+writeString("Drop me an Integer:\n");
+a = readInteger();
+alloc(a);
+//q = new int[a];
+for(i=1; i<=a; i++){
+	q[i-1] = i;
+}
+writeString("Print q:\n");
+for(i=1; i<=a; i++){
+	writeString("q[");
+	writeInteger(i-1);
+	writeString("] = ");
+	writeInteger(q[i-1]);
+	writeString("\n");
+}
+delete q;
+}

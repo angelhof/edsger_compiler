@@ -1,0 +1,13 @@
+#include "stdio.h"
+
+void main () {
+    int c; 
+
+    c = readInteger();
+    writeInteger(c);
+    c = readInteger();
+    writeInteger(c);
+    writeChar('\n');
+    
+    return;
+}

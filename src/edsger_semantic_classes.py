@@ -717,6 +717,7 @@ class Function(Identifier):
 			if(function.is_declaration):
 				pass
 			else:
+				print function
 				#WE assume that semantic prevent two same declarations in tha same scope
 
 				# An h sunarthsh einai hdh dhlwmenh problhma
@@ -866,10 +867,10 @@ class Function(Identifier):
 									[ ir.Constant(ir.IntType(32), 0)
 									, ir.Constant(ir.IntType(32), i) 
 									] ,
-									name="__"+key )
+									name="__"+key+"+ptr_in_struct" )
 							scope_variable = IR_State.builder.load(
 									scope_variable_address,
-									name="___"+key )
+									name="___"+key+"+val_in_struct" )
 							IR_State.add_if_not_to_eds_var_map(key, scope_variable,
 										level)
 
@@ -966,7 +967,7 @@ class For_Statement():
 
 		with IR_State.builder.goto_block(pred_loop_block):
 			# emit instructions for the pred_loop_block
-			predicate = None
+			predicate = ir.Constant(ir.IntType(TypeSizes.bool), True)
 			if(self.expression2 is not None):
 				predicate = self.expression2.code_gen()
 
@@ -1346,7 +1347,7 @@ class Node_binary_operation(Expr):
 					casted_var_s2 = var_s2.inttoptr(var_s1.type)
 					dest = IR_State.builder.icmp_signed(op, var_s1, casted_var_s2, name=name)
 			elif(self.exp1.type.isDouble()): # TODO: Check the need of flags
-				dest = IR_State.builder.fcmp_signed(op, var_s1, var_s2, name=name)
+				dest = IR_State.builder.fcmp_ordered(op, var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.icmp_signed(op, var_s1, var_s2, name=name)
 		elif(op == ","):    
@@ -1694,9 +1695,14 @@ class Return():
 		rlist = self.expression
 		return iter(rlist)
 	def code_gen(self):
-		# Evaluate the result and then return it
-		result = self.expression.code_gen()
-		IR_State.builder.ret(result)
+
+		if(self.expression is None or self.expression.type.type == "void"):
+			result = IR_State.builder.ret_void()
+		else:
+			# Evaluate the result and then return it
+			result = self.expression.code_gen()
+			IR_State.builder.ret(result)	
+
 		create_unreachable()
 		
 		return result

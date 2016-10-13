@@ -1,0 +1,5 @@
+void writeString(char * s);
+
+void main () {
+     writeString("Hello World!\n");
+}

@@ -1,0 +1,16 @@
+#include "stdio.h"
+
+void rec_test(int a) {
+    if (a==0) {
+        writeString("1");    
+    } else {
+        writeString("0");    
+        rec_test(a-1);
+    }
+}
+
+void main() {
+    rec_test(10); 
+    writeString("\n");    
+}
+

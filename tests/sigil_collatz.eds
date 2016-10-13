@@ -1,0 +1,22 @@
+#include "stdio.h"
+void main(){
+int a;
+writeString("This is  a program that finds collatz sequences\n\n...\n\n");
+collatz: for(a=1; a>0;){
+	writeString("Insert a number as a seed (insert negative/zero to quit):\n");
+	a = readInteger();
+	if(a > 0){
+	writeString("The produced sequence is:\n");
+	writeInteger(a);
+	}
+	else{
+		break collatz;
+	}
+	for(; a!=1;){
+		a = (a%2==0)?a/2 : 3*a+1;
+		writeString("\n");
+		writeInteger(a);
+	}
+	writeString("\n\n");
+}
+}

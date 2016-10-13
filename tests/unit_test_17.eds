@@ -1,0 +1,17 @@
+#include "stdio.h"
+
+void main () {
+    int c; 
+    c =  0;
+    c += 1;
+    ++c;
+    c++;
+    c++;
+    c -= 1;
+    --c;
+    c--;
+    writeInteger(c);
+    writeString("\n");
+    
+    return;
+}

@@ -1,0 +1,31 @@
+#include "stdio.h"
+
+void main () {
+    int i;
+    int n;
+    
+    int testing1 () {
+        int dummy1,d2,d3;
+        int* dummy4;
+
+        int testing2 () {
+            int factorial() {
+                if (n==0) return 1;
+                else {
+                    n = n-1;
+                    return (n+1)*factorial();
+                }
+            }
+            return factorial();
+        }
+        return testing2();
+    }
+    
+    n = 6;
+    i = testing1();
+
+    if ( 720 == i ) writeString("Right\n");
+    else writeString("Wrong\n");
+    
+    return;
+}

@@ -1,0 +1,10 @@
+#include "stdio.h"
+
+void main() {
+  int x;
+  x = 4;
+  writeInteger(x);
+  x = 2;
+  writeInteger(x);
+  writeString("\n");
+}

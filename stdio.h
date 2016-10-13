@@ -8,6 +8,6 @@ int readInteger ();
 bool readBoolean ();
 char readChar ();
 double readReal ();
-char * readString ();
+void readString (int size, char * s);
 
 
