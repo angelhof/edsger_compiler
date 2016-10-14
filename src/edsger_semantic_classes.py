@@ -929,7 +929,8 @@ class If_Statement():
 				# emit instructions for when the predicate is true
 				for stmt in enlist(self.then_stmts):
 					stmt.code_gen()
-			
+	
+		IR_State.unreachable_array.append(IR_State.builder.block)
 
 
 class For_Statement():

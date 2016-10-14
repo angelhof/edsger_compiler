@@ -108,7 +108,7 @@ class IR_State(object):
 	main_anchor = None
 	Extended_DoubleType._create_instance()
 	# Function main will be saved here so that we know
-
+	possibly_unterminated_blocks = []
 
 	@classmethod
 	def rec_code_generation(cls, head):
@@ -183,8 +183,12 @@ class IR_State(object):
 		# Terminate the blocks that have no termination
 		array = [x for x in cls.unreachable_array if not x.is_terminated]
 		for block in array:
-			IR_State.builder.position_at_end(block)
-			IR_State.builder.branch(block)
+			if(not block.is_terminated):
+				IR_State.builder.position_at_end(block)
+				#IR_State.builder.branch(block)
+				IR_State.builder.unreachable()
+
+		print dir(IR_State.builder)
 	@classmethod
 	def initialize_string_constants(cls):
 		i = 0
