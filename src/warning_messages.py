@@ -38,7 +38,7 @@ def not_allowed_typecast(from_t, to_t, lineno):
 	return error_header() + "Cannot cast from: " + from_t + " to: " + to_t + " at line: " + lineno
 
 def redefine_function(name, lineno)	:
-	return "---WARNING!! You redeclared function: " + name + " that was declared at line: " + lineno
+	return "---Error!! You redefined function: " + name + " that was declared at line: " + lineno
 
 def outside_loop(name, lineno):
 	return error_header() + name + " statement at line: " + lineno + " is not inside a loop "

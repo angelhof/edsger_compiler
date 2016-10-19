@@ -226,7 +226,11 @@ def p_function_definition(p):
 	# Set its declarations and definitions
 	p[0].declarations = p[2]
 	p[0].statements = p[3]
+	Function_Stack.pop()
 	Program_State.pop()
+	#print "DEFINITIONS "
+	#print p[0]
+	#print id(p[0])
 	p[0] = [p[0]]
 	
 
@@ -241,11 +245,13 @@ def p_function_with_result_and_parameters(p):
 		p[1].add_parameter(param)
 	
 	# Find the function in the scope
-	p[0] = Program_State.function_in_scope(p[1].name, p[1].parameters)
-	if(p[0]):
+	p[0] = Program_State.function_in_scope(p[1].name, map(lambda x: x.type, p[1].parameters))
+	p[0] = Program_State.function_in_top_scope(p[1].name, map(lambda x: x.type, p[1].parameters))
+	if(p[0] is not None):
 		# If the function is defined
 		if(p[0].declarations or p[0].statements):
 			print warning_messages.redefine_function(p[0].name, str(p[0].lineno))
+			exit(1)
 	else:
 		# If it is not declared
 		p[0] = p[1] 
@@ -317,7 +323,8 @@ def p_statement(p):
 		if(not p[2]):
 			p[2] = Expr(p.lineno(1), Type("void"))
 	
-		function = Function_Stack.stack[0] 
+		function = Function_Stack.stack[0]
+
 		if(not function.type == p[2].type and not p[2].type.isNull()):
 			print warning_messages.type_mismatch(str(p[2].type), str(p.lineno(1)))
 			exit(1)

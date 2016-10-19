@@ -8,6 +8,10 @@ int pipi(int a){
 	return a+1;
 }
 
+int koko(){
+	int a;
+	return 0;
+}
 
 int main() {
 	writeInteger(0);

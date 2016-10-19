@@ -5,6 +5,7 @@ void main () {
 
     c = readInteger();
     writeInteger(c);
+    writeChar('\n');
     c = readInteger();
     writeInteger(c);
     writeChar('\n');

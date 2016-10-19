@@ -1,6 +1,27 @@
 #include "stdio.h"
 int j;
 int i[1000];
+/*
+ * This doesnt break
+ */
+int papa(int p);
+
+int papa(int p){
+  return 1;
+}
+
+/*
+ * This DOES break
+ */
+/* 
+int pipi(int k)
+{
+  return 0;
+}
+int pipi(int k){
+  return 1;
+}
+*/
 
 
 void main();
@@ -10,7 +31,7 @@ void main() {
   x = 0;
   y = 100;
   z = 0;
-	for (i=0; i<100; i++) {
+  for (i=0; i<100; i++) {
 		x += 1;
 	}
   for (i=99; i>=0; i -= 1) {
@@ -21,6 +42,7 @@ void main() {
     if (i != 30 && i != 3) continue ; // continue is broken
     z += 1;
   }
+
   writeInteger(x);
   writeString("\n");
   writeInteger(y);

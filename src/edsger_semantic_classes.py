@@ -164,21 +164,53 @@ def retrieve_previous_scope_structs(llvm_scope_struct, scope_structs_names):
 	if( len(scope_structs_names) == 0):
 		return
 	else:
-		curr_name = scope_structs_names[0]
-		names_tail = scope_structs_names[1:]
+		curr_name = scope_structs_names[-1]
+		names_tail = scope_structs_names[:-1]
+
+
 
 		curr_struct = 	IR_State.builder.gep(
 						llvm_scope_struct ,
 						[ ir.Constant(ir.IntType(32), 0)
+						#, ir.Constant(ir.IntType(32), 0)
 						] ,
 						name=curr_name)
 
-		next_struct = 	IR_State.builder.gep(
-						llvm_scope_struct ,
-						[ ir.Constant(ir.IntType(32), 0)
-						] ,
-						name=curr_name+"_next")
+		next_struct = None
+		if(len(names_tail) > 0):
+			next_struct_temp = 	IR_State.builder.gep(
+							llvm_scope_struct ,
+							[ ir.Constant(ir.IntType(32), 0)
+							, ir.Constant(ir.IntType(32), 0)
+							] ,
+							name=curr_name+"_next_ptr")
+			next_struct = 	IR_State.builder.load(
+							next_struct_temp ,
+							name=curr_name+"_next")
+			'''
+			OLD FKIN WRONG WAY OF DOING THIS :')
+			next_struct = 	IR_State.builder.gep(
+							llvm_scope_struct ,
+							[ ir.Constant(ir.IntType(32), 0)
+							, ir.Constant(ir.IntType(32), 0)
+							, ir.Constant(ir.IntType(32), 0)
+							] ,
+							name=curr_name+"_next")
+			'''
 
+		'''
+		Used to debug this shit
+		print "============Arazoume edw ola popa============"
+		print curr_name
+		print names_tail
+		print "--Current: " + str(curr_struct.type)
+		try:
+			print "--Next: " + str(next_struct.type)
+		except:
+			pass
+		print "--Previous: " + str(llvm_scope_struct.type)
+		print "============================================="
+		'''
 
 		IR_State.add_to_eds_var_map(curr_name, curr_struct, 
 					len(IR_State.eds_var_map))
@@ -329,6 +361,12 @@ class Program_State(object):
 		for scope in cls.function_scope_stack:
 			if(signature in scope):
 				return scope[signature]
+		return None
+	@classmethod
+	def function_in_top_scope(cls,identifier, type_list):
+		signature = find_function_signature(identifier, type_list)
+		if(signature in cls.function_scope_stack[0]):
+			return cls.function_scope_stack[0][signature]
 		return None
 
 class Loop_Stack(object):
@@ -714,10 +752,13 @@ class Function(Identifier):
 		function_with_metadata = IR_State.get_from_function_map(self.get_extended_signature())
 		if(function_with_metadata is not None):
 			function = function_with_metadata.function
+			'''
+			TODO: Delete the following if it is not needed
+			'''
 			if(function.is_declaration):
 				pass
 			else:
-				print function
+				pass
 				#WE assume that semantic prevent two same declarations in tha same scope
 
 				# An h sunarthsh einai hdh dhlwmenh problhma
@@ -730,8 +771,8 @@ class Function(Identifier):
 				- In order to solve this change function 
 				  naming
 				'''
-				print "Why did you try to redefine function: " + self.name
-				exit(1) 
+				#print "Why did you try to redefine function: " + self.name
+				#exit(1) 
 		else:
 			# Find the return type
 			ret_type = transform_type(self)[0]
@@ -861,13 +902,14 @@ class Function(Identifier):
 							#print "TO SOSTO TO SCOPE"
 							#print key, value
 							#print containing_scope
-
+							#print i
 							scope_variable_address = IR_State.builder.gep(
 									containing_scope ,
 									[ ir.Constant(ir.IntType(32), 0)
 									, ir.Constant(ir.IntType(32), i) 
 									] ,
 									name="__"+key+"+ptr_in_struct" )
+							#print "TA DUSKOLA PERASAN=========="
 							scope_variable = IR_State.builder.load(
 									scope_variable_address,
 									name="___"+key+"+val_in_struct" )
@@ -954,11 +996,13 @@ class For_Statement():
 		# Create the essential loop blocks
 		pred_loop_block = IR_State.builder.append_basic_block(loop_name + ".pred")
 		loop_block = IR_State.builder.append_basic_block(loop_name)
+		loop_end_block = IR_State.builder.append_basic_block(loop_name + ".loop_end")
 		exit_loop_block = IR_State.builder.append_basic_block(loop_name + ".exit")
 
 		# Save the blocks in the map
 		IR_State.block_map[loop_name + ".pred"] = pred_loop_block
 		IR_State.block_map[loop_name] = loop_block
+		IR_State.block_map[loop_name + ".loop_end"] = loop_end_block
 		IR_State.block_map[loop_name + ".exit"] = exit_loop_block
 
 		exp1 = None
@@ -979,10 +1023,13 @@ class For_Statement():
 			# emit instructions for the loop_block
 			for stmt in enlist(self.stmts):
 				stmt.code_gen()
-			
+			IR_State.builder.branch(loop_end_block)
+
+		with IR_State.builder.goto_block(loop_end_block):
 			exp3 = None
 			if(self.expression3 is not None):
 				exp3 = self.expression3.code_gen()
+
 			IR_State.builder.branch(pred_loop_block)
 
 		IR_State.builder.position_at_end(exit_loop_block)
@@ -1018,7 +1065,7 @@ class Continue():
 		return iter(rlist)
 	def code_gen(self):
 		
-		loop_block = IR_State.block_map[self.name + ".pred"]
+		loop_block = IR_State.block_map[self.name + ".loop_end"]
 		IR_State.builder.branch(loop_block)
 		create_unreachable()
 
@@ -1656,6 +1703,7 @@ class Function_call(Expr):
 		for i in range(len(self.actual_parameters)):
 			act_param = self.actual_parameters[i]
 			# Check if the attributes list contains something
+			print byref_metadata
 			if('byval' == byref_metadata[i][-5:]):
 				args.append(act_param.code_gen())
 			else:
@@ -1676,6 +1724,12 @@ class Function_call(Expr):
 
 		name = "_temp"+str(IR_State.var_counter)        
 		
+		print "=======Edw arazoume twra======="
+		print function.name
+		print function.args
+		print args
+		print "==============================="
+
 		dest = IR_State.builder.call(function, args, name=name)
 
 		
@@ -1697,6 +1751,7 @@ class Return():
 		return iter(rlist)
 	def code_gen(self):
 
+		print self.expression
 		if(self.expression is None or self.expression.type.type == "void"):
 			result = IR_State.builder.ret_void()
 		else:
