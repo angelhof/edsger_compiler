@@ -1,0 +1,6 @@
+42
+x before nestedFirstLevel: 100
+pipa: 17
+cantThinkOfAName: 142
+x after nestedFirstLevel (should be 157): 157
+somethingElse after nestedFirstLevel (should be 12): 12

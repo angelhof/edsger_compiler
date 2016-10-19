@@ -45,14 +45,16 @@ def create_bin_op_for_whole_ass(whole_assignment):
 
 
 def unflatten_previous_scope():
-	tuples = [(x, y[0], y[1]) for x,y in IR_State.eds_var_map[1].iteritems()]
+	tuples = [(x, y[0], y[1], y[2]) for x,y in IR_State.eds_var_map[1].iteritems()]
+	print "GAMW"
+	print tuples
 	result_dict = {}
 	for tuple in [x for x in tuples if not x[0][:len("_current_scope_")] ==
 								"_current_scope_"]:
 		if tuple[2] not in result_dict:
-			result_dict[tuple[2]] = [(tuple[0], tuple[1])]
+			result_dict[tuple[2]] = [(tuple[0], tuple[1], tuple[3])]
 		else:
-			result_dict[tuple[2]].append((tuple[0], tuple[1]))
+			result_dict[tuple[2]].append((tuple[0], tuple[1], tuple[3]))
 	for scope in result_dict:
 		result_dict[scope].sort()
 	return result_dict
@@ -308,6 +310,10 @@ def create_scope_struct():
 					current_scope[current_scope_keys[i]],
 					struct_element )
 		#print saved_element, saved_element.type
+
+		IR_State.eds_var_map[0][current_scope_keys[i]][2] = i
+		print "---------------------AAAAAAAAAAAAAAAAAAAAA---------------"
+		print IR_State.eds_var_map[0][current_scope_keys[i]]
 
 
 ## All useful classes
@@ -656,19 +662,36 @@ class Parameter(Variable):
 		var_name = self.name 
 		# If the variable is passed by value we just evaluate it
 		# Else we have to evaluate its 
-		if( self.byref == 0 ):
+		
+		'''OLD WAY TODELETE
+		if( self.byref == 0 and False):
 			param_value = IR_State.get_from_eds_var_map(var_name)
 		else:
-			ptr = IR_State.get_from_eds_var_map(var_name)
-			if(not IR_State.left_side):     
-				param_value = IR_State.builder.load(ptr, name=self.name)
-				IR_State.var_map.append(param_value) 
-				IR_State.var_counter += 1
-				return param_value
-			else:
-				return ptr
+		'''
+		ptr = IR_State.get_from_eds_var_map(var_name)
+		if(not IR_State.left_side):     
+			param_value = IR_State.builder.load(ptr, name=self.name)
+			IR_State.var_map.append(param_value) 
+			IR_State.var_counter += 1
+			return param_value
+		else:
+			return ptr
 
 		return param_value
+	def code_gen_decl(self):
+		# If it is byval
+		if( self.byref == 0 ):
+			actual_parameter = IR_State.get_from_eds_var_map_ext(self.name)
+			allocated_parameter = IR_State.builder.alloca(actual_parameter[0].type, 
+							name=self.name+"+parameter")
+			IR_State.builder.store(actual_parameter[0], 
+							allocated_parameter)
+			IR_State.add_to_eds_var_map(self.name, 
+							allocated_parameter, 
+							actual_parameter[1])
+
+
+
 
 class Function(Identifier):
 	def __init__(self,lineno,r_type, name, parameters = [], declarations = [], statements = []):
@@ -837,6 +860,10 @@ class Function(Identifier):
 						self.declarations) if isinstance(x, Variable)]
 				function_decls = [x for x in enlist(
 						self.declarations) if isinstance(x, Function)]
+				
+				for element in self.parameters:
+					element.code_gen_decl()
+
 				for element in variable_decls:
 					element.code_gen_decl()
 				
@@ -895,21 +922,37 @@ class Function(Identifier):
 						for i in range(0,len(previous_variables_and_depth[level])):
 							key = previous_variables_and_depth[level][i][0]
 							value = previous_variables_and_depth[level][i][1]
-
+							gep_index = previous_variables_and_depth[level][i][2]
+							if( gep_index < 0 ):
+								gep_index = i
+							
 							containing_scope = IR_State.get_from_eds_var_map( \
 									"_current_scope_" + str(level))
 
-							#print "TO SOSTO TO SCOPE"
-							#print key, value
-							#print containing_scope
+							print "====TO SOSTO TO SCOPE===="
+							print containing_scope.function.name
+							print previous_variables_and_depth[level]
+							print key, value
+							print IR_State.eds_var_map[0]
 							#print i
-							scope_variable_address = IR_State.builder.gep(
-									containing_scope ,
-									[ ir.Constant(ir.IntType(32), 0)
-									, ir.Constant(ir.IntType(32), i) 
-									] ,
-									name="__"+key+"+ptr_in_struct" )
-							#print "TA DUSKOLA PERASAN=========="
+							print level
+							print gep_index
+							if(level == 2 ):
+								scope_variable_address = IR_State.builder.gep(
+										containing_scope ,
+										[ ir.Constant(ir.IntType(32), 0)
+										, ir.Constant(ir.IntType(32), gep_index) 
+										] ,
+										name="__"+key+"+ptr_in_struct" )
+							else:
+								scope_variable_address = IR_State.builder.gep(
+										containing_scope ,
+										[ ir.Constant(ir.IntType(32), 0)
+										, ir.Constant(ir.IntType(32), i+1) 
+										] ,
+										name="__"+key+"+ptr_in_struct" )
+							print scope_variable_address
+							print "=========================="
 							scope_variable = IR_State.builder.load(
 									scope_variable_address,
 									name="___"+key+"+val_in_struct" )
@@ -1349,6 +1392,13 @@ class Node_binary_operation(Expr):
 				else:
 					dest = IR_State.builder.gep(ptr_var, [int_var], name=name)
 			elif(op_type.isDouble()):
+				print "====Bugeto edw===="
+				print var_s1
+				print var_s2
+				for key in IR_State.eds_var_map[0]:
+					print "Key, Value"
+					print key, IR_State.eds_var_map[0][key]
+
 				dest = IR_State.builder.fadd(var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.add(var_s1, var_s2, name=name)
@@ -1724,11 +1774,6 @@ class Function_call(Expr):
 
 		name = "_temp"+str(IR_State.var_counter)        
 		
-		print "=======Edw arazoume twra======="
-		print function.name
-		print function.args
-		print args
-		print "==============================="
 
 		dest = IR_State.builder.call(function, args, name=name)
 

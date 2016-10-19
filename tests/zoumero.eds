@@ -56,9 +56,9 @@ void SomeFunc(int a) {
 
             writeString("cantThinkOfAName: ");
             writeInteger(cantThinkOfAName);
-            writeChar('\n');
+            writeChar('\n');            
 
-            return cantThinkOfAName - 102 + x;
+            return (cantThinkOfAName - 102 + x);
         }
         
         pipa = a;

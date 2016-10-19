@@ -293,11 +293,17 @@ class IR_State(object):
 		return None
 	@classmethod
 	def add_to_eds_var_map(cls, name, value, depth):
-		cls.eds_var_map[0][name] = (value, depth)
+		cls.eds_var_map[0][name] = [value, depth, -1]
 	@classmethod
 	def add_if_not_to_eds_var_map(cls, name, value, depth):
+		print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+		print "Depth: " + str(depth)
+		print "Length of stack: " + str(len(cls.eds_var_map))
+		gep_index = -1
+		if(depth < len(cls.eds_var_map)):
+			gep_index = cls.eds_var_map[len(cls.eds_var_map) - depth][name][2]
 		if not name in cls.eds_var_map[0]:
-			 cls.eds_var_map[0][name] = (value, depth)
+			 cls.eds_var_map[0][name] = [value, depth, gep_index]
 	@classmethod
 	def get_curr_level_of_eds_var_map(cls):
 		new_dict = {}

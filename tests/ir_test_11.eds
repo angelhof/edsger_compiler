@@ -5,8 +5,8 @@
  **/
 #include "stdio.h"
 
-int carotsi(byref int a){
-	
+int carotsi(int a){
+
 	a = a+1;
 
 	return a;
@@ -18,7 +18,8 @@ int main(){
 	i = -1;
 	writeInteger(i);
 	carotsi(i);
-
+	writeInteger(i);
+	i += 1;
 	return i;	
 }
 
