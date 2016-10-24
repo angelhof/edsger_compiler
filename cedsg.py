@@ -1,5 +1,6 @@
 import sys
 import os
+from subprocess import Popen, PIPE
 sys.path.insert(0, os.getcwd() + "/src/")
 
 # Warnings Library
@@ -17,9 +18,22 @@ import edsger_ir
 #############
 ## GLOBALS ##
 #############
+class Globals(object):
+    # File args
+    args = []
+    f_out_name = "a.out"
 
 lex_debug = 0
 parse_debug = 0
+sem_debug = 0
+ir_debug = 1
+
+# Arguments
+parsed_args = {"-O" : False ,
+               "-i" : False ,
+               "-f" : False }
+
+
 
 # Output file
 f_out = sys.stdout
@@ -51,11 +65,39 @@ def exit_func(errnum):
 
 # Correct use of command
 def correct_use():
-    if (not len(sys.argv) in [2,3]):
-        print "Compiler must be called with the file name as an argument"
-        print "and an optional second argument as an output file"
-        print "Example use: python edsger_compiler.py input.edg output.out"
+    if (not ((len(Globals.args) in [1,2] and not parsed_args["-i"] and not parsed_args["-f"])
+        or (len(Globals.args) == 0 and ( parsed_args["-i"] or parsed_args["-f"])))):
+        print "Example use: ./cedsg [-i] | [-f] | [-O] source.eds [executable]"
+        print "If -i or -f is passed as an argument no filename should be passed"
         exit_func(1)
+
+def parse_args():
+    Globals.args = sys.argv[1:]
+    i = 0
+    while True:
+        try:
+            curr_arg = Globals.args[i]
+        except:
+            break
+        if(curr_arg == "-h"):
+            print " _____       _   _   _               _____    _           \n\
+/  __ \     | | | | (_)             |  ___|  | |          \n\
+| /  \/_   _| |_| |_ _ _ __   __ _  | |__  __| |___  __ _ \n\
+| |   | | | | __| __| | '_ \ / _` | |  __|/ _` / __|/ _` |\n\
+| \__/\ |_| | |_| |_| | | | | (_| | | |__| (_| \__ \ (_| |\n\
+ \____/\__,_|\__|\__|_|_| |_|\__, | \____/\__,_|___/\__, |\n\
+                              __/ |                  __/ |\n\
+                             |___/                  |___/ "
+            print "Example use: ./cedsg [-i] | [-f] | [-O] source.eds [executable]"
+            print "If -i or -f is passed as an argument no filename should be passed"
+            exit_func(1) 
+        if(curr_arg in parsed_args):
+            parsed_args[curr_arg] = True
+            Globals.args.pop(i)
+        elif(i+1 < len(Globals.args)):
+            i += 1
+        else:
+            break
 
 # Does the file exist?
 def file_exists(file_name):
@@ -123,15 +165,30 @@ def parse(data, lexer, curr_scope):
 
 
 # TODO Encapsulate all of this into a main function
+
+
+parse_args()
+
 correct_use()
-file_exists(sys.argv[1])
+if(not parsed_args["-i"] and not parsed_args["-f"]):
+    file_exists(Globals.args[0])
+    input_file = open(Globals.args[0],"r")
+    warning_messages.file_name = Globals.args[0]
+
+    if(len(Globals.args) == 2):
+        Globals.f_out_name = Globals.args[1]
+        #f_out = open(Globals.args[1],"w")
+    else:
+        Globals.f_out_name = "a.out"
+        #f_out = open("a.out","w")   
+else:
+    input_file = sys.stdin
+    f_out = sys.stdout
+
 # Has the user defined an output file?
-if(len(sys.argv) == 3):
-    f_out = open(sys.argv[2],"w")    
+
 
 # Open the file and call the lexer
-input_file = open(sys.argv[1],"r")
-warning_messages.file_name = sys.argv[1]
 lexer_process(input_file.read(), lexer_base)
 
 # After that we can call parser on each separate lexers[i]
@@ -146,23 +203,54 @@ for lexer_file in lexers[1:]:
     parsers.append(curr_parser)
     tree_heads.append(edsger_semantic_classes.AST.head)
 
-warning_messages.file_name = sys.argv[1]
 curr_parser,scope = parse( lexers[0].lexdata, lexers[0], initial_scope)
 #print "No syntax error at program: " + sys.argv[1] + " :)"
 parsers.insert(0, curr_parser)
 tree_heads.insert(0, edsger_semantic_classes.AST.head)
 
-print tree_heads
+#print tree_heads
 
 # DEBUG ONLY
-edsger_semantic_classes.AST.print_tree(f_out)
+if(sem_debug):
+    edsger_semantic_classes.AST.print_tree(f_out)
 
 # edsger_ir.IR_State.rec_code_generation(tree_heads[0])
 # edsger_ir.IR_State.code_generation(tree_heads[0])
-edsger_ir.IR_State.all_code_generation(tree_heads)
-'''
-TODO: Make a function in IR_State that will first execute 
-      the trees and then the main tree
-'''
+ir_code = edsger_ir.IR_State.all_code_generation(tree_heads)
 
+if(ir_debug):
+    print ir_code
+'''
+Execute the llc, and clang commands
+'''
+if(parsed_args["-i"]):
+    f_out.write(str(ir_code))
 
+if(parsed_args["-f"] or (not parsed_args["-i"] and not parsed_args["-f"])):
+    if(parsed_args["-O"]):
+        p1 = Popen(['llc','-O2', '-mtriple=x86_64-unknown-gnulinux'], stdin=PIPE, stdout=PIPE)
+    else:    
+        p1 = Popen(['llc', '-mtriple=x86_64-unknown-gnulinux'], stdin=PIPE, stdout=PIPE)
+    assembly = p1.communicate(str(ir_code))[0]
+    llc_ret = p1.wait()
+    if(llc_ret):
+        print "Error: llc"
+        exit(1)
+    if(parsed_args["-f"]):
+        f_out.write(assembly)
+    else:
+        name = "__temp.s"
+        while(os.path.isfile(name) ):
+            name = "_" + name
+        f_temp = open(name, "w")
+        f_temp.write(assembly)
+        f_temp.close()
+        if(parsed_args["-O"]):
+            p2 = Popen(['clang','-O2', name, 'lib.a', '-o', Globals.f_out_name], stdin=PIPE, stdout=PIPE)
+        else:    
+            p2 = Popen(['clang', name, 'lib.a', '-o', Globals.f_out_name], stdin=PIPE, stdout=PIPE)
+        clang_ret = p2.wait()
+        os.system("rm " + name)
+        if(clang_ret):
+            print "Error: clang"
+            exit(1)

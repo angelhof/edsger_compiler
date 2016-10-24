@@ -46,8 +46,9 @@ def create_bin_op_for_whole_ass(whole_assignment):
 
 def unflatten_previous_scope():
 	tuples = [(x, y[0], y[1], y[2]) for x,y in IR_State.eds_var_map[1].iteritems()]
-	print "GAMW"
-	print tuples
+	# Debug
+	#print "GAMW"
+	#print tuples
 	result_dict = {}
 	for tuple in [x for x in tuples if not x[0][:len("_current_scope_")] ==
 								"_current_scope_"]:
@@ -78,7 +79,8 @@ def enlist(element):
 Checks if the expression on the left is an L-Val
 '''
 def new_l_val_check(head):
-	print head
+	# Debug
+	#print head
 	if(isinstance(head, Variable)):
 		if(head.array_expr is not None):
 			return False
@@ -263,7 +265,7 @@ def create_scope_struct():
 	current_scope_types = []
 	# Prosthese ton tupo tou prohgoumenou struct
 	if previous_scope_key is not None:
-		print current_scope["_current_scope_"+previous_scope_key].type
+		#print current_scope["_current_scope_"+previous_scope_key].type
 		current_scope_types.append(current_scope["_current_scope_"+previous_scope_key].type)
 
 	# Prosthese tous tupous twn metablhtwn tou twrinou scope
@@ -312,8 +314,9 @@ def create_scope_struct():
 		#print saved_element, saved_element.type
 
 		IR_State.eds_var_map[0][current_scope_keys[i]][2] = i
-		print "---------------------AAAAAAAAAAAAAAAAAAAAA---------------"
-		print IR_State.eds_var_map[0][current_scope_keys[i]]
+		
+		#print "---------------------AAAAAAAAAAAAAAAAAAAAA---------------"
+		#print IR_State.eds_var_map[0][current_scope_keys[i]]
 
 
 ## All useful classes
@@ -502,7 +505,7 @@ class Constant_Value(Expr):
 			self.type = Type(constant_type)
 		self.value = value
 		self.lineno = lineno
-		print self.value
+		#print self.value
 	def __str__(self):
 		return "Constant_Value( " + str(self.type) + ", " + str(self.value) + " )"
 	def code_gen(self):
@@ -516,14 +519,14 @@ class Constant_Value(Expr):
 			dest = ir.Constant(ir.IntType(TypeSizes.bool), self.value)
 		elif self.type.isChar():
 			# Decode the character and save it
-			print self.value
-			print ord(self.value[1:-1].decode("string_escape"))
+			#print self.value
+			#print ord(self.value[1:-1].decode("string_escape"))
 			dest = ir.Constant(ir.IntType(TypeSizes.char), ord(self.value[1:-1].decode("string_escape")))
 		elif self.type.isGenChar() and self.type.pointer == 1:
 			
 			# Find the string in the dictionary
 			global_string = StringConstants.strings[self.value]
-			print global_string
+			#print global_string
 			dest = IR_State.builder.bitcast(global_string, 
 					ir.PointerType(ir.IntType(TypeSizes.char))  )
 		elif self.type.isNull():
@@ -754,7 +757,8 @@ class Function(Identifier):
 		# An einai None prepei na kna wkati? 
 		if scope_struct is not None:    
 			function_arg_types.append(scope_struct.type)
-			print function_arg_types
+			# DEBUG
+			#print function_arg_types
 
 
 		# If we are getting for the first time in declaration or definiton
@@ -929,6 +933,7 @@ class Function(Identifier):
 							containing_scope = IR_State.get_from_eds_var_map( \
 									"_current_scope_" + str(level))
 
+							'''
 							print "====TO SOSTO TO SCOPE===="
 							print containing_scope.function.name
 							print previous_variables_and_depth[level]
@@ -937,6 +942,7 @@ class Function(Identifier):
 							#print i
 							print level
 							print gep_index
+							'''
 							if(level == 2 ):
 								scope_variable_address = IR_State.builder.gep(
 										containing_scope ,
@@ -951,8 +957,10 @@ class Function(Identifier):
 										, ir.Constant(ir.IntType(32), i+1) 
 										] ,
 										name="__"+key+"+ptr_in_struct" )
-							print scope_variable_address
-							print "=========================="
+							
+							#print scope_variable_address
+							#print "=========================="
+							
 							scope_variable = IR_State.builder.load(
 									scope_variable_address,
 									name="___"+key+"+val_in_struct" )
@@ -1379,7 +1387,7 @@ class Node_binary_operation(Expr):
 					int_var = self.exp2.code_gen()
 					IR_State.left_side = old_left_side
 					ptr_var = var_s1
-				print dir(ptr_var.type)
+				#print dir(ptr_var.type)
 
 		name = "_temp"+str(IR_State.var_counter)
 
@@ -1392,12 +1400,14 @@ class Node_binary_operation(Expr):
 				else:
 					dest = IR_State.builder.gep(ptr_var, [int_var], name=name)
 			elif(op_type.isDouble()):
+				'''
 				print "====Bugeto edw===="
 				print var_s1
 				print var_s2
 				for key in IR_State.eds_var_map[0]:
 					print "Key, Value"
 					print key, IR_State.eds_var_map[0][key]
+				'''
 
 				dest = IR_State.builder.fadd(var_s1, var_s2, name=name)
 			else:
@@ -1407,7 +1417,7 @@ class Node_binary_operation(Expr):
 				# We negate the int_var value
 				intzero = ir.Constant(ir.IntType(TypeSizes.int), 0)
 				int_var = IR_State.builder.sub(intzero, int_var, name=name+"-negated")
-				print dir(ptr_var.type)
+				#print dir(ptr_var.type)
 				# An exei o pointer exei meinei pointer
 				if(ptr_var.type.pointee.is_pointer):
 					loaded = IR_State.builder.load(ptr_var, name=name+"-loaded")
@@ -1753,7 +1763,7 @@ class Function_call(Expr):
 		for i in range(len(self.actual_parameters)):
 			act_param = self.actual_parameters[i]
 			# Check if the attributes list contains something
-			print byref_metadata
+			#print byref_metadata
 			if('byval' == byref_metadata[i][-5:]):
 				args.append(act_param.code_gen())
 			else:
@@ -1796,7 +1806,7 @@ class Return():
 		return iter(rlist)
 	def code_gen(self):
 
-		print self.expression
+		#print self.expression
 		if(self.expression is None or self.expression.type.type == "void"):
 			result = IR_State.builder.ret_void()
 		else:
@@ -1856,7 +1866,8 @@ class Type_cast(Expr):
 		#print old_type, new_type
 		#print old_type_llvm.is_pointer
 		try:
-			print old_type_llvm.width
+			pass
+			#print old_type_llvm.width
 		except:
 			pass
 		#print dir(old_type_llvm)

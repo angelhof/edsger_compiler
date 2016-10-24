@@ -122,24 +122,18 @@ class IR_State(object):
 			head.code_gen_decl()
 		# Debug only
 		# print cls.module
+	''' Old method
 	@classmethod
 	def code_generation(cls, head):
 		cls.rec_code_generation(head)
-		
-		'''
-		It is deleted because main now is compiler named
-		main that handels the main output and returns it
-		with cls.builder.goto_block(cls.block):
-			ret_result = ir.Constant(ir.IntType(16), 0)
-			cls.builder.ret(ret_result)
-		'''
 
 		cls.terminate_blocks()
 
 		print cls.module
 
 		fp = open("test_asm", "w")
-		fp.write(str(cls.module))	
+		fp.write(str(cls.module))
+	'''	
 	@classmethod
 	def all_code_generation(cls, head_list):
 
@@ -163,14 +157,15 @@ class IR_State(object):
 
 		cls.terminate_blocks()
 
-		print cls.module
+		#print cls.module
 
-		fp = open("test_asm", "w")
-		fp.write(str(cls.module))
+		return cls.module
+
+		
 	@classmethod
 	def terminate_blocks(cls):
 		# Call the main function from the global main
-		print IR_State.main_anchor
+		#print IR_State.main_anchor
 		main_function = cls.get_from_function_map(IR_State.main_anchor).function
 		with cls.builder.goto_block(cls.block):
 			dest = IR_State.builder.call(main_function, 
@@ -188,7 +183,7 @@ class IR_State(object):
 				#IR_State.builder.branch(block)
 				IR_State.builder.unreachable()
 
-		print dir(IR_State.builder)
+		#print dir(IR_State.builder)
 	@classmethod
 	def initialize_string_constants(cls):
 		i = 0
@@ -196,13 +191,14 @@ class IR_State(object):
 			
 			string_decoded_value = (string_constant[1:-1]+'\0').decode('string_escape')
 			string_value = [ord(c) for c in string_decoded_value]
+			'''Debug
 			print len(string_constant)
 			print string_constant
 			print len(string_decoded_value)
 			print string_decoded_value
 			print len(string_value)
 			print string_value
-
+			'''
 			string_type = ir.ArrayType( \
 						ir.IntType( \
 							TypeSizes.char \
@@ -280,7 +276,7 @@ class IR_State(object):
 			if name in  stack_level:
 				return stack_level[name][0]
 		# TODO: Fix this error print
-		print "Variable with name: " + name + " was not found in the map"
+		#print "Variable with name: " + name + " was not found in the map"
 		return None
 	@classmethod
 	def get_from_eds_var_map_ext(cls, name):
@@ -289,16 +285,16 @@ class IR_State(object):
 			if name in  stack_level:
 				return stack_level[name]
 		# TODO: Fix this error print
-		print "Variable with name: " + name + " was not found in the map"
+		#print "Variable with name: " + name + " was not found in the map"
 		return None
 	@classmethod
 	def add_to_eds_var_map(cls, name, value, depth):
 		cls.eds_var_map[0][name] = [value, depth, -1]
 	@classmethod
 	def add_if_not_to_eds_var_map(cls, name, value, depth):
-		print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-		print "Depth: " + str(depth)
-		print "Length of stack: " + str(len(cls.eds_var_map))
+		#print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+		#print "Depth: " + str(depth)
+		#print "Length of stack: " + str(len(cls.eds_var_map))
 		gep_index = -1
 		if(depth < len(cls.eds_var_map)):
 			gep_index = cls.eds_var_map[len(cls.eds_var_map) - depth][name][2]
