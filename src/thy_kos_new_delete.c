@@ -29,7 +29,7 @@ int in_list(char * Addr){
 }
 
 int insert_to_list (char * Addr){
-	if ( in_list(Addr) ) return 0;
+	if ( in_list(Addr) ) exit(5);
 	AddrPtr temp = (AddrPtr) malloc(sizeof(address));
 	newest_element->next = temp;
 	newest_element = newest_element->next;
@@ -51,7 +51,9 @@ int LongToString(long x, char * SpecAddr){
 
 int add_to_list (long x){
 	char Addr[80];
-	if (LongToString(x,Addr)) return 1;
+	if (LongToString(x,Addr)){
+		exit(1);	
+	} 
 	if (head == NULL) return construct_list(Addr);
 	else return insert_to_list(Addr);
 }
@@ -59,13 +61,18 @@ int add_to_list (long x){
 
 int delete_from_list(long x){
 	char Addr[80];
-	if (LongToString(x,Addr)) return 1;
+	if (LongToString(x,Addr)){
+		exit(1);	
+	} 
 	AddrPtr t = head; 
-	if (t==NULL) return -1;
+	if (t==NULL){
+		printf("This pointer was not created with new!!");
+		exit(1);
+	}
 	if ( strcmp( t->alocated_address, Addr) == 0 ) {
 		head = head -> next;
 		free(t);
-		return 1;
+		return 0;
 	}
 
 	AddrPtr p = t->next;
@@ -74,14 +81,18 @@ int delete_from_list(long x){
 		if( strcmp( p->alocated_address, Addr) == 0 ) {
 			t->next = p->next;
 			free(p);
-			return 1;
+			return 0;
 		}
 		t=p;
 		p=p->next;
 	}
-	return 0;
+
+	
+	printf("This pointer was not created with new!!");
+	exit(1);
 }
 
+/*
 int main(int argc, char const *argv[])
 { 
 	long a;
@@ -115,3 +126,5 @@ int main(int argc, char const *argv[])
 	
 	return 0;
 }
+
+*/

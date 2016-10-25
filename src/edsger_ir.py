@@ -240,7 +240,7 @@ class IR_State(object):
 		# Declare _dispose
 		IR_State.delete_from_list_function = ir.Function(cls.module,
 			ir.FunctionType( \
-				ir.VoidType(), 
+				ir.IntType(TypeSizes.int), 
 				[ir.PointerType(ir.IntType(TypeSizes.int))]), 
 				"delete_from_list")
 		

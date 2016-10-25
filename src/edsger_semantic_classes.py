@@ -1685,6 +1685,10 @@ class New(Expr):
 				[new_positions], 
 				name=name+"-generic")
 
+		add_to_list = IR_State.builder.call(IR_State.add_to_new_list_function, 
+				[dest_generic], 
+				name=name+"-generic-add_to_list")
+
 		# Having declared new with a generic
 		# Return Type: i16 pointer
 		# We need to explicitly change the pointer to
@@ -1725,6 +1729,9 @@ class Delete_Pointer(Expr):
 						, ir.PointerType(ir.IntType(TypeSizes.int))
 						, name=name+"-casted")
 
+		check_if_newed = IR_State.builder.call(IR_State.delete_from_list_function, 
+						 [pointer_casted], 
+						 name=name)		
 
 		dest = IR_State.builder.call(IR_State.dispose_function, 
 				[pointer_casted], 

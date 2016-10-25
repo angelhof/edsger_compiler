@@ -3,6 +3,7 @@
 int main(){
 	int *a;
 	char *b;
+	int *c;
 
 	a = new int[5];
 	writeInteger(a[0]);
@@ -18,6 +19,9 @@ int main(){
 	// DElete doesnt really delete the memory
 	delete b;
 	//writeString(b);
+
+	// This should and does exit(1)
+	//delete(c);
 
 	return 0;
 }
