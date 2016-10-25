@@ -79,7 +79,7 @@ def parse_args():
             curr_arg = Globals.args[i]
         except:
             break
-        if(curr_arg == "-h"):
+        if(curr_arg[0] == "-" and curr_arg not in parsed_args):
             print " _____       _   _   _               _____    _           \n\
 /  __ \     | | | | (_)             |  ___|  | |          \n\
 | /  \/_   _| |_| |_ _ _ __   __ _  | |__  __| |___  __ _ \n\
@@ -246,9 +246,9 @@ if(parsed_args["-f"] or (not parsed_args["-i"] and not parsed_args["-f"])):
         f_temp.write(assembly)
         f_temp.close()
         if(parsed_args["-O"]):
-            p2 = Popen(['clang','-O2', name, 'lib.a', '-o', Globals.f_out_name], stdin=PIPE, stdout=PIPE)
+            p2 = Popen(['clang','-O2', name, 'obj/lib.a', 'obj/libnew.a', '-o', Globals.f_out_name], stdin=PIPE, stdout=PIPE)
         else:    
-            p2 = Popen(['clang', name, 'lib.a', '-o', Globals.f_out_name], stdin=PIPE, stdout=PIPE)
+            p2 = Popen(['clang', name, 'obj/lib.a', 'obj/libnew.a', '-o', Globals.f_out_name], stdin=PIPE, stdout=PIPE)
         clang_ret = p2.wait()
         os.system("rm " + name)
         if(clang_ret):

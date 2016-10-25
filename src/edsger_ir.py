@@ -31,7 +31,7 @@ class Extended_DoubleType(ir.DoubleType):
 		return string_to_Expanded_DoubleType(value)
 
 def python_strtold(strn):
-	libstrtold = ctypes.CDLL("./src/libstrtold.so")
+	libstrtold = ctypes.CDLL("./obj/libstrtold.so")
 	strtoddler = libstrtold.strtolden
 	p = ctypes.pointer(ctypes.c_char()) 
 	strtoddler.restype = ctypes.c_char_p
@@ -229,6 +229,20 @@ class IR_State(object):
 				ir.VoidType(), 
 				[ir.PointerType(ir.IntType(TypeSizes.int))]), 
 				"dispose")
+
+		# Declare _dispose
+		IR_State.add_to_new_list_function = ir.Function(cls.module,
+			ir.FunctionType( \
+				ir.IntType(TypeSizes.int), 
+				[ir.PointerType(ir.IntType(TypeSizes.int))]), 
+				"add_to_list")
+
+		# Declare _dispose
+		IR_State.delete_from_list_function = ir.Function(cls.module,
+			ir.FunctionType( \
+				ir.VoidType(), 
+				[ir.PointerType(ir.IntType(TypeSizes.int))]), 
+				"delete_from_list")
 		
 	##
 	# The following set of 4 functions offer
