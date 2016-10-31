@@ -230,20 +230,42 @@ class IR_State(object):
 				[ir.PointerType(ir.IntType(TypeSizes.int))]), 
 				"dispose")
 
-		# Declare _dispose
+		# Declare add_pointer_to_list
 		IR_State.add_to_new_list_function = ir.Function(cls.module,
 			ir.FunctionType( \
 				ir.IntType(TypeSizes.int), 
 				[ir.PointerType(ir.IntType(TypeSizes.int))]), 
 				"add_to_list")
 
-		# Declare _dispose
+		# Declare delete_pointer_from_list
 		IR_State.delete_from_list_function = ir.Function(cls.module,
 			ir.FunctionType( \
 				ir.IntType(TypeSizes.int), 
 				[ir.PointerType(ir.IntType(TypeSizes.int))]), 
 				"delete_from_list")
+
+		# Declare pointers_in_the_same
+		IR_State.check_compared_pointers_function = ir.Function(cls.module,
+			ir.FunctionType( \
+				ir.IntType(TypeSizes.int), 
+				[ir.PointerType(ir.IntType(TypeSizes.int)), 
+					ir.PointerType(ir.IntType(TypeSizes.int))]), 
+				"pointers_in_the_same_matrix")
+
+		# Declare delete_pointer_from_list
+		IR_State.matrix_add_to_list_function = ir.Function(cls.module,
+			ir.FunctionType( \
+				ir.IntType(TypeSizes.int), 
+				[ir.PointerType(ir.IntType(TypeSizes.int)), 
+					ir.PointerType(ir.IntType(TypeSizes.int))]), 
+				"Matrix_add_to_list")		
 		
+		# Declare delete_pointer_from_list
+		IR_State.matrix_delete_from_list_function = ir.Function(cls.module,
+			ir.FunctionType( \
+				ir.IntType(TypeSizes.int), 
+				[ir.PointerType(ir.IntType(TypeSizes.int))]), 
+				"Matrix_delete_from_list")		
 	##
 	# The following set of 4 functions offer
 	# the basic functionality for the stack of function maps

@@ -3,4 +3,3 @@
 
 *.pyc
 tests/outputs/*
-obj/*

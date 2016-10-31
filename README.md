@@ -3,13 +3,11 @@ Installation steps
 
 --- Assuming you have python 2 installed ---
 
-Either run
+Run:
 ```sh
-$ make install
+$ sudo sh install.sh
 ```
-while having root priviledges 
-
-or if you don't like Makefiles do the following:
+or follow those steps manually:
 
 1) Download and install ply from http://www.dabeaz.com/ply/ply-3.8.tar.gz
 
@@ -23,22 +21,26 @@ $ conda install llvmlite
 to install llvmlite 
 
 To run the tests
-================
+=================
 
-Either run 
+Run 
 ```sh
-$ ./run_tests.py
+$ make test
 ``` 
-which runs all the tests in the test folder and prints their output in files in output
+which runs all the tests in the file tests_to_run and check if they produce the expected output.
 
-or run
+To run the compiler
+====================
+
+Run 
 ```sh
-$ python main.py <input_file_name> [output_file_name]
+$ python cedsg.py tests/"$1"
+$ ./a.out
 ```
-	
+
 Preparation
 ============
-Set the llvm mtriple with your specific triple in order to run the tests.
+Set the llvm mtriple in the beginning of gile cedsg.py with your specific triple in order to run the tests.
 
 The default one is "x86_64-unknown-linux-gnu" 
 [Supported Triples](http://llvm.org/docs/CodeGenerator.html#x86-target-triples-supported)

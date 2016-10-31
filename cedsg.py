@@ -3,6 +3,10 @@ import os
 from subprocess import Popen, PIPE
 sys.path.insert(0, os.getcwd() + "/src/")
 
+# LLVM Triple
+# Change with your triple
+my_llvm_triple = 'x86_64-unknown-gnulinux'
+
 # Warnings Library
 import warning_messages
 
@@ -228,9 +232,9 @@ if(parsed_args["-i"]):
 
 if(parsed_args["-f"] or (not parsed_args["-i"] and not parsed_args["-f"])):
     if(parsed_args["-O"]):
-        p1 = Popen(['llc','-O2', '-mtriple=x86_64-unknown-gnulinux'], stdin=PIPE, stdout=PIPE)
+        p1 = Popen(['llc','-O2', '-mtriple=' + my_llvm_triple], stdin=PIPE, stdout=PIPE)
     else:    
-        p1 = Popen(['llc', '-mtriple=x86_64-unknown-gnulinux'], stdin=PIPE, stdout=PIPE)
+        p1 = Popen(['llc', '-mtriple=' + my_llvm_triple], stdin=PIPE, stdout=PIPE)
     assembly = p1.communicate(str(ir_code))[0]
     llc_ret = p1.wait()
     if(llc_ret):

@@ -1,10 +1,8 @@
 ## Please read README first
 .PHONY: test clean distclean prepare
 
-
 compiler: staticlib doublefun
 	echo "Fill 1. make the edsger lib 2. make the c part about doubles"
-	
 
 staticlib: src/thy_kos_new_delete.c
 	gcc -c src/thy_kos_new_delete.c -o obj/thy_kos_new_delete.o
@@ -12,6 +10,9 @@ staticlib: src/thy_kos_new_delete.c
 
 doublefun: src/thy_kos_strold.c
 	gcc -fPIC -shared -o obj/libstrtold.so src/thy_kos_strold.c
+
+edslib: edsger_lib/libs.sh
+	cd edsger_lib; sh libs.sh; cp lib.a ../obj
 
 test: 
 	python run_tests.py tests_to_run
