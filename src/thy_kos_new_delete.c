@@ -110,17 +110,17 @@ int pointers_in_the_same_matrix(long x1, long x2){
 				return 0;
 			}
 			else{ 
-				printf("The compared pointers are not part of the same array");
+				printf("The compared pointers are not part of the same array\n");
 				exit(1);
 			}
 		}
 	}
-	printf("The compared pointers are not part of the same array");
+	printf("The compared pointers are not part of the same array\n");
 	exit(1);
 }
 
 
-int Matrix_construct_list (long Addr, long sm){
+int Matrix_construct_list (long Addr, int sm){
 	Matrix_head = (Matrix_AddrPtr) malloc(sizeof(Matrix_address));
 	Matrix_head->next = NULL;
 	Matrix_head->size=sm;
@@ -136,7 +136,7 @@ int Matrix_in_list(long Addr){
 	return 0;
 }
 
-int Matrix_insert_to_list (long Addr, long sm){
+int Matrix_insert_to_list (long Addr, int sm){
 	if ( Matrix_in_list(Addr) ) return 0;
 	Matrix_AddrPtr temp = (Matrix_AddrPtr) malloc(sizeof(Matrix_address));
 	Matrix_newest_element->next = temp;
@@ -147,7 +147,7 @@ int Matrix_insert_to_list (long Addr, long sm){
 	return 0;
 }
 
-int Matrix_add_to_list (long x, long sm){
+int Matrix_add_to_list (long x, int sm){
 	if (Matrix_head == NULL) return Matrix_construct_list(x,sm);
 	else return Matrix_insert_to_list(x,sm);
 }

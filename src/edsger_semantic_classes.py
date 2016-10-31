@@ -437,10 +437,15 @@ class Type():
 		self.type = constant_type
 		self.pointer = pointer
 	def similar(self, other):
+
+		return self.__eq__(other)
+		'''
+		# Old Policy
 		if((other.isNull() and not self.isPrimitive()) or 
 		   (self.isNull() and not other.isPrimitive())):
 			return True
 		return (isinstance(other, self.__class__) and self.type == other.type and (self.pointer > 0) == (other.pointer > 0))
+		'''
 	def __eq__(self, other):
 		return (isinstance(other, self.__class__) and self.type == other.type and self.pointer == other.pointer )
 	#Select among 2 policies 
@@ -607,7 +612,16 @@ class Variable(Identifier):
 
 				ret_val = ir.GlobalVariable(IR_State.module, 
 							var_type, 
-							our_name)   
+							our_name)
+
+				# Add to the array list
+				ir_arr_size = ir.Constant(ir.IntType(TypeSizes.int), array_size*TypeSizes.int/8)
+				bitcasted = IR_State.builder.bitcast(arr_vals, 
+							ir.PointerType(ir.IntType(TypeSizes.int)),
+							name=our_name+"-bitcasted-kalesma-pinaka")
+				add_to_list = IR_State.builder.call(IR_State.matrix_add_to_list_function, 
+						[bitcasted, ir_arr_size], 
+						name=our_name+"-kalesma-pinaka")
 				
 				# Assign the pointer to the array space
 				with IR_State.builder.goto_block(IR_State.block):
@@ -637,6 +651,16 @@ class Variable(Identifier):
 				point_to_vals = IR_State.builder.store(
 						arr_vals , 
 						ret_val)
+
+				# Addare sth lista pinakwn
+				ir_arr_size = ir.Constant(ir.IntType(TypeSizes.int), array_size*TypeSizes.int/8)
+				bitcasted = IR_State.builder.bitcast(arr_vals, 
+							ir.PointerType(ir.IntType(TypeSizes.int)),
+							name=our_name+"-bitcasted-kalesma-pinaka")
+				add_to_list = IR_State.builder.call(IR_State.matrix_add_to_list_function, 
+						[bitcasted, ir_arr_size], 
+						name=our_name+"-kalesma-pinaka")
+			
 			else:
 				ret_val = IR_State.builder.alloca( var_type, 
 						size=array_size, name=our_name )
@@ -1456,6 +1480,21 @@ class Node_binary_operation(Expr):
 					dest = IR_State.builder.icmp_signed(op, var_s1, casted_var_s2, name=name)
 			elif(self.exp1.type.isDouble()): # TODO: Check the need of flags
 				dest = IR_State.builder.fcmp_ordered(op, var_s1, var_s2, name=name)
+			elif(not self.exp1.type.isPrimitive() and 
+				 not self.exp2.type.isPrimitive() and
+				 op in ["<", ">", "<=", ">="]):
+				# Bit cast the 2 pointers
+
+				print "NASAI================"
+				print var_s1, var_s2
+				
+				bitcasted1 = IR_State.builder.bitcast(var_s1, 
+							ir.PointerType(ir.IntType(TypeSizes.int)))
+				bitcasted2 = IR_State.builder.bitcast(var_s2, 
+							ir.PointerType(ir.IntType(TypeSizes.int)))
+				check_pointers = IR_State.builder.call(IR_State.check_compared_pointers_function, 
+						[bitcasted1, bitcasted2])
+				dest = IR_State.builder.icmp_signed(op, var_s1, var_s2, name=name)
 			else:
 				dest = IR_State.builder.icmp_signed(op, var_s1, var_s2, name=name)
 		elif(op == ","):    
@@ -1619,9 +1658,14 @@ class Ternary(Expr):
 		if(not predicate.type.isBool()):
 			print warning_messages.predicate_not_bool(str(lineno))
 			exit(1)
-		if(not then_expr.type.similar(else_expr.type)):
+		control1 = ((then_expr.type.isNull() and not else_expr.type.isPrimitive()) or
+			   (else_expr.type.isNull() and not then_expr.type.isPrimitive()) or
+			   (else_expr.type.isNull() and then_expr.type.isNull()))
+		control2 = then_expr.type.similar(else_expr.type)
+		if( not control1 and not control2):
 			print warning_messages.ternary_expr_type_mismatch(str(lineno))
 			exit(1)
+
 		self.predicate = predicate
 		self.then_expr = then_expr
 		self.else_expr = else_expr
@@ -1689,6 +1733,15 @@ class New(Expr):
 				[dest_generic], 
 				name=name+"-generic-add_to_list")
 
+
+		byte_constant = ir.Constant(ir.IntType(TypeSizes.int), TypeSizes.int/8)
+		positions_matrix_list = IR_State.builder.mul(new_positions, byte_constant)
+		# Addare sth lista pinakwn 
+		add_to_matrix_list = IR_State.builder.call(IR_State.matrix_add_to_list_function, 
+				[dest_generic, positions_matrix_list], 
+				name=name+"-kalesma-pinaka")
+		
+
 		# Having declared new with a generic
 		# Return Type: i16 pointer
 		# We need to explicitly change the pointer to
@@ -1696,6 +1749,8 @@ class New(Expr):
 		dest = IR_State.builder.bitcast(dest_generic
 						, ir_type
 						, name=name)
+
+
 
 		
 
@@ -1724,7 +1779,7 @@ class Delete_Pointer(Expr):
 		#print dir(pointer_eval)
 
 		name = "_temp"+str(IR_State.var_counter)        
-		
+				
 		pointer_casted = IR_State.builder.bitcast(pointer_eval
 						, ir.PointerType(ir.IntType(TypeSizes.int))
 						, name=name+"-casted")
@@ -1732,6 +1787,10 @@ class Delete_Pointer(Expr):
 		check_if_newed = IR_State.builder.call(IR_State.delete_from_list_function, 
 						 [pointer_casted], 
 						 name=name)		
+
+		# Delete from array_list if it exists
+		delete_from_list = IR_State.builder.call(IR_State.matrix_delete_from_list_function, 
+				[pointer_casted])
 
 		dest = IR_State.builder.call(IR_State.dispose_function, 
 				[pointer_casted], 
@@ -1812,6 +1871,20 @@ class Return():
 		rlist = self.expression
 		return iter(rlist)
 	def code_gen(self):
+
+		# Remove all static_arrays from array_list
+		#print "Return code_gen"
+		for decl in (x for x in self.function.declarations if isinstance(x, Variable)):
+			if(decl.array_expr is not None):
+				#print decl
+				arr_pointer = IR_State.get_from_eds_var_map(decl.name)
+		
+				# Addare sth lista pinakwn
+				arr_address = IR_State.builder.load(arr_pointer)
+				bitcasted = IR_State.builder.bitcast(arr_address, 
+							ir.PointerType(ir.IntType(TypeSizes.int)))
+				delete_from_list = IR_State.builder.call(IR_State.matrix_delete_from_list_function, 
+						[bitcasted])			
 
 		#print self.expression
 		if(self.expression is None or self.expression.type.type == "void"):

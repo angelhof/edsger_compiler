@@ -257,7 +257,7 @@ class IR_State(object):
 			ir.FunctionType( \
 				ir.IntType(TypeSizes.int), 
 				[ir.PointerType(ir.IntType(TypeSizes.int)), 
-					ir.PointerType(ir.IntType(TypeSizes.int))]), 
+					ir.IntType(TypeSizes.int)]), 
 				"Matrix_add_to_list")		
 		
 		# Declare delete_pointer_from_list

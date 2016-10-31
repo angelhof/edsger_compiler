@@ -1,0 +1,13 @@
+#include "stdio.h"
+
+int main(){
+	
+	int popi(){
+		int kakana(){
+			return 0;
+		}
+		return 0;
+	}
+	writeString("Pipitsa\n");
+	return 0;
+}

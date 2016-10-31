@@ -1,0 +1,52 @@
+#include "stdio.h"
+
+int b[100];
+
+int main(){
+	int arr[10];
+	int *b;
+	int *c;
+	int **d;
+	char carr[10];
+	char *e;
+
+	c = new int[20];
+
+	e = new char[10];
+
+	b = &(arr[9]);
+	if(arr > b){
+		writeString("Kolopipitsa\n");
+	}
+
+	b = arr+9;
+	if(arr > b){
+		writeString("Kolopipitsa\n");
+	}
+
+	b = &(c[19]);
+	if(c > b){
+		writeString("Kolopipitsa\n");
+	}	
+
+	b = c+19;
+	if(c > b){
+		writeString("Kolopipitsa\n");
+	}	
+
+	c[19] = 25;
+
+	writeString("Einai 25? Int = ");
+	writeInteger(c[19]);
+	writeString("\n");
+
+
+	e[9] = 'k';
+	writeString("Einai \"k\"? Char = ");
+	writeChar(e[9]);
+	writeString("\n");	
+
+	delete(c);
+	return 0;
+
+}
