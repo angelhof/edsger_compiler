@@ -1,25 +1,7 @@
 from llvmlite import ir
 import ctypes
 
-'''
-So the final ir module will look like this
 
-# Instantiate an outside module and func
-# Recursively run the ast and make code
-
-##
-# Have a general temporary variable counter and save every side expression result to them "_temp1"
-# Every sub-expression will save its result to keyed-value with the corresponding temporary name, 
-	-> then the next expression that needed it gets one argument from it and so on
-# The __generate__ function in every expression class will return the name of the result so the calling function can find it
- 
-### First of all
-##  Find how to compile the resulting ir code so that we can test all the time the correctness of the programm
-
-### Important thing to consider??? 
-##  Because of all the checks we have already made there is no need to check anything else , except for the dynamic ones.
-##  So we just generate code with all the functions in the same place with the only thing differentiating them be their signature
-'''
 class Extended_DoubleType(ir.DoubleType):
 	null = '0.0'
 	intrinsic_name = 'fp80'
@@ -59,10 +41,6 @@ def string_to_Expanded_DoubleType(strn):
 
 '''
 A class that holds the bit size of its type
-TODO:
-- Bool needs to be 8 but then we have to change code
-- Double number is never used ( Have to check official docs)
-- Pointer type is never used
 '''
 class TypeSizes(object):
 	int = 16
@@ -107,8 +85,7 @@ class IR_State(object):
 	# main pointer steady
 	main_anchor = None
 	Extended_DoubleType._create_instance()
-	# Function main will be saved here so that we know
-	possibly_unterminated_blocks = []
+
 
 	@classmethod
 	def rec_code_generation(cls, head):
@@ -122,18 +99,7 @@ class IR_State(object):
 			head.code_gen_decl()
 		# Debug only
 		# print cls.module
-	''' Old method
-	@classmethod
-	def code_generation(cls, head):
-		cls.rec_code_generation(head)
 
-		cls.terminate_blocks()
-
-		print cls.module
-
-		fp = open("test_asm", "w")
-		fp.write(str(cls.module))
-	'''	
 	@classmethod
 	def all_code_generation(cls, head_list):
 

@@ -148,14 +148,6 @@ t_COMMA            = r','
 t_SEMI             = r';'
 t_COLON            = r':'
 
-# TODO Check if this should be deleted
-'''
-# Reserved words
-def t_KEYWORD(t):
-    r'bool|char|double|int|void|true|false|new|delete|if|else|for|byref|break|continue|NULL|return'
-    t.type = reserved[t.value]
-    return t
-'''
 
 # Identifiers
 def t_ID(t):

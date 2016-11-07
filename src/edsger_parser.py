@@ -8,7 +8,6 @@ import sys
 tokens = edsger_lexer.tokens
 
 precedence = (
-			    # TODO Check with thymios if verything is correct when having this like this
 			   ('left', 'COMMA'),
 			   ('left', 'MOUFETO'),
 			   ('right', 'EQUALS','TIMESEQUAL' , 'DIVEQUAL', 'MODEQUAL', 'PLUSEQUAL', 'MINUSEQUAL'),
