@@ -5,8 +5,8 @@ This project is a complete edsger compiler in python. It was done for the Compil
 
 Authors
 --------
-- Konstantinos Kallas
-- Eythimios Tzinis
+- <a href="https://github.com/angelhof">Konstantinos Kallas</a>
+- <a href="https://github.com/etzinis">Eythimios Tzinis</a>
 
 Installation steps
 ===================
