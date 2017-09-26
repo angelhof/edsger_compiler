@@ -1371,20 +1371,30 @@ class Node_binary_operation(Expr):
 		self.lineno=lineno
 		#We have to configure the type for this operator and for its expr
 		if(operator.operator == "b+" or operator.operator == "b-"): # + or - binary
-			if(exp1.type.type == "int" and exp2.type.type == "int" and exp1.type.pointer == 0 and exp2.type.pointer == 0):
+			if(exp1.type.type == "int" and
+                           exp2.type.type == "int" and
+                           exp1.type.pointer == 0 and
+                           exp2.type.pointer == 0):
 				self.type=Type("int", 0)
-			elif(exp1.type.type == "double" and exp2.type.type == "double" and exp1.type.pointer == 0 and exp2.type.pointer == 0):
+			elif(exp1.type.type == "double" and
+                             exp2.type.type == "double" and
+                             exp1.type.pointer == 0 and
+                             exp2.type.pointer == 0):
 				self.type=Type("double", 0)
-			elif(exp1.type.type == "int" and exp1.type.pointer == 0 and exp2.type.pointer != 0):
+			elif(exp1.type.type == "int" and
+                             exp1.type.pointer == 0 and
+                             exp2.type.pointer != 0):
 				self.type=Type(exp2.type.type, exp2.type.pointer)
-			elif(exp2.type.type == "int" and exp2.type.pointer == 0 and exp1.type.pointer != 0):
+			elif(exp2.type.type == "int" and
+                             exp2.type.pointer == 0 and
+                             exp1.type.pointer != 0):
 				self.type=Type(exp1.type.type, exp1.type.pointer)
-		elif(operator.operator == "<" or operator.operator == ">" or operator.operator == "<=" or operator.operator == ">=" or operator.operator == "==" or operator.operator == "!=" or operator.operator == "&&" or operator.operator == "||"):
+		elif(operator.operator in ["<", ">", "<=", ">=", "==", "!=", "&&", "||"]):
 			self.type=Type("bool", 0)
 		#elif(operator.operator == ","):
 		#   self.type=Type(exp2.type, exp2.pointer)
 		else:
-			self.type=Type(exp2.type.type, exp2.type.pointer)
+		        self.type=Type(exp2.type.type, exp2.type.pointer)
 	def __str__(self):
 		return str(self.operator)+ " My type: " + str(self.type)
 	def __iter__(self):
@@ -1399,7 +1409,7 @@ class Node_binary_operation(Expr):
 		var_s2 = self.exp2.code_gen()
 		# Find the operation
 		op = self.operator.operator
-		op_type = self.type
+                op_type = self.type
 		
 		# Needed control if there is pointer add or sub
 		if(op in ["b+", "b-"]):
@@ -1532,29 +1542,22 @@ class Node_pre_unary_assignment(Expr):
 		return iter(rlist)
 
 	def code_gen(self):
-		IR_State.left_side = True
+                previous_left_side = IR_State.left_side
+                IR_State.left_side = True
 		left_side = self.exp.code_gen()
-		IR_State.left_side = False
-		var_s1 = self.exp.code_gen()
-		var_s2 = ir.Constant(ir.IntType(TypeSizes.int), 1)
-		op_type = self.type
-		
-		name = "_temp"+str(IR_State.var_counter)
-
-		if (self.operator.operator == "++"):
-			if(op_type.isDouble()):
-				var_s2 = ir.Constant(Extended_DoubleType(), "1.0")
-				dest = IR_State.builder.fadd(var_s1, var_s2, name=name)
-			else:
-				dest = IR_State.builder.add(var_s1, var_s2, name=name)
-		elif(self.operator.operator == "--"):
-			if(op_type.isDouble()):
-				var_s2 = ir.Constant(Extended_DoubleType(), "1.0")
-				dest = IR_State.builder.fsub(var_s1, var_s2, name=name)
-			else:
-				dest = IR_State.builder.sub(var_s1, var_s2, name=name)
-		else:
-			print "Pre unary assignment invalid operator: " + str(self.operator.operator)
+		IR_State.left_side = previous_left_side
+                if self.operator.operator == "++":
+                        binary_operator = Operator(self.lineno, "+", True)
+                elif self.operator.operator == "--":
+                        binary_operator = Operator(self.lineno, "-", True)
+                op_type = self.type
+                if(op_type.isDouble()):
+                        constant_one = Constant_Value(self.lineno, "double", 1.0)
+                else:
+                        constant_one = Constant_Value(self.lineno, "int", 1)
+                binary_operation = Node_binary_operation(binary_operator, self.exp,
+                                                 constant_one, self.lineno)
+                dest = binary_operation.code_gen()
 
 		IR_State.var_map.append(dest) 
 		IR_State.var_counter += 1
@@ -1581,29 +1584,24 @@ class Node_post_unary_assignment(Expr):
 		return iter(rlist)
 
 	def code_gen(self):
+                previous_left_side = IR_State.left_side
 		IR_State.left_side = True
 		left_side = self.exp.code_gen()
-		IR_State.left_side = False
-		var_s1 = self.exp.code_gen()
-		var_s2 = ir.Constant(ir.IntType(TypeSizes.int), 1)
-		op_type = self.type
-		
-		name = "_temp"+str(IR_State.var_counter)
+		IR_State.left_side = previous_left_side
 
-		if (self.operator.operator == "++"):
-			if(op_type.isDouble()):
-				var_s2 = ir.Constant(Extended_DoubleType(), "1.0")
-				dest = IR_State.builder.fadd(var_s1, var_s2, name=name)
-			else:
-				dest = IR_State.builder.add(var_s1, var_s2, name=name)
-		elif(self.operator.operator == "--"):
-			if(op_type.isDouble()):
-				var_s2 = ir.Constant(Extended_DoubleType(), "1.0")
-				dest = IR_State.builder.fsub(var_s1, var_s2, name=name)
-			else:
-				dest = IR_State.builder.sub(var_s1, var_s2, name=name)
-		else:
-			print "Post unary assignment invalid operator: " + str(self.operator.operator)
+                var_s1 = self.exp.code_gen()
+                if self.operator.operator == "++":
+                        binary_operator = Operator(self.lineno, "+", True)
+                elif self.operator.operator == "--":
+                        binary_operator = Operator(self.lineno, "-", True)
+                op_type = self.type
+                if(op_type.isDouble()):
+                        constant_one = Constant_Value(self.lineno, "double", 1.0)
+                else:
+                        constant_one = Constant_Value(self.lineno, "int", 1)
+                binary_operation = Node_binary_operation(binary_operator, self.exp,
+                                                 constant_one, self.lineno)
+                dest = binary_operation.code_gen()
 
 		IR_State.var_map.append(dest) 
 		IR_State.var_counter += 1
@@ -1652,6 +1650,7 @@ class Node_whole_assignment(Expr):
 		else:
 			bin_op = create_bin_op_for_whole_ass(self)
 			right_value = bin_op.code_gen()
+                print left_ptr
 		IR_State.builder.store(right_value, left_ptr)
 		return right_value
 

@@ -625,7 +625,7 @@ def p_binary_operation(p):
 						|   expression AND expression
 						|   expression COMMA expression
 						|	expression MODULO expression '''
- 	p[2] = Operator(p.lineno(2),p[2],True)
+        p[2] = Operator(p.lineno(2),p[2],True)
  	if( not p[2].binary_typecheck(p[1].type,p[3].type)):
 		print warning_messages.invalid_type(str(p[2].lineno), [str(p[1].type), str(p[3].type)])
 		exit(1)
