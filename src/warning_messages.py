@@ -4,6 +4,9 @@ file_name = ""
 def error_header():
 	return "---ERROR!! In file: " + file_name + "\n"
 
+def empty_program():
+        return error_header() + "Empty program"
+
 def reinclude_library_error(lib_name):
     return error_header() + "You tried re-including the library with name: " + lib_name + " ---"
 

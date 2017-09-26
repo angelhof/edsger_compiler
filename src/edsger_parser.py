@@ -36,7 +36,10 @@ def p_program(p):
 	#for i in Program_State.scope_stack:
 	#	print i.keys()
 	#AST.print_tree(p[2],0)
-	AST.head = p[2]
+        if len(p[2]) == 0:
+                print warning_messages.empty_program()
+                exit(1)
+        AST.head = p[2]
 	#AST.print_tree(sys.stdout)
 
 def p_start_program(p):
