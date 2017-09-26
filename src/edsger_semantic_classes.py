@@ -1628,7 +1628,6 @@ class Node_whole_assignment(Expr):
 		else:
 			bin_op = create_bin_op_for_whole_ass(self)
 			right_value = bin_op.code_gen()
-                print left_ptr
 		IR_State.builder.store(right_value, left_ptr)
 		return right_value
 
@@ -1800,6 +1799,7 @@ class Function_call(Expr):
 		# Get the function from its name ( Original Command has been kept)
 		# function = IR_State.function_map[self.name)]
 		function_with_metadata = IR_State.get_from_function_map(self.function.get_extended_signature())
+
 		function = function_with_metadata.function
 		scope_struct = function_with_metadata.get_scope_struct()
 
