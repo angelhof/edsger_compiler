@@ -1,0 +1,24 @@
+#include "stdio.h"
+
+void main()
+{
+   int x, y, z, w;
+   bool b;
+
+   writeString("Give four integers, one per line: ");
+   x = readInteger();
+   y = readInteger();
+   z = readInteger();
+   w = readInteger();
+
+   b = x==y;
+   if (b==(z==w))
+      writeInteger(1);
+   else
+      writeInteger(0);
+   if (b != (z != w))
+      writeInteger(1);
+   else
+      writeInteger(0);
+   writeString("\n");
+}

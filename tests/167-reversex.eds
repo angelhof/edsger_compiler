@@ -1,0 +1,39 @@
+#include "stdio.h"
+
+int length (char *s)
+{
+    int i;
+
+    for (i=0; s[i]!='\0'; i++);
+    return i;
+}
+
+
+char * reverse (char *s)
+{
+    char * r;
+    int i, l;
+
+    l = length(s);
+    r = new char [l+1];
+
+    if (r==NULL)
+    {
+        writeString("OUT OF MEMORY\n");
+        return NULL;
+    }
+
+    for (i=0; i<l; i++)
+        r[i]=s[l-i-1];
+    r[i]='\0';
+    return r;
+}
+
+void main()
+{
+    char *p;
+
+    p = reverse("\n!dlrow olleH");
+    writeString(p);
+    delete p;
+}

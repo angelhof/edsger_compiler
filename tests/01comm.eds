@@ -1,0 +1,44 @@
+
+/*
+
+this is only meant to be a long comment
+
+   Last night I dreamt that somebody loved me
+   No hope, no harm, just another false alarm
+   Last night I felt real arms around me
+   No hope, no harm, just another false alarm
+   But tell me how long before the last one
+   And tell me how long before the right one
+   This story is old, I know, but it goes on
+
+but while we're at it, let's check a few other things too...
+
+   1e+10
+   1.0e+-10
+   1.e10
+   1e10.1
+   'abc'
+   '\'
+   "Hello world
+   
+   % boo !!!
+
+*/
+
+// % this is a /* single line comment */
+
+/*****************
+  ****************
+   ***************
+    **************
+     *************
+      ************
+       ***********
+        **********/
+
+// % the error below should be in line 42
+
+void main () {
+  5 ();
+  writeString("this program is wrong!!!\n");
+}

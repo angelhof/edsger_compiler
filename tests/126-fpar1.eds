@@ -1,0 +1,12 @@
+#include "stdio.h"
+
+void main() 
+{
+   void aaa(byref int x) {
+      writeInteger(7);
+   }
+   
+   int i;
+
+   aaa(i+5);
+}

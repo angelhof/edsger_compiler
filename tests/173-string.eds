@@ -1,0 +1,7 @@
+#include "stdio.h"
+
+void main ()
+{
+	writeString("Apo thn polh erxomai kai sthn korfh kanella
+		   Arnaki aspro kai paxy ths manas tou kamari");
+}

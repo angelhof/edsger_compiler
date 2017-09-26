@@ -1,0 +1,10 @@
+#include "stdio.h"
+#include "string.h"
+void main()
+{
+	char s[6];
+	char *d;
+	s="Hello";
+	writeString(s);
+	for(d=s;*d!='\0';d++) writeChar(*d);
+}

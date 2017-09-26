@@ -1,0 +1,35 @@
+#include "stdio.h"
+
+void main()
+{
+	void PrintArray (char * msg, int * array, int size)
+	{
+		int i;
+
+		writeString(msg);  
+		writeString("-----------------------------\n");
+		writeString("size passed was : "); writeInteger(size); writeString("\n");
+		writeString("array[0] was : "); writeInteger(array[0]); writeString("\n");
+		writeString("array[1] was : "); writeInteger(array[1]); writeString("\n");
+		writeString("array[2] was : "); writeInteger(array[2]); writeString("\n");
+		
+		for (i = 0; i <size; i++) {
+			if (i > 0)
+				writeString(", ");
+			writeInteger(array[i]);
+		}
+		writeString("\n");
+	}
+
+	int x[16], seed,i;
+
+	writeString("main is printing \n");
+	for (i = 0, seed = 65; i<16; i++) {
+		seed = (seed * 137 + 221 + i) % 101;
+		x[i] = seed;
+		writeInteger(x[i]); writeString(" ");
+	}
+	writeString("\n");
+	writeString("printarray will now print ...\n");
+	PrintArray("this is printarray\n",x, 16);	
+}

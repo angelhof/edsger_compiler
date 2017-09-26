@@ -1,0 +1,19 @@
+#include "stdio.h"
+
+void main()
+{
+    char * s, t;
+
+    s = "SsTt\0abcdef";
+    t = s;
+    writeChar(s[7]);
+    writeChar('\n');
+    writeChar(t[7]);
+    writeChar('\n');
+    writeString(t);
+    writeChar('\n');
+    writeString(s);
+
+    writeString("\n---\n");
+    writeString("c\nc\nSsTt\nSsTt\n");
+}

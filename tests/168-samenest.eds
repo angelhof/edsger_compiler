@@ -1,0 +1,36 @@
+#include "stdio.h"
+
+/* improper use of getnestinglevel */
+void main()
+{
+  void a1()
+  {
+    void b() {
+      writeInteger (100);
+    }
+  
+    writeInteger(10);
+    writeString("\t") ;
+    b();
+    writeString("\t") ;
+    writeInteger(11);
+    writeString("\n") ;
+  }
+
+  void a2 ()
+  {
+    void b() {
+      writeInteger(200);
+    }
+
+    writeInteger(20);
+    writeString("\t") ;
+    b();
+    writeString("\t") ;
+    writeInteger(21);
+    writeString("\n") ;
+  }
+
+  a1();
+  a2();
+}

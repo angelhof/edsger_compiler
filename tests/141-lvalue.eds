@@ -1,0 +1,35 @@
+#include "stdio.h"
+
+int x,w,t;
+int *y;
+int **z;
+
+int **f()
+{
+    return z;
+}
+
+void main()
+{
+    z = new int * [4];
+    for (x = 0; x<4; x++)
+        z[x] = new int [x+1];
+
+    for (x = 0; x<4; x++) {
+        for (w=0; w<x; w++) {
+            f()[x][w]=x+w;
+            writeInteger(4);
+            writeChar('/');
+            writeInteger(f()[x][w]);
+            writeChar(',');
+        }
+        writeChar('/');
+    }
+
+    writeChar("ABCD"[2]);
+
+    writeString("\n---\n");
+    writeString("/4/1,/4/2,4/3,/4/3,4/4,4/5,/C\n");
+      
+}
+

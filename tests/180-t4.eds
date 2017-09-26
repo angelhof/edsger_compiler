@@ -1,0 +1,26 @@
+#include "stdio.h"
+
+void main()
+{
+	int x;
+
+	void prt(int * array, int y) {
+		writeString("prt : ");
+		writeInteger(y);
+		writeString("\n");
+		writeInteger(array[0]);
+		writeInteger(array[1]);
+		writeInteger(array[2]);
+		writeString("\n");
+	}
+	
+	int array[30];
+
+	x = 0;
+	writeString("---------------------\n");
+	array[0] = 1;
+	array[1] = 2;
+	array[2] = 3;
+	prt(array, 145);
+	writeString("---------------------\n");
+}

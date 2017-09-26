@@ -1,0 +1,16 @@
+#include "stdio.h"
+
+int fact (int n)
+{
+    int result;
+
+    for (result = 1; n > 1; n--)
+        result *= n;
+    return result;
+}
+
+void main ()
+{
+    writeInteger(fact(7));
+    writeString("\n");
+}

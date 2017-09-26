@@ -1,0 +1,18 @@
+#include "stdio.h"
+
+void main ()
+{
+	int mark[1001], i, n;
+
+	for (i = 0; i <= 1000; i++)
+		mark[i] = 0;
+
+	for (n=2; n <= 1000; n++)
+		if (mark[n] == 0) {
+			writeInteger(n);
+			writeString("\t");
+			for (i=n; i <= 1000; i+=n)
+				mark[i] = 1;
+		}
+	writeString("\n");
+}

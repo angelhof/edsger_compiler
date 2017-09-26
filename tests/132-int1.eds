@@ -1,0 +1,27 @@
+#include "stdio.h"
+
+int lala (int i, int *j)
+{
+    return -(i**j);
+}
+
+void main()
+{
+    int i,j,k;
+
+    i = 1;
+    j = -2;
+    k = i+j*6;
+    k = 5 % k;
+
+    writeInteger(2);
+    writeInteger(-4);
+    writeInteger(2+3);
+    writeInteger(k);
+    writeInteger(i / j);
+
+    writeInteger(lala(2, &k));
+
+    writeString("\n---\n");
+    writeString("2-4550-10\n");
+}

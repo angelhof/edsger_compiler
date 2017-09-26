@@ -1,0 +1,32 @@
+#include "stdio.h"
+void fun(int a,char b){ for(;;);
+	if (a==1 && b=='b') writeString("f u n 1"); else /*if (a==2)*/ writeString(" fun2");
+	
+}
+void main()
+{
+	int limit, number, counter;
+	int t,i[8];
+	bool a,b;
+	char *c;
+	double j,m;
+	int sum(int a, int b){return (a+b);}
+	char tre(int e){   return 'b' ;}
+tagr: for (i[1]=2; i[1]<5; i[1]++) {
+	for (t=7; t<14; t++){
+		(t<i[3] || a>=b && j>m) ;
+		if (t==11) break tagr;
+		writeInteger(t);  writeString(" i[1]= ");
+		
+	}
+	writeInteger(i[1]);  writeString(" t= ");
+}
+i[3+i[1]]=7;
+for(;;);
+if (i[5]==7) writeString(" douleuei k \tay\nto ");
+
+writeInteger(-26%5);
+
+
+	
+}

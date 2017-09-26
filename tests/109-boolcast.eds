@@ -1,0 +1,11 @@
+#include "stdio.h"
+
+void main () {
+	bool b;
+	b = (bool)'q';
+	if (b && !((bool)'\0')) {
+		writeString("PASS\n");
+	} else {
+		writeString("FAIL\n");
+	}
+}

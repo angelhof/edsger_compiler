@@ -1,0 +1,18 @@
+#include "stdio.h"
+
+void main ()
+{
+    bool x, y, z;
+    int  a, b, c;
+
+    a = 1; b = 2; c = 3;
+    x = true;
+    y = (a>2) || (c<b) && (a==b);
+    z = !(c<3) || (a>4);
+
+    writeBoolean(x);
+    writeBoolean(y);
+    writeBoolean(z);
+    writeString("\n---\n");
+    writeString("truefalsetrue\n");
+}

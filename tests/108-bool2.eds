@@ -1,0 +1,35 @@
+#include "stdio.h"
+
+void main ()
+{
+    bool a, b, c;
+    a = true || false;
+    b = false || false;
+
+    writeBoolean(a);
+    writeBoolean(b);
+    writeBoolean(true || false);
+    writeBoolean(false || false);
+    writeString("\n");
+
+    a = true && false;
+    b = true && true;
+    writeBoolean(a);
+    writeBoolean(b);
+    writeBoolean(true && false);
+    writeBoolean(true && true);
+    writeString("\n");
+
+    a = ! true;
+    b = ! ! false;
+    writeBoolean(a);
+    writeBoolean(b);
+    writeBoolean(! true);
+    writeBoolean(! ! false);
+    writeString("\n");
+
+    writeString("\n---\n");
+    writeString("truefalsetruefalse\n");
+    writeString("falsetruefalsetrue\n");
+    writeString("falsefalsefalsefalse\n");
+}

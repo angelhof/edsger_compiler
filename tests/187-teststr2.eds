@@ -1,0 +1,18 @@
+#include "stdio.h"
+
+void main ()
+{
+   char * s, t;
+
+   s = "abcdefgh12345678";
+   s = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+   s = "\0BCDEFG!@#$%^&*";
+   t = s;
+   writeString(s);
+   writeString("\n");
+   writeString(t);
+   writeString("\n");
+
+   writeString("\n---\n");
+   writeString("\n\n");
+}

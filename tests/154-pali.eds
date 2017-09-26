@@ -1,0 +1,22 @@
+#include "stdio.h"
+
+void main ()
+{
+	char a [21];
+	int i;
+	    
+	int strlen (char * s)
+	{
+		int result;
+
+		for (result = 0; s[result] != '\0'; result++);
+		return result;
+	}
+	
+	writeString("Enter a string up to 20 characters: ");
+	readString(20, a);
+	writeString("Its palindrome is: ");
+	for (i = strlen(a) - 1; i >= 0; i--)
+		writeChar(a[i]);
+	writeChar('\n');
+}

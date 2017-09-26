@@ -1,0 +1,35 @@
+#include "string.h"
+#include "stdio.h"
+
+void main ()
+{
+	char array[50];
+
+	void swapString (char * source, char * dest)
+	{
+		void swap (byref char x, byref char y)
+		{
+			char z;
+
+			z = x;
+			x = y;
+			y = z;
+		}
+		
+		int i, x;
+	
+		// Copy source to destination including the '\0' character
+		for (i = 0; i <= strlen(source); i++)
+			dest[i] = source[i];
+
+		// Swap the destination string
+		for (i = 0; i < strlen(dest)/2; i++)
+			swap(dest[i], dest[strlen(dest) - i - 1]);
+	}
+
+	swapString("Hello world from Edsger!", array);
+	writeString("Original String: Hello world from Edsger!\n");
+	writeString("Reverse String: ");
+	writeString(array);
+	writeString("\n\n");
+}

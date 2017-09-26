@@ -1,0 +1,53 @@
+#include "stdio.h"
+#include "stdlib.h"
+
+char lala (char c, char * d)
+{
+   return ord(c) > ord(*d) ? c : *d;
+}
+
+void main ()
+{
+   char c,d,e;
+   char *s;
+   int i;
+
+   c = '$';
+   d = '\n';
+
+   writeChar(c);
+   writeChar(d);
+   writeChar('a');
+   writeChar('\\');
+   writeChar('\n');
+
+   writeChar(lala('a', &d));
+
+   s = "12345678";
+   i = 3;
+   c = s[i];
+   d = s[0];
+   e = s[8];
+
+   writeChar(c);
+   writeChar(d);
+   writeChar(e);
+
+   i = 1;
+   writeChar(s[i]);
+   writeChar(s[2]);
+
+   i = 3;
+   c = "coco"[i];
+   writeChar(c);
+   writeChar("lala"[i]);
+   
+   c = "coco"[1];
+   writeChar(c);
+   writeChar("coco"[2]);
+   
+   writeChar(lala("haha"[2], &(s[1])));
+   
+   writeString("\n---\n");
+   writeString("$\na\\\na4123oaoch\n");
+}

@@ -1,0 +1,37 @@
+#include "stdio.h"
+
+int i, j ;
+char c, d ;
+bool b ;
+
+void main ()
+{
+   writeString("int >=<= int\n");
+   i = 1;
+   j = 2;
+   b = i>=j;
+   writeBoolean(b);
+   writeBoolean(1<=2);
+
+   writeString("\nint =<> int\n");
+   i = 1;
+   j = 2;
+   b = i!=j;
+   writeBoolean(b);
+   writeBoolean(1==2);
+
+   writeString("\nchar >=<= char\n");
+   c = 'a';
+   d = 'b';
+   b = c>=d;
+   writeBoolean(b);
+   writeBoolean('a'<='b');
+   
+   writeString("\nchar =<> char\n");
+   c = 'a';
+   d = 'b';
+   b = c!=d;
+   writeBoolean(b);
+   writeBoolean('a'=='b');
+   writeString("\n");
+}

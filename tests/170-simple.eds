@@ -1,0 +1,15 @@
+#include "stdio.h"
+
+void main()
+{
+	int j[30];
+	int c;
+
+	writeString("now!\n");
+	for (c = 0; c<30; c++) {
+		j[c] = c;
+		writeInteger(j[c]);
+		writeString(" ");
+	}
+	writeString("\ndone\n");
+}

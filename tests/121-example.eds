@@ -1,0 +1,28 @@
+#include "stdio.h"
+
+char all (byref int i, char c0, byref char c, byref char *s)
+{
+     i = 1+4*4 / 2-7;
+     c = '#';
+     c0 = '2';
+     s = "ok";
+     return c0;
+}
+
+void main ()
+{
+   int i;
+   char c;
+   char *s;
+   char c1;
+
+   c1 = '*';
+   c1 = all(i, c1, c, s);
+   writeInteger(i);
+   writeString(s);
+   writeChar(c);
+   writeChar(c1);
+
+   writeString("\n---\n");
+   writeString("2ok#2\n");
+}

@@ -1,0 +1,164 @@
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
+#include "math.h"
+
+void Stdio ();
+void Stdlib ();
+void String ();
+void Math ();
+void Alloc();
+
+void main () {
+
+	writeString("stdio.h\n--------\n");
+	Stdio();
+	writeString("\n\nstdlib.h\n--------\n");
+	Stdlib();
+	writeString("\n\nstring.h\n--------\n");
+	String();
+	writeString("\n\nmath.h\n--------\n");
+	Math();
+	writeString("\n\nMemory allocation\n----------\n");
+	Alloc();
+
+}
+
+void nl () { writeChar('\n'); }
+
+void Stdio () {
+
+	char s[100];
+	bool b;
+
+	writeString("Enter two integers [calculate sum]: "); writeInteger(readInteger()+readInteger()); nl();
+	writeString("Enter a character [echo back]: "); writeChar(readChar()); nl();
+	writeString("Enter two real numbers [calculate product]: "); writeReal(readReal() * readReal()); nl();
+//	writeString("Enter a boolean value (y/n, 1/0, t/f) [print the opposite]: "); b = readBoolean(); writeBoolean(!b); nl(); //writeBoolean(!readBoolean()); nl();
+	writeString("Enter a string [echo back twice]: ");
+	readString(100, s); writeString(s); writeString(s); nl();
+	
+}
+
+void Stdlib () {
+
+	double test[5];
+	int i;
+	char input[100];
+	char *p;
+
+	test[0] = 12.0; test[1] = 12.3; test[2] = 12.5; test[3] = 12.6; test[4] = 12.99;
+	for (i = 0; i < 5; i++) {
+		writeString("Real: "); writeReal(test[i]);
+		writeString(", truncated: "); writeInteger(trunc(test[i]));
+		writeString(", rounded: "); writeInteger(round(test[i]));
+		nl();
+	}
+
+	writeString("Enter a string [echo ASCII codes]: ");
+	readString(100, input);
+	for (p = input; *p!='\0'; p++) {
+		writeString("\'"); writeChar(*p); writeString("\' -> ASCII code: "); writeInteger(ord(*p)); nl();
+	}
+	writeString("Enter an integer in the range 32-128: ");
+	for (i = 0; i < 32 || i > 128; i=readInteger());
+	writeString("The character with the ASCII code "); writeInteger(i); writeString(" is \'"); writeChar(chr(i)); writeString("\'.\n");
+
+}
+
+void String () {
+
+	char s1[100], s2[50], s3[100];
+	int i;
+
+	writeString("Enter two strings: "); readString(50, s1); readString(50, s2);
+	writeString("Length of first: "); writeInteger(strlen(s1)); nl();
+	writeString("Length of second: "); writeInteger(strlen(s2)); nl();
+	i = strcmp(s1, s2);
+	if (i==0) writeString("The strings are equal.");
+	else {
+		writeString("The first string is lexicographically ");
+		writeString((i>0) ? "more than" : "less than");
+		writeString(" the second one.");
+	}
+	nl();
+	writeString("Concatenation of the two strings: ");
+	strcat(s1, s2);
+	writeString(s1);
+	nl();
+	writeString("Check if copy is same as source: "); 
+	strcpy(s3, s1);
+	writeBoolean(strcmp(s1,s3) == 0);
+	nl();
+
+}
+
+double mathfunc (int i, double d) {
+	if (i == 0) return d;
+	else if (i == 1) return fabs(d-0.5);
+	else if (i == 2) return sqrt(d);
+	else if (i == 3) return sin(d);
+	else if (i == 4) return cos(d);
+	else if (i == 5) return tan(d);
+	else if (i == 6) return atan(d);
+	else if (i == 7) return exp(d);
+	else if (i == 8) return ln(d);
+}
+
+char *mathfuncname (int i) {
+	if (i == 0) return "x";
+	else if (i == 1) return "fabs(x-0.5)";
+	else if (i == 2) return "sqrt";
+	else if (i == 3) return "sin";
+	else if (i == 4) return "cos";
+	else if (i == 5) return "tan";
+	else if (i == 6) return "atan";
+	else if (i == 7) return "exp";
+	else if (i == 8) return "ln";
+}
+
+
+void Math() {
+
+	int i, j, k;
+	double current;
+	int quantize;
+
+	for (j = -1; j <= 1; j++) {
+		writeString("abs("); writeInteger(j); writeString(") = "); writeInteger(abs(j)); nl();
+	}
+	for (j = -1; j < 50; j++) {
+		for (i = 0; i <= 8; i++) {
+			if (j == -1) {
+				writeString(mathfuncname(i)); writeString("\t");
+			} else {
+				writeReal(mathfunc(i, (double)j * 0.8 / 50.0 + 0.1)); writeString("\t");
+			}
+		}
+		nl();
+	}
+}
+
+void Alloc() {
+
+	int i, j;
+	char *p;
+	writeString("Enter an integer in the range 5 - 10: "); 
+	for (i = 0; i < 5 || i > 10; i = readInteger());
+	p = new char[i*6 + 1]; *p = '\0';
+	for (j = 0; j < i; j++) strcat(p, "Hello!");
+	writeString(p);
+	delete(p);
+	nl();
+	writeString("Trying many consecutive allocations and deallocations. ");
+	for (j = 0; j < 1000; j++) {
+		p = new char[10240];
+		if (p == NULL) { writeString("Out of memory."); break; }
+		else {
+  		  strcpy(p, "They rushed down the street together, digging everything in the early way they had, which later became so much sadder and perceptive and blank. But then they danced down the streets like dingledodies, and I shambled after as I\'ve been doing all my life after people who interest me, because the only people for me are the mad ones, the ones who are mad to live, mad to talk, mad to be saved, desirous of everything at the same time, the ones who never yawn or say a commonplace thing, but burn, burn, burn like fabulous yellow roman candles exploding like spiders across the stars and in the middle you see the blue centerlight pop and everybody goes \"Awww!\"\n\t\t- Jack Kerouac, On The Road");
+		  delete(p);
+		}
+	}
+	writeString("OK.\n");
+
+}

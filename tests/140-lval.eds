@@ -1,0 +1,16 @@
+#include "stdio.h"
+
+int i;
+
+int* f()
+{
+    return &i;
+}
+
+void main()
+{
+    *(f()) = 42;
+    writeInteger(i);
+    writeString("\n");
+}
+

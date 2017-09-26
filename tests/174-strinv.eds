@@ -1,0 +1,52 @@
+#include "stdio.h"
+#include "string.h"
+
+void main ()
+{
+   void funnySwap (byref char x, byref char y, char xx, char yy)
+   {
+      x = yy;
+      y = xx;
+   }
+
+   char name [40], buffer [40];
+
+   void StrInvert1 (char * s)
+   {
+      int i, j;
+
+      for (i = 0, j = strlen(s) - 1; i < j; i++, j--)
+         funnySwap(s[i], s[j], s[i], s[j]);
+   }
+
+   void StrInvert2 ()
+   {
+      int i, j;
+
+      for (i = 0, j = strlen(buffer) - 1; i < j; i++, j--)
+         funnySwap(buffer[i], buffer[j], buffer[i], buffer[j]);
+   }
+
+   void StrInvert3 ()
+   {
+      StrInvert1(buffer);
+   }
+
+   writeString("Give string: ");
+   readString(40, name);
+   strcpy(buffer, name);
+   StrInvert1(buffer);
+   writeString("Inverted string: ");
+   writeString(buffer);
+   writeString("\n");
+   strcpy(buffer, name);
+   StrInvert2();
+   writeString("Inverted string: ");
+   writeString(buffer);
+   writeString("\n");
+   strcpy(buffer, name);
+   StrInvert3();
+   writeString("Inverted string: ");
+   writeString(buffer);
+   writeString("\n");
+}

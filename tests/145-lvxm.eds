@@ -1,0 +1,22 @@
+#include "stdio.h"
+
+void main()
+{
+	int j, k;
+
+	void xxx (char x) {
+		writeChar(x);
+		writeChar('\n');
+	}
+
+	void ccc (char * x)
+	{ 
+		x[1] = 'C';
+		xxx(x[1]); 
+	}
+	
+	char c[10];
+	
+	ccc(c);
+        writeString("Expected: C\n");
+}

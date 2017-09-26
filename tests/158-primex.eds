@@ -1,0 +1,62 @@
+#include "stdio.h"
+
+int limit, number, counter ;
+
+bool prime (int n)
+{
+      int i;
+
+      if (n < 0)
+         return prime(-n);
+      else if (n < 2)
+         return false;
+      else if (n == 2)
+         return true;
+      else if (n % 2 == 0)
+         return false;
+      else
+      {
+         for (i = 3; i <= n / 2; i+=2)
+            if (n % i == 0)
+                return false;
+      }
+      return true;
+}
+
+void main ()
+{
+   writeString("Please, give the upper limit : ");
+   limit = readInteger();
+   writeString("Prime numbers between 0 and ");
+   writeInteger(limit);
+   writeString("\n\n");
+   counter = 0;
+   if (limit >= 2)
+   {
+      counter = counter + 1;
+      writeString("2\n");
+   }
+   if (limit >= 3)
+   {
+      counter = counter + 1;
+      writeString("3\n");
+   }
+   for (number = 6; number <= limit; number+=6)
+   {
+      if (prime(number-1))
+      {
+         counter = counter + 1;
+         writeInteger(number-1);
+         writeString("\n");
+      }
+      if ((number != limit) && prime(number+1))
+      {
+         counter = counter + 1;
+         writeInteger(number+1);
+         writeString("\n");
+      }
+   }
+   writeString("\n");
+   writeInteger(counter);
+   writeString(" prime number(s) were found.\n");
+}

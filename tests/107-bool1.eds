@@ -1,0 +1,23 @@
+#include "stdio.h"
+
+bool lala (bool a, byref bool b)
+{
+    return a && b;
+}
+
+void main ()
+{
+    bool a, b;
+
+    a = true;
+    b = false;
+
+    writeBoolean(true);
+    writeBoolean(false);
+    writeBoolean(a);
+    writeBoolean(b);
+
+    writeBoolean(lala(false, a));
+    writeString("\n---\n");
+    writeString("truefalsetruefalsefalse\n");
+}

@@ -1,0 +1,12 @@
+#include "stdio.h"
+
+void main ()
+{
+   int * p ;
+
+   p = NULL;
+   if (p == NULL) writeInteger(42);
+   else writeString("lala\n");
+   *p = NULL;
+}
+

@@ -1,0 +1,30 @@
+#include "stdio.h"
+
+void main ()
+{
+   int y, a, b, x;
+
+   void f (byref int a, int y)
+   {
+      if (x > y)
+         a = x;
+      writeInteger(a);
+      writeInteger(b);
+      writeInteger(x);
+      writeInteger(y);
+   }
+   
+   x = 7;
+   y = 9;
+
+   a = 1;
+   b = 2;
+   f(b, a);
+
+   a = 3;
+   b = 4;
+   f(a, b);
+   
+   writeString("\n---\n");
+   writeString("77717474\n");
+}

@@ -1,0 +1,26 @@
+#include "stdio.h"
+void main (){
+	/*double ena(){
+		return 231.534;
+	}*/
+	//double d;
+	int i;
+	//int s[20];
+	int *a;
+	a=&i;
+	*a=12;
+	a++;
+	writeInteger(i);
+	writeString("   ");
+	writeInteger(*a);
+	writeString("\n");
+	//s="asdfgjhj\n";
+	/*for(i=0; i<20;i++){
+		s[i]=i+65 ;
+		writeInteger(i);
+		writeString("   ");
+		writeInteger(*(a++));
+		writeString("\n");
+	}*/
+}
+

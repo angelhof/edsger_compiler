@@ -1,0 +1,12 @@
+#include "stdio.h"
+
+void main()
+{
+	char c[3];
+
+	c[0] = "ABCD"[2];
+	c[1] = '\n';
+	c[2] = '\0';
+	writeString(c);
+        writeString("Expected: C\n");
+}

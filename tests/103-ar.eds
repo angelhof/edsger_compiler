@@ -1,0 +1,99 @@
+#include "stdio.h"
+
+void strcpy (char *trg, char *src) {
+	for (;*src!='\0';src++) *(trg++) = *src;
+	*trg = '\0';
+}
+
+void strcat (char *trg, char *src) {
+	for (;*trg!='\0';trg++) ;
+	strcpy(trg, src);
+}
+void wait() { char c; c = readChar(); }
+
+void main() {
+
+	int a, b, c;
+	char d[100];
+
+
+	void nest1 (int c) {
+
+		void swap (int *a, int *b) {
+			int t;
+			t = *b; *b = *a; *a = t;
+		}
+
+		void nest2 () {
+
+			writeString("nest2\n");
+			writeString("main a: "); writeInteger(a); writeString("\n");
+			writeString("main b: "); writeInteger(b); writeString("\n");
+			writeString("nest1 c: "); writeInteger(c); writeString("\n");
+			writeString("main d: "); writeString(d); writeString("\n");
+			wait();
+			c = a + b;
+			writeString("nest2, after change\n");
+			writeString("main a: "); writeInteger(a); writeString("\n");
+			writeString("main b: "); writeInteger(b); writeString("\n");
+			writeString("nest1 c: "); writeInteger(c); writeString("\n");
+			writeString("main d: "); writeString(d); writeString("\n");
+			wait();
+
+		}
+
+
+		c = 25;
+		writeString("nest1\n");
+		writeString("main a: "); writeInteger(a); writeString("\n");
+		a = 7;
+		writeString("main a, after change: "); writeInteger(a); writeString("\n");
+		writeString("main b: "); writeInteger(b); writeString("\n");
+		writeString("c: "); writeInteger(c); writeString("\n");
+		writeString("main d: "); writeString(d); writeString("\n");
+		strcat(d, " kalhnyxta!");
+		writeString("main d, after change: "); writeString(d); writeString("\n");
+		wait();
+
+		swap(&a, &c);
+		
+		writeString("nest1, after swap a and c\n");
+		writeString("main a: "); writeInteger(a); writeString("\n");
+		writeString("main b: "); writeInteger(b); writeString("\n");
+		writeString("c: "); writeInteger(c); writeString("\n");
+		writeString("main d: "); writeString(d); writeString("\n");
+		wait();
+
+		nest2();
+
+		writeString("nest1, after nest2\n");
+		writeString("main a: "); writeInteger(a); writeString("\n");
+		writeString("main b: "); writeInteger(b); writeString("\n");
+		writeString("c: "); writeInteger(c); writeString("\n");
+		writeString("main d: "); writeString(d); writeString("\n");
+		wait();
+
+	}
+
+	a = 5;
+	b = 10;
+	c = 20;
+	strcpy(d, "kalhmera!");
+	writeString("main\n");
+	writeString("a: "); writeInteger(a); writeString("\n");
+	writeString("b: "); writeInteger(b); writeString("\n");
+	writeString("c: "); writeInteger(c); writeString("\n");
+	writeString("d: "); writeString(d); writeString("\n");
+	wait();
+
+	nest1(30);
+
+	writeString("main, after nest1\n");
+	writeString("a: "); writeInteger(a); writeString("\n");
+	writeString("b: "); writeInteger(b); writeString("\n");
+	writeString("c: "); writeInteger(c); writeString("\n");
+	writeString("d: "); writeString(d); writeString("\n");
+	wait();
+
+}
+

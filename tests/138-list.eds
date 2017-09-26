@@ -1,0 +1,41 @@
+#include "stdio.h"
+#include "stdlib.h"
+#include "math.h"
+
+int **a;
+int X, Y, i, j;
+
+void printArray(int * a, int n)
+{
+	int i;
+    
+	writeInteger(a[0]);
+	for (i = 1; i < n; i++)	{
+		writeString(", ");
+		writeInteger(a[i]);
+	}
+}
+
+void main ()
+{
+	for (X = 0; (X < 1) || (X > 5); X = readInteger())
+		writeString("Enter X-dimension for matrix (1-5): ");
+		
+	for (Y = 0; (Y < 1) || (Y > 5); Y = readInteger())
+		writeString("Enter Y-dimension for matrix (1-5): ");
+
+	a = new int * [Y];
+
+	for (i = 0; i < Y; i++)	{
+		a[i] = new int [X];
+
+		for (j = 0; j < X; j++)
+			a[i][j] = round(2.0 * pi() * (double) i + (double) j + 5.0);
+	}
+
+	for (i = 0; i < Y; i++) {
+		printArray(a[i], X);
+		writeString("\n");
+	}
+
+}

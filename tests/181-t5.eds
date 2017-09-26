@@ -1,0 +1,150 @@
+#include "stdio.h"
+
+void main() 
+{
+	int a[30];
+	int b[30];
+	int c[30];
+	int i;
+
+	void ByReference(byref int * a, byref int * b, byref int * c)
+	{
+		for (i = 0; i<30; i++)
+			a[i] = b[i] = c[i] = 4*i+1;
+
+		writeString("INSIDE ByReference:\n");
+		writeString("a[5]=");
+		writeInteger(a[5]);
+		writeString("\n");
+
+		writeString("a[b[5]]=");
+		writeInteger(a[b[5]]);
+		writeString("\n");
+
+		writeString("a[b[c[5]]]=");
+		writeInteger(a[b[c[5]]]);
+		writeString("\n");
+
+		writeString("a[b[5+1]]=");
+		writeInteger(a[b[5+1]]);
+		writeString("\n");
+
+		writeString("a[b[5]+1]=");
+		writeInteger(a[b[5]+1]);
+		writeString("\n");
+
+		writeString("a[b[5]+c[1]]=");
+		writeInteger(a[b[5]+c[1]]);
+		writeString("\n");
+
+		writeString("a[b[c[5]+a[5]]+c[5]*2]=");
+		writeInteger(a[b[c[5]+a[5]]+c[5]*2]);
+		writeString("\n");
+	}
+	
+	void ByValue(int * a, int * b, int * c)
+	{
+		for (i = 0; i<30; i++)
+			a[i] = b[i] = c[i] = 4*i+2;
+
+		writeString("INSIDE ByValue:\n");
+		writeString("a[5]=");
+		writeInteger(a[5]);
+		writeString("\n");
+
+		writeString("a[b[5]]=");
+		writeInteger(a[b[5]]);
+		writeString("\n");
+
+		writeString("a[b[c[5]]]=");
+		writeInteger(a[b[c[5]]]);
+		writeString("\n");
+
+		writeString("a[b[5+1]]=");
+		writeInteger(a[b[5+1]]);
+		writeString("\n");
+
+		writeString("a[b[5]+1]=");
+		writeInteger(a[b[5]+1]);
+		writeString("\n");
+
+		writeString("a[b[5]+c[1]]=");
+		writeInteger(a[b[5]+c[1]]);
+		writeString("\n");
+
+		writeString("a[b[c[5]+a[5]]+c[5]*2]=");
+		writeInteger(a[b[c[5]+a[5]]+c[5]*2]);
+		writeString("\n");
+	}
+	
+	void ByAR ()
+	{
+		for (i = 0; i<30; i++)
+			a[i] = b[i] = c[i] = 4*i+3;
+
+		writeString("INSIDE ByAR:\n");
+		writeString("a[5]=");
+		writeInteger(a[5]);
+		writeString("\n");
+
+		writeString("a[b[5]]=");
+		writeInteger(a[b[5]]);
+		writeString("\n");
+
+		writeString("a[b[c[5]]]=");
+		writeInteger(a[b[c[5]]]);
+		writeString("\n");
+
+		writeString("a[b[5+1]]=");
+		writeInteger(a[b[5+1]]);
+		writeString("\n");
+
+		writeString("a[b[5]+1]=");
+		writeInteger(a[b[5]+1]);
+		writeString("\n");
+
+		writeString("a[b[5]+c[1]]=");
+		writeInteger(a[b[5]+c[1]]);
+		writeString("\n");
+
+		writeString("a[b[c[5]+a[5]]+c[5]*2]=");
+		writeInteger(a[b[c[5]+a[5]]+c[5]*2]);
+		writeString("\n");
+	}
+
+	for (i = 0; i<30; i++)
+		a[i] = b[i] = c[i] = 4*i;
+
+	writeString("INSIDE MAIN:\n");
+	writeString("a[5]=");
+	writeInteger(a[5]);
+	writeString("\n");
+
+	writeString("a[b[5]]=");
+	writeInteger(a[b[5]]);
+	writeString("\n");
+
+	writeString("a[b[c[5]]]=");
+	writeInteger(a[b[c[5]]]);
+	writeString("\n");
+
+	writeString("a[b[5+1]]=");
+	writeInteger(a[b[5+1]]);
+	writeString("\n");
+
+	writeString("a[b[5]+1]=");
+	writeInteger(a[b[5]+1]);
+	writeString("\n");
+
+	writeString("a[b[5]+c[1]]=");
+	writeInteger(a[b[5]+c[1]]);
+	writeString("\n");
+
+	writeString("a[b[c[5]+a[5]]+c[5]*2]=");
+	writeInteger(a[b[c[5]+a[5]]+c[5]*2]);
+	writeString("\n");
+
+	ByValue(a, b, c);
+	ByReference(a, b, c);
+	ByAR();
+}

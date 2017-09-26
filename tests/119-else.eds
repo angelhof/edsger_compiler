@@ -1,0 +1,21 @@
+#include "stdio.h"
+
+void main ()
+{
+	int x;
+	
+	writeString("Dangling else check!\n\n");
+	for (x = 0; x < 1 || x > 3; x = readInteger())
+		writeString("Enter an int between 1 and 3: ");
+		
+	if (x != 1)
+		if (x != 2)
+			writeString("You entered: 3\n");
+		else
+			/* If dangling else does not work, the user
+			   will see this message when entering 1 */
+			writeString("You entered: 2\n");
+	
+	if (x == 1)
+		writeString("You entered: 1\n");
+}

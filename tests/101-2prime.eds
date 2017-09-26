@@ -1,0 +1,45 @@
+#include "stdio.h"
+
+void main ()
+{
+   int is2prime (int primeprime)
+   {
+      int num, sqrt, odd, sum, divisor, quotient;
+      int more;
+   
+      num = primeprime;
+      for (more = 1; more != 0 && num != 2 && num > 0; num = num / 10) {
+         sqrt = 0;
+         odd = 1;
+         for (sum = 1; sum <= num; sum += odd) {
+            sqrt = sqrt + 1;
+            odd = odd + 2;
+         }
+         for (divisor = 3; more != 0 && divisor <= sqrt; ) {
+            quotient = num / divisor;
+            if (num == divisor * quotient)
+               more = 0;
+            else
+               divisor = divisor + 2;
+         }
+      }
+      return more;
+   }
+   
+   void output (int n)
+   {
+      writeInteger(n);
+      writeString("\n");
+   }
+   
+   int max2prime, i;
+
+   writeString("Limit: ");
+   max2prime = readInteger();
+   for (i = 6; i <= max2prime; i += 6) {
+      if (is2prime(i-1) != 0)
+         output(i-1);
+      if (i+1 <= max2prime && is2prime(i+1) != 0)
+         output(i+1);
+   }
+}

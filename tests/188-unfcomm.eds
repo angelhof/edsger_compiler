@@ -1,0 +1,12 @@
+#include "stdio.h"
+
+void main ()
+{
+   int i;
+   
+   i = 5;
+   writeInteger(i);
+
+/*
+where did that comment go?
+

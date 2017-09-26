@@ -1,0 +1,26 @@
+#include "stdio.h"
+
+char *lala(char *s, char *t)
+{
+    char tmp;
+
+    tmp=s[0];
+    s[0]=t[0];
+    t[0]=tmp;
+    return s;
+}
+
+
+void main ()
+{
+   char *s;
+
+   s = "lala";
+   writeString("coco\n");
+   writeString(s);
+   writeString("\n\t\"\\\'\0 asdf");
+   writeString(lala("coco", s));
+   
+   writeString("\n---\n");
+   writeString("coco\nlala\n\t\"\\\'loco\n");
+}

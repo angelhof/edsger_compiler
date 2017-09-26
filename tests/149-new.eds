@@ -1,0 +1,20 @@
+#include "stdio.h"
+
+void main ()
+{
+    int n;
+    char *s;
+
+    writeString("Enter maximum string size: ");
+    n = readInteger() + 1;
+    
+    s = new char [n];
+
+    writeString("Enter string: ");
+    readString(n, s);
+    writeString("You entered \'");
+    writeString(s);
+    writeString("\'\n");
+    
+    delete s;
+}

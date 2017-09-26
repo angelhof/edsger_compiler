@@ -1,0 +1,19 @@
+#include "stdio.h"
+
+void main() 
+{
+   void aaa(byref int x) {
+      int *y;
+      y=&x;
+      *y=5;
+      writeInteger(7);
+   }
+   
+   int i[15];
+
+   aaa(i[2]);
+   writeChar('\n');
+   writeInteger(i[2]);
+   writeChar('\n');
+   writeString("Expected: 7 5\n");
+}

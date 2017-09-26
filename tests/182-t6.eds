@@ -1,0 +1,12 @@
+#include "stdio.h"
+
+void main()
+{
+	char ar[10];
+	int ind[3];
+
+   ind[2] = 7;
+	ar[ind[2]] = 'C';
+	writeChar(ar[7]);
+	writeString("\n");
+}

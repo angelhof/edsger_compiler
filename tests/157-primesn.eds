@@ -1,0 +1,54 @@
+#include "stdio.h"
+
+int sqrt(int n)
+{
+    int i;
+
+    for (i=0; i*i<n; i++);
+    return i;
+}
+
+bool isPrime (int n)
+{
+    int i, s;
+    bool more;
+
+    if (n<0)
+        return isPrime(-n);
+    else if (n==2)
+        return true;
+    else if (n==3)
+        return true;
+    else
+    {
+        for (i=3, s=sqrt(n), more=true; more && (i<=s); i+=2)
+            more = (n % i)!=0;
+        return more;
+    }
+}
+
+void output (int n)
+{
+    writeInteger(n);
+    writeString("\n");
+}
+
+void main ()
+{
+    int MaxPrime;
+    int i;
+
+    writeString("Limit: ");
+    MaxPrime = readInteger();
+    if (MaxPrime>=2)
+        output(2);
+    if (MaxPrime>=3)
+        output(3);
+    for (i=6; i<=MaxPrime; i+=6) {
+        if (isPrime(i-1))
+            output(i-1);
+        if (i+1<=MaxPrime && isPrime(i+1))
+            output(i+1);
+    }
+}
+

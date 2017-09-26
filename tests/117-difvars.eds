@@ -1,0 +1,40 @@
+#include "stdio.h"
+
+void main () 
+{
+   int a;
+   int b;
+
+   void p1 ()
+   {
+		int a;
+		int b;
+		int x;
+		int y;
+
+		x=1;
+		y=2;
+		a=11;
+		b=12;
+	}
+
+	void p2 ()
+	{
+		int a;
+		int x;
+		int y;
+
+		x=1;
+		y=2;
+		a=20;
+		b=2;
+	}
+
+	a=4;
+	b=1;
+	p1();
+	p2();
+	writeInteger(a);
+	writeInteger(b);
+	writeString("\n");
+}

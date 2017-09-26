@@ -1,0 +1,10 @@
+#include "stdio.h"
+/*prints and friends can be used as ordinary variables*/
+void main()
+{
+	int writeString;
+
+	writeString = 42 ;
+	writeInteger(writeString);
+	writeChar('\n');
+}

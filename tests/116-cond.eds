@@ -1,0 +1,25 @@
+#include "stdio.h"
+
+void main()
+{
+    bool a;
+    int x,y;
+    x = 10;
+    y = 0;
+    a = true;
+
+    for (; a; ) 
+       if (a && (x>=y))
+       {
+          writeInteger(x);
+          writeString(" ");
+          writeInteger(y);
+          writeString("\n");
+          x--;
+       }
+       else if (true)
+          if (y++ <=10)
+             x = 10;
+          else if (! false )
+             a = false;
+}

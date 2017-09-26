@@ -1,0 +1,14 @@
+#include "stdio.h"
+
+void main()
+{
+	void narg (int a, int b) {
+		writeInteger(2);
+	}
+	
+	int i;
+
+	i = 5;
+	narg(i);
+	writeString("\n");
+}

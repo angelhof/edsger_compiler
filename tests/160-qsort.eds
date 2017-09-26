@@ -1,0 +1,43 @@
+#include "stdio.h"
+
+void main ()
+{
+   void qsort (char * ins)
+   {
+      void doqsort (char * s, int l, int r)
+      {
+         int i, j;
+         char m, c;
+ 
+         for (i = l, j = r, m = s[(l+r) / 2]; i<=j; ) {
+            for (; s[i] < m; i++);
+            for (; m < s[j]; j--);
+            if (i <= j) {
+               c = s[i];
+               s[i++] = s[j];
+               s[j--] = c;
+            }
+         }
+         if (l < j)
+            doqsort(s, l, j);
+         if (i < r)
+            doqsort(s, i, r);
+      }
+
+      doqsort(ins, 0, 14);
+   }
+
+   void doshow (char * s)
+   {
+      writeString(s);
+      writeString(" -> ");
+      qsort(s);
+      writeString(s);
+      writeString("\n");
+   }
+
+  doshow("0123456789abcde");
+  doshow("edcba9876543210");
+  doshow("cbacbacbacbacba");
+  doshow("79568edcba43210");
+}

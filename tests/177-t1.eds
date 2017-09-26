@@ -1,0 +1,26 @@
+#include "stdio.h"
+
+void main()
+{
+	void swap(byref int x, byref int y) 
+	{
+		int t;
+
+		t = x;
+		x = y;
+		y = t;
+	}
+
+	int a1;
+	int a2;
+
+	a1 = 1;
+	a2 = 2;
+	writeString("Starting: \n");
+	writeString("a1-->: "); writeInteger(a1); writeString("\n");
+	writeString("a2-->: "); writeInteger(a2); writeString("\n");
+	writeString("swapping ... \n");
+	swap(a1,a2);
+	writeString("a1-->: "); writeInteger(a1); writeString("\n");
+	writeString("a2-->: "); writeInteger(a2); writeString("\n");
+}

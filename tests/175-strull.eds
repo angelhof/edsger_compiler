@@ -1,0 +1,7 @@
+#include "stdio.h"
+
+void main ()
+{
+   if (!("papas"[5] != '\0')) { writeInteger(42); writeString("\n"); }
+   else writeString("Lala\n") ;
+}
