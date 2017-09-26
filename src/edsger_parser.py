@@ -3,7 +3,7 @@ import edsger_lexer
 from edsger_semantic_classes import *
 import warning_messages
 import sys
-
+import copy
 
 tokens = edsger_lexer.tokens
 
@@ -188,7 +188,7 @@ def p_function_with_result_type(p):
 	fun_type = p[1]
 	if( p[1] == "void"):
 		fun_type = Type("void")
-	p[0] = Function(p.lineno(2), fun_type, p[2])	
+	p[0] = Function(p.lineno(2), fun_type, p[2])
 
 
 def p_maybe_parameter_list(p):
@@ -249,7 +249,6 @@ def p_function_with_result_and_parameters(p):
 		p[1].add_parameter(param)
 	
 	# Find the function in the scope
-	p[0] = Program_State.function_in_scope(p[1].name, map(lambda x: x.type, p[1].parameters))
 	p[0] = Program_State.function_in_top_scope(p[1].name, map(lambda x: x.type, p[1].parameters))
 	if(p[0] is not None):
 		# If the function is defined
@@ -259,7 +258,7 @@ def p_function_with_result_and_parameters(p):
 	else:
 		# If it is not declared
 		p[0] = p[1] 
-		Program_State.add_function_to_curr_scope(p[0])
+		Program_State.add_function_to_curr_scope(p[1])
 	Function_Stack.push(p[0], p.lineno(1))
 	Program_State.push({})
 	

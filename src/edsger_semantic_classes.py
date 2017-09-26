@@ -807,34 +807,13 @@ class Function(Identifier):
 		function_with_metadata = IR_State.get_from_function_map(self.get_extended_signature())
 		if(function_with_metadata is not None):
 			function = function_with_metadata.function
-			'''
-			TODO: Delete the following if it is not needed
-			'''
-			if(function.is_declaration):
-				pass
-			else:
-				pass
-				#WE assume that semantic prevent two same declarations in tha same scope
-
-				# An h sunarthsh einai hdh dhlwmenh problhma
-				'''
-				TODO:
-				- Should the user redefine functions ? 
-				- This error will come even if the user 
-				  defines a function with a different
-				  signature 
-				- In order to solve this change function 
-				  naming
-				'''
-				#exit(1) 
 		else:
 			# Find the return type
 			ret_type = transform_type(self)[0]
 
 			# Create a new function and and save it at its map 
 			function_type = ir.FunctionType(ret_type, function_arg_types)
-			function = ir.Function(IR_State.module, function_type, name=self.get_extended_signature())
-			
+			function = ir.Function(IR_State.module, function_type, name=self.get_extended_signature())			
 			# THe original command has been kept before testing
 			# IR_State.function_map[self.name] = function
 			function_with_metadata = Function_With_Metadata(function)
@@ -856,7 +835,6 @@ class Function(Identifier):
 					byref_array.append(self.parameters[i].name + "->byref")
 			function_with_metadata.set_metadata("byref", " ".join(byref_array))
 
-			
 
 		# If the function is not declared but it is defined it should pass this control only once
                 if not self.is_declaration:
@@ -999,7 +977,7 @@ class Function(Identifier):
 				
 
 				for element in function_decls:
-					element.code_gen_decl()
+                                        element.code_gen_decl()
 				
 
 				for element in enlist(self.statements):
