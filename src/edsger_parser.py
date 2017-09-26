@@ -173,7 +173,8 @@ def p_function_declaration(p):
 	'''function_declaration : function_with_result_type LPAREN maybe_parameter_list RPAREN SEMI'''
 	for param in p[3]:
 		p[1].add_parameter(param)
-	p[0] = p[1]
+        p[1].set_declaration(True)
+        p[0] = p[1]
 	Program_State.add_function_to_curr_scope(p[0]) 
 	p[0] = [p[0]]
 	#print p[0]
@@ -225,6 +226,7 @@ def p_function_definition(p):
 	# Set its declarations and definitions
 	p[0].declarations = p[2]
 	p[0].statements = p[3]
+        p[0].set_declaration(False)
 	Function_Stack.pop()
 	Program_State.pop()
 	#print "DEFINITIONS "
@@ -248,7 +250,7 @@ def p_function_with_result_and_parameters(p):
 	p[0] = Program_State.function_in_top_scope(p[1].name, map(lambda x: x.type, p[1].parameters))
 	if(p[0] is not None):
 		# If the function is defined
-		if(p[0].declarations or p[0].statements):
+		if(not p[0].is_declaration):
 			print warning_messages.redefine_function(p[0].name, str(p[0].lineno))
 			exit(1)
 	else:

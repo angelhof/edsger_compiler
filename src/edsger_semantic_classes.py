@@ -727,9 +727,10 @@ class Function(Identifier):
 		self.parameters = list(parameters)
 		self.lineno = lineno
 		self.declarations = declarations
-		self.statements = statements
+                self.statements = statements
 		self.scope_level = None
 		self.uid = -1
+                self.is_declaration = True
 
 
 	def get_signature(self):
@@ -742,6 +743,9 @@ class Function(Identifier):
 	def add_parameter(self,parameter):
 		self.parameters.append(parameter) 
 
+        def set_declaration(self, is_declaration):
+                self.is_declaration = is_declaration
+                
 	def __str__(self):
 		return str(self.type) + " function " + self.name + "(" + str(map(str,self.parameters)) + ")" 
 	def __iter__(self):
@@ -822,7 +826,6 @@ class Function(Identifier):
 				- In order to solve this change function 
 				  naming
 				'''
-				#print "Why did you try to redefine function: " + self.name
 				#exit(1) 
 		else:
 			# Find the return type
@@ -856,7 +859,8 @@ class Function(Identifier):
 			
 
 		# If the function is not declared but it is defined it should pass this control only once
-		if(len(self.declarations)>0 or len(self.statements)>0):
+                if not self.is_declaration:
+		# if(len(self.declarations)>0 or len(self.statements)>0):
 
 			# Anoixe kainourgio scope level
 			IR_State.push_level_function_map()
