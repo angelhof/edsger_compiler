@@ -1,0 +1,37 @@
+main
+a: 5
+b: 10
+c: 20
+d: 
+nest1
+main a: 5
+main a, after change: 7
+main b: 10
+c: 25
+main d: 
+main d, after change: 
+nest1, after swap a and c
+main a: 25
+main b: 10
+c: 7
+main d: 
+nest2
+main a: 25
+main b: 10
+nest1 c: 7
+main d: 
+nest2, after change
+main a: 25
+main b: 10
+nest1 c: 35
+main d: 
+nest1, after nest2
+main a: 25
+main b: 10
+c: 35
+main d: 
+main, after nest1
+a: 25
+b: 10
+c: 20
+d: 
