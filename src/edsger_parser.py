@@ -522,14 +522,6 @@ def p_function_call(p):
 		if(not identifier):
 			print warning_messages.undeclared_function(p[1].name, str(p.lineno(1)))
 			exit(1)
-		# TODO Delete
-		#if(len(p[1].actual_parameters)  >= len(identifier.parameters)):
-		#	print warning_messages.bad_argument_number(str(p.lineno(1)))
-		#	exit(1)
-		#expected_parameter = identifier.parameters[len(p[1].actual_parameters)]
-		#if(not act_parameter.type == expected_parameter.type):
-		#	print warning_messages.type_mismatch(str(act_parameter), str(p.lineno(1)))
-		#	exit(1)
 		p[1].actual_parameters.append(p[2]) 
 		p[1].type = identifier.type
 		p[1].function = identifier
@@ -541,50 +533,12 @@ def p_function_with_acts(p):
 						  | function_with_acts expression COMMA'''
 	if(len(p) == 3):
 		identifier = p[1]
-		#if(not identifier):
-		#	print warning_messages.undeclared_function(p[1].name, str(p.lineno(1)))
-		#	exit(1)
 		p[0] = Function_call(identifier, None, [], p.lineno(1), None)
 	else:
 		act_parameter = p[2]
 		identifier = p[1]
-		# TODO DELETE
-		#if(len(p[1].actual_parameters)  >= len(identifier.parameters)):
-		#	print warning_messages.bad_argument_number(str(p.lineno(1)))
-		#	exit(1)
-		#expected_parameter = identifier.parameters[len(p[1].actual_parameters)]
-		#if(not act_parameter.type == expected_parameter.type):
-		#	print warning_messages.type_mismatch(str(act_parameter), str(p.lineno(1)))
-		#	exit(1)
 		p[1].actual_parameters.append(p[2]) 
 		p[0] = p[1]
-
-###########################################################################
-#################### TODO DELETE SOMETIME IN THWE FUTURE   ################
-
-def p_old_function_call(p):
-	'''old_function_call : identifier LPAREN empty RPAREN
-					 | identifier LPAREN expression_list RPAREN %prec ARG_COMMA'''
-	identifier = Program_State.in_scope(p[1].name)
-	if(not identifier):
-		print warning_messages.undeclared_function(p[1].name, str(p.lineno(1)))
-		exit(1)
-	# Check for arguments
-	act_param_list = p[3]
-	if(not act_param_list):
-		act_param_list = []
-	if(not len(act_param_list) == len(identifier.parameters)):
-		print warning_messages.bad_argument_number(str(p.lineno(1)))
-		exit(1)
-	for i in xrange(len(act_param_list)):
-		actual = act_param_list[i].type
-		regular = identifier.parameters[i].type
-		if(not actual == regular):
-			print warning_messages.type_mismatch(str(actual), str(p.lineno(1)))
-			exit(1)
-	
-
-############################################################################
 
 
 def p_expression_list(p):
