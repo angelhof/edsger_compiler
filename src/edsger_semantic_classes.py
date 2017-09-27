@@ -430,6 +430,8 @@ class Expr():
 		return iter(rlist)
 	def code_gen(self):
 		pass
+        def code_gen1(self, expected_type):
+                return self.code_gen()
 
 # Type class
 class Type():
@@ -540,6 +542,14 @@ class Constant_Value(Expr):
 			print"Exit like we got a big problem :'("
 			exit(1)
 		return dest
+        def code_gen1(self, expected_type):
+                print "Expected Type:", expected_type
+                if self.type.isNull():
+                        ir_type = transform_type_basic(expected_type)
+                        dest = ir.Constant(ir_type, None)
+                else:
+                        dest = self.code_gen()
+                return dest
 
 # Identifier
 class Identifier(Expr):
@@ -1872,7 +1882,8 @@ class Return():
 			result = IR_State.builder.ret_void()
 		else:
 			# Evaluate the result and then return it
-			result = self.expression.code_gen()
+                        print self.function.type
+                        result = self.expression.code_gen1(self.function.type)
 			IR_State.builder.ret(result)	
 
 		create_unreachable()

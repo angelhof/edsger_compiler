@@ -300,7 +300,7 @@ def p_statement(p):
 	elif(isinstance(p[1], For_Statement)):
 		p[0] = For_Statement(p[1].lineno , p[3], p[5], p[7], p[9], p[1].name)
                 ## If the loop has no statements dont even execute it
-                if p[9] == None or p[9] == []:
+                if (p[9] == None or p[9] == []) and not (p[3] or p[5] or p[7]):
                         p[0] = None
 		Loop_Stack.pop()
 	elif(p[1] == "break" or p[1] == "continue"):

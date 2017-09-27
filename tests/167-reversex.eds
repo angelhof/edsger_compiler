@@ -32,7 +32,7 @@ char * reverse (char *s)
 void main()
 {
     char *p;
-
+    
     p = reverse("\n!dlrow olleH");
     writeString(p);
     delete p;
