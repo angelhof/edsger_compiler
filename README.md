@@ -1,12 +1,12 @@
 Cutting Edsg
 ================
 
-This project is a complete edsger compiler in python. It was done for the Compilers course in National Technical University of Athens, Computer and Electrical Engineering department.
+This project is a complete edsger compiler in python. It was done for the Compilers course in National Technical University of Athens, Computer and Electrical Engineering department. A small report can be found at cutting-edsg.pdf. The complete language and compiler specification can be found <a href="http://courses.softlab.ntua.gr/compilers/2016a/edsger2016.pdf">here</a> (in greek).
 
 Authors
 --------
-- Konstantinos Kallas
-- Eythimios Tzinis
+- <a href="https://github.com/angelhof">Konstantinos Kallas</a>
+- <a href="https://github.com/etzinis">Eythimios Tzinis</a>
 
 Installation steps
 ===================
