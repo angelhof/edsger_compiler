@@ -13,13 +13,26 @@ char *lala(char *s, char *t)
 
 void main ()
 {
-   char *s;
+   char *s, p;
 
-   s = "lala";
+   s = new char[5];
+   s[0] = 'l';
+   s[1] = 'a';
+   s[2] = 'l';
+   s[3] = 'a';
+   s[4] = '\0';
+
+   p = new char[5];
+   p[0] = 'c';
+   p[1] = 'o';
+   p[2] = 'c';
+   p[3] = 'o';
+   p[4] = '\0';
+
    writeString("coco\n");
    writeString(s);
    writeString("\n\t\"\\\'\0 asdf");
-   writeString(lala("coco", s));
+   writeString(lala(p, s));
    
    writeString("\n---\n");
    writeString("coco\nlala\n\t\"\\\'loco\n");
