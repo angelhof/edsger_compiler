@@ -59,7 +59,7 @@ tokens += reserved.values()
 escaped = r'(n|t|r|0|\\|\'|\"|x[a-f0-9][a-f0-9])'
 single_quote = r'\''
 double_quote = r'\"'
-string = double_quote + r'(\\\"|[^\"])*' + double_quote
+string = double_quote + r'(\\\"|[^\"\n])*' + double_quote
 
 # Tokens
 
