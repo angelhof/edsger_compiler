@@ -93,9 +93,10 @@ def p_global_declaration(p):
 			p[0] = None	   
 	else:
 		if(isinstance(p[1][0], Variable)):
-			p[1][0].isGlobal = True
+                        for i in xrange(len(p[1])):
+                                p[1][i].isGlobal = True
 		p[0] = p[1]
-
+                
 def p_variable_declaration(p):
 	'''variable_declaration : type many_declarators SEMI'''
 	for i in p[2]:

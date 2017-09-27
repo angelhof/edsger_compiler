@@ -18,11 +18,10 @@ void printArray(int * a, int n)
 
 void main ()
 {
-	for (X = 0; (X < 1) || (X > 5); X = readInteger())
-		writeString("Enter X-dimension for matrix (1-5): ");
-		
-	for (Y = 0; (Y < 1) || (Y > 5); Y = readInteger())
-		writeString("Enter Y-dimension for matrix (1-5): ");
+
+	X = 5;
+
+	Y = 5;
 
 	a = new int * [Y];
 
